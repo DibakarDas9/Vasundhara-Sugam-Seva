@@ -83,22 +83,22 @@ const mockInventory = [
 const statusConfig = {
   critical: {
     icon: ExclamationTriangleIcon,
-    color: 'text-red-600 bg-red-50 border-red-200',
+    color: 'text-red-600 bg-red-50 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/30',
     label: 'Expires Today'
   },
   warning: {
     icon: ClockIcon,
-    color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+    color: 'text-yellow-600 bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800/30',
     label: 'Expires Soon'
   },
   caution: {
     icon: ClockIcon,
-    color: 'text-orange-600 bg-orange-50 border-orange-200',
+    color: 'text-orange-600 bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/30',
     label: 'Expires This Week'
   },
   good: {
     icon: CheckCircleIcon,
-    color: 'text-green-600 bg-green-50 border-green-200',
+    color: 'text-green-600 bg-green-50 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800/30',
     label: 'Fresh'
   },
 };
@@ -154,7 +154,7 @@ function InventoryContent() {
   const categories = Array.from(new Set(items.map(item => item.category)));
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       {/* Sidebar */}
       <Sidebar />
 
@@ -280,21 +280,21 @@ function InventoryContent() {
                     </CardHeader>
 
                     <CardContent className="pt-0">
-                      <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{item.category}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.category}</p>
 
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Quantity:</span>
-                          <span className="font-medium">{item.quantity} {item.unit}</span>
+                          <span className="text-gray-600 dark:text-gray-400">Quantity:</span>
+                          <span className="font-medium dark:text-gray-200">{item.quantity} {item.unit}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Expires:</span>
-                          <span className="font-medium">{item.expiryDate}</span>
+                          <span className="text-gray-600 dark:text-gray-400">Expires:</span>
+                          <span className="font-medium dark:text-gray-200">{item.expiryDate}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Days left:</span>
-                          <span className={`font-medium ${daysUntilExpiry < 0 ? 'text-gray-500' : daysUntilExpiry === 0 ? 'text-red-600' : daysUntilExpiry <= 3 ? 'text-yellow-600' : 'text-green-600'}`}>
+                          <span className="text-gray-600 dark:text-gray-400">Days left:</span>
+                          <span className={`font-medium ${daysUntilExpiry < 0 ? 'text-gray-500 dark:text-gray-400' : daysUntilExpiry === 0 ? 'text-red-600 dark:text-red-400' : daysUntilExpiry <= 3 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}`}>
                             {daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry === 0 ? 'Expires today' : daysUntilExpiry === 1 ? '1 day' : `${daysUntilExpiry} days`}
                           </span>
                         </div>
@@ -321,8 +321,8 @@ function InventoryContent() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No items found</h3>
-                  <p className="text-gray-600 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No items found</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
                       ? 'Try adjusting your search or filters'
                       : 'Start by adding your first food item to track'

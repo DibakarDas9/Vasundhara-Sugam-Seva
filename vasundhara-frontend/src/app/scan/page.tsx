@@ -315,7 +315,7 @@ function ScanContent() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       {/* Sidebar */}
       <Sidebar />
 
@@ -407,7 +407,7 @@ function ScanContent() {
                       <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
                     </div>
 
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                       {isScanning ? 'Scanning...' : 'Ready to Scan'}
                     </h3>
 
@@ -430,14 +430,14 @@ function ScanContent() {
                         <div className="flex items-start gap-4">
                           <img src={pendingItem.image} alt="product" className="w-20 h-20 object-cover rounded" />
                           <div className="flex-1">
-                            <label className="block text-xs text-gray-600">Name</label>
-                            <input className="w-full border px-2 py-1 rounded mb-2" value={pendingItem.name} onChange={(e) => setPendingItem({ ...pendingItem, name: e.target.value })} />
-                            <label className="block text-xs text-gray-600">Brand</label>
-                            <input className="w-full border px-2 py-1 rounded mb-2" value={pendingItem.brand} onChange={(e) => setPendingItem({ ...pendingItem, brand: e.target.value })} />
-                            <label className="block text-xs text-gray-600">Category</label>
-                            <input className="w-full border px-2 py-1 rounded mb-2" value={pendingItem.category} onChange={(e) => setPendingItem({ ...pendingItem, category: e.target.value })} />
-                            <label className="block text-xs text-gray-600">Expiry date (optional)</label>
-                            <input type="date" className="w-full border px-2 py-1 rounded mb-2" value={pendingItem.expiryDate || ''} onChange={(e) => setPendingItem({ ...pendingItem, expiryDate: e.target.value || null })} />
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">Name</label>
+                            <input className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.name} onChange={(e) => setPendingItem({ ...pendingItem, name: e.target.value })} />
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">Brand</label>
+                            <input className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.brand} onChange={(e) => setPendingItem({ ...pendingItem, brand: e.target.value })} />
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">Category</label>
+                            <input className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.category} onChange={(e) => setPendingItem({ ...pendingItem, category: e.target.value })} />
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">Expiry date (optional)</label>
+                            <input type="date" className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.expiryDate || ''} onChange={(e) => setPendingItem({ ...pendingItem, expiryDate: e.target.value || null })} />
                             <div className="flex gap-2 mt-2">
                               <Button size="sm" onClick={() => {
                                 // finalize add
@@ -481,7 +481,7 @@ function ScanContent() {
               <CardContent>
                 <div className="space-y-4">
                   {scannedItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                       <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold text-lg">
                           {item.name.charAt(0)}
@@ -490,13 +490,13 @@ function ScanContent() {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">
+                          <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {item.name}
                           </h4>
                           {getStatusIcon(item.status)}
                         </div>
-                        <p className="text-sm text-gray-600">{item.brand}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{item.brand}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-500">
                           Barcode: {item.barcode} • Confidence: {Math.round(item.confidence * 100)}%
                         </p>
                         {item.expiryDate && (

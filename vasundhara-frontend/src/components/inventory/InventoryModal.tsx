@@ -30,9 +30,9 @@ export default function InventoryModal({ item, onClose, onSave }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold mb-4">{item ? 'Edit Item' : 'Add Item'}</h3>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl">
+        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{item ? 'Edit Item' : 'Add Item'}</h3>
         <div className="space-y-3">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Item name" />
           <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" />

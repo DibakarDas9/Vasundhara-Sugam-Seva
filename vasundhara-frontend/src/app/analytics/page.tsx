@@ -84,7 +84,7 @@ function AnalyticsContent() {
   const maxCost = Math.max(...currentWeeklyData.map(d => d.cost)) || 10;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       {/* Sidebar */}
       <Sidebar />
 
@@ -119,18 +119,18 @@ function AnalyticsContent() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Waste Reduction</p>
-                      <p className="text-2xl font-bold text-gray-900">{analyticsData.wasteReduction.current}%</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Waste Reduction</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.wasteReduction.current}%</p>
                       <div className="flex items-center mt-1">
                         {analyticsData.wasteReduction.trend === 'up' ? (
-                          <ArrowUpIcon className="w-4 h-4 text-green-600" />
+                          <ArrowUpIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
                         ) : analyticsData.wasteReduction.trend === 'down' ? (
-                          <ArrowDownIcon className="w-4 h-4 text-red-600" />
+                          <ArrowDownIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
                         ) : (
                           <span className="w-4 h-4 text-gray-400">-</span>
                         )}
-                        <span className={`text-sm ml-1 ${analyticsData.wasteReduction.trend === 'up' ? 'text-green-600' :
-                          analyticsData.wasteReduction.trend === 'down' ? 'text-red-600' : 'text-gray-400'
+                        <span className={`text-sm ml-1 ${analyticsData.wasteReduction.trend === 'up' ? 'text-green-600 dark:text-green-400' :
+                          analyticsData.wasteReduction.trend === 'down' ? 'text-red-600 dark:text-red-400' : 'text-gray-400'
                           }`}>
                           {Math.abs(analyticsData.wasteReduction.current - analyticsData.wasteReduction.previous)}%
                         </span>
@@ -147,11 +147,11 @@ function AnalyticsContent() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Money Saved</p>
-                      <p className="text-2xl font-bold text-gray-900">{formatCurrency(analyticsData.moneySaved.current)}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Money Saved</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(analyticsData.moneySaved.current)}</p>
                       <div className="flex items-center mt-1">
-                        <ArrowUpIcon className={`w-4 h-4 ${hasData ? 'text-green-600' : 'text-gray-400'}`} />
-                        <span className={`text-sm ml-1 ${hasData ? 'text-green-600' : 'text-gray-400'}`}>
+                        <ArrowUpIcon className={`w-4 h-4 ${hasData ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+                        <span className={`text-sm ml-1 ${hasData ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`}>
                           {formatCurrency(analyticsData.moneySaved.current - analyticsData.moneySaved.previous).replace('-', '+')}
                         </span>
                       </div>
@@ -167,11 +167,11 @@ function AnalyticsContent() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Items Tracked</p>
-                      <p className="text-2xl font-bold text-gray-900">{analyticsData.itemsTracked.current}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Items Tracked</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.itemsTracked.current}</p>
                       <div className="flex items-center mt-1">
-                        <ArrowUpIcon className={`w-4 h-4 ${hasData ? 'text-green-600' : 'text-gray-400'}`} />
-                        <span className={`text-sm ml-1 ${hasData ? 'text-green-600' : 'text-gray-400'}`}>
+                        <ArrowUpIcon className={`w-4 h-4 ${hasData ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+                        <span className={`text-sm ml-1 ${hasData ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`}>
                           +{analyticsData.itemsTracked.current - analyticsData.itemsTracked.previous}
                         </span>
                       </div>
@@ -187,11 +187,11 @@ function AnalyticsContent() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Expiring Items</p>
-                      <p className="text-2xl font-bold text-gray-900">{analyticsData.expiringItems.current}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Expiring Items</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{analyticsData.expiringItems.current}</p>
                       <div className="flex items-center mt-1">
-                        <ArrowDownIcon className={`w-4 h-4 ${hasData ? 'text-green-600' : 'text-gray-400'}`} />
-                        <span className={`text-sm ml-1 ${hasData ? 'text-green-600' : 'text-gray-400'}`}>
+                        <ArrowDownIcon className={`w-4 h-4 ${hasData ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+                        <span className={`text-sm ml-1 ${hasData ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`}>
                           -{analyticsData.expiringItems.previous - analyticsData.expiringItems.current}
                         </span>
                       </div>
@@ -215,14 +215,14 @@ function AnalyticsContent() {
                   <div className="h-64 flex items-end space-x-2">
                     {currentWeeklyData.map((day, index) => (
                       <div key={day.day} className="flex-1 flex flex-col items-center">
-                        <div className="w-full bg-gray-200 rounded-t-lg relative mb-2">
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-t-lg relative mb-2">
                           <div
                             className="bg-gradient-to-t from-red-500 to-orange-400 rounded-t-lg transition-all duration-500"
                             style={{ height: `${(day.waste / maxWaste) * 200}px` }}
                           />
                         </div>
-                        <div className="text-xs text-gray-600">{day.day}</div>
-                        <div className="text-xs font-medium text-gray-900">{day.waste}kg</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{day.day}</div>
+                        <div className="text-xs font-medium text-gray-900 dark:text-white">{day.waste}kg</div>
                       </div>
                     ))}
                   </div>
@@ -239,32 +239,32 @@ function AnalyticsContent() {
                     {currentWeeklyData.map((day, index) => (
                       <div key={day.day} className="flex-1 flex flex-col items-center">
                         <div className="w-full flex flex-col space-y-1">
-                          <div className="w-full bg-gray-200 rounded-t-lg relative">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-t-lg relative">
                             <div
                               className="bg-gradient-to-t from-red-500 to-red-400 rounded-t-lg"
                               style={{ height: `${(day.cost / maxCost) * 100}px` }}
                             />
                           </div>
-                          <div className="w-full bg-gray-200 rounded-b-lg relative">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-b-lg relative">
                             <div
                               className="bg-gradient-to-t from-green-500 to-green-400 rounded-b-lg"
                               style={{ height: `${(day.saved / maxCost) * 100}px` }}
                             />
                           </div>
                         </div>
-                        <div className="text-xs text-gray-600 mt-2">{day.day}</div>
-                        <div className="text-xs font-medium text-gray-900">{formatCurrency(day.cost)}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">{day.day}</div>
+                        <div className="text-xs font-medium text-gray-900 dark:text-white">{formatCurrency(day.cost)}</div>
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-center space-x-4 mt-4">
                     <div className="flex items-center space-x-2">
                       <div className="w-3 h-3 bg-red-500 rounded"></div>
-                      <span className="text-xs text-gray-600">Cost</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Cost</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-3 h-3 bg-green-500 rounded"></div>
-                      <span className="text-xs text-gray-600">Saved</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Saved</span>
                     </div>
                   </div>
                 </CardContent>
@@ -283,22 +283,22 @@ function AnalyticsContent() {
                     <div key={category.name} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <div className={`w-4 h-4 rounded-full ${category.color}`}></div>
-                        <span className="text-sm font-medium text-gray-900">{category.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{category.name}</span>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full ${category.color}`}
                             style={{ width: `${category.percentage}%` }}
                           ></div>
                         </div>
-                        <div className="text-sm text-gray-600 w-16 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 w-16 text-right">
                           {category.percentage}%
                         </div>
-                        <div className="text-sm font-medium text-gray-900 w-20 text-right">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white w-20 text-right">
                           {category.waste}kg
                         </div>
-                        <div className="text-sm text-gray-600 w-16 text-right">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 w-16 text-right">
                           {formatCurrency(category.cost)}
                         </div>
                       </div>
@@ -317,12 +317,12 @@ function AnalyticsContent() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">Month</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-900">Waste (kg)</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-900">Cost (₹)</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-900">Saved (₹)</th>
-                        <th className="text-right py-3 px-4 font-medium text-gray-900">Trend</th>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Month</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Waste (kg)</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Cost (₹)</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Saved (₹)</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-900 dark:text-white">Trend</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -332,18 +332,18 @@ function AnalyticsContent() {
                         </tr>
                       )}
                       {currentMonthlyComparison.map((month, index) => (
-                        <tr key={month.month} className="border-b border-gray-100">
-                          <td className="py-3 px-4 text-sm font-medium text-gray-900">{month.month}</td>
-                          <td className="py-3 px-4 text-sm text-gray-600 text-right">{month.waste}</td>
-                          <td className="py-3 px-4 text-sm text-gray-600 text-right">{formatCurrency(month.cost)}</td>
-                          <td className="py-3 px-4 text-sm text-green-600 text-right font-medium">{formatCurrency(month.saved)}</td>
+                        <tr key={month.month} className="border-b border-gray-100 dark:border-gray-800">
+                          <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{month.month}</td>
+                          <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 text-right">{month.waste}</td>
+                          <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400 text-right">{formatCurrency(month.cost)}</td>
+                          <td className="py-3 px-4 text-sm text-green-600 dark:text-green-400 text-right font-medium">{formatCurrency(month.saved)}</td>
                           <td className="py-3 px-4 text-right">
                             {index > 0 && (
                               <div className="flex items-center justify-end">
                                 {month.waste < currentMonthlyComparison[index - 1].waste ? (
-                                  <ArrowDownIcon className="w-4 h-4 text-green-600" />
+                                  <ArrowDownIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
                                 ) : (
-                                  <ArrowUpIcon className="w-4 h-4 text-red-600" />
+                                  <ArrowUpIcon className="w-4 h-4 text-red-600 dark:text-red-400" />
                                 )}
                               </div>
                             )}

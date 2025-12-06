@@ -62,7 +62,7 @@ export function Header({ title, subtitle, className }: HeaderProps) {
               <div className="hidden md:block">
                 <Input
                   placeholder="Search items, recipes..."
-                  icon={<MagnifyingGlassIcon className="w-4 h-4 text-gray-400" />}
+                  icon={<MagnifyingGlassIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
                   className="w-64"
                 />
               </div>
@@ -97,17 +97,17 @@ export function Header({ title, subtitle, className }: HeaderProps) {
               <Button variant="primary" size="sm" onClick={() => router.push('/auth')}>Login / Sign up</Button>
             ) : (
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-700">{user.firstName} {user.lastName}</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{user.firstName} {user.lastName}</span>
                 <div className="flex items-center gap-2">
                   {user.profileImage ? (
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
                       <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <UserCircleIcon className="w-8 h-8 text-gray-400" />
                   )}
                   <Button variant="ghost" size="sm" onClick={handleLogout} title="Logout">
-                    <ArrowRightOnRectangleIcon className="w-5 h-5 text-gray-500 hover:text-red-500" />
+                    <ArrowRightOnRectangleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400" />
                   </Button>
                 </div>
               </div>

@@ -52,7 +52,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title="Settings" subtitle="Manage your account and app preferences" />
@@ -66,7 +66,7 @@ export default function SettingsPage() {
                 <div className="space-y-6">
                   <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6">
                     <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center relative">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-center justify-center relative">
                         {profileImage ? (
                           <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
@@ -89,7 +89,7 @@ export default function SettingsPage() {
                     <div className="flex-1 space-y-4 w-full">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">First Name</label>
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
                           <Input
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
@@ -97,7 +97,7 @@ export default function SettingsPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-gray-700">Last Name</label>
+                          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
                           <Input
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
@@ -106,18 +106,18 @@ export default function SettingsPage() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">Email</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                         <Input
                           value={user?.email || ''}
                           disabled
-                          className="bg-gray-100 text-gray-500 cursor-not-allowed"
+                          className="bg-gray-100 dark:bg-gray-800 text-gray-500 cursor-not-allowed"
                         />
                         <p className="text-xs text-gray-500">Email cannot be changed.</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-4 border-t border-gray-100">
+                  <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
                     <Button onClick={handleSave} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                       {loading ? 'Saving...' : 'Save Changes'}
                     </Button>
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                 <CardTitle>Preferences</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600">Notification and privacy settings will appear here.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Notification and privacy settings will appear here.</p>
                 <div className="mt-4">
                   <Button onClick={() => alert('Preferences coming soon')} variant="outline">Edit preferences</Button>
                 </div>
@@ -140,7 +140,7 @@ export default function SettingsPage() {
 
             {user?.role === 'admin' && (
               <div className="space-y-4">
-                <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4 text-sm text-purple-900">
+                <div className="rounded-2xl border border-purple-200 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 p-4 text-sm text-purple-900 dark:text-purple-200">
                   You are managing the non-removable system admin account. Update its identity or password below to keep credentials current.
                 </div>
                 <SystemAdminControls showBanner={false} />

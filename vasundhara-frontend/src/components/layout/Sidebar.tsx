@@ -157,7 +157,7 @@ export function Sidebar({ className }: SidebarProps) {
             'flex items-center space-x-3',
             collapsed && 'justify-center'
           )}>
-            <div className="w-9 h-9 rounded-full border border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
               {profileImage ? (
                 <img src={profileImage} alt={profileName} className="w-full h-full object-cover" />
               ) : (

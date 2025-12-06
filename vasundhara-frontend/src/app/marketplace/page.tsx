@@ -134,7 +134,7 @@ function MarketplaceContent() {
   });
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       {/* Sidebar */}
       <Sidebar />
 
@@ -222,32 +222,32 @@ function MarketplaceContent() {
 
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900 text-lg">{listing.title}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-lg">{listing.title}</h3>
                       <div className="flex items-center space-x-1">
                         <span className="text-yellow-500">★</span>
-                        <span className="text-sm text-gray-600">{listing.rating}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{listing.rating}</span>
                       </div>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{listing.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">{listing.description}</p>
 
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Quantity:</span>
-                        <span className="font-medium">{listing.quantity} {listing.unit}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Quantity:</span>
+                        <span className="font-medium dark:text-gray-200">{listing.quantity} {listing.unit}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Posted by:</span>
-                        <span className="font-medium">{listing.postedBy}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Posted by:</span>
+                        <span className="font-medium dark:text-gray-200">{listing.postedBy}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Pickup:</span>
-                        <span className="font-medium">{listing.pickupTime}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Pickup:</span>
+                        <span className="font-medium dark:text-gray-200">{listing.pickupTime}</span>
                       </div>
                       {!listing.isFree && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Original price:</span>
-                          <span className="text-gray-500 line-through">{formatCurrency(listing.originalPrice)}</span>
+                          <span className="text-gray-600 dark:text-gray-400">Original price:</span>
+                          <span className="text-gray-500 dark:text-gray-500 line-through">{formatCurrency(listing.originalPrice)}</span>
                         </div>
                       )}
                     </div>
@@ -280,8 +280,8 @@ function MarketplaceContent() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No items found</h3>
-                  <p className="text-gray-600 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No items found</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Try adjusting your search or filters to find more items
                   </p>
                   <Button icon={<PlusIcon className="w-4 h-4" />}>

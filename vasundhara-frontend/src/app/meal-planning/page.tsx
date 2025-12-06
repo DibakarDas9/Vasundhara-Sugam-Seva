@@ -108,7 +108,7 @@ export default function MealPlanningPage() {
   /* Removed getAvailableRecipes and getPriorityRecipes */
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       {/* Sidebar */}
       <Sidebar />
 
@@ -141,7 +141,7 @@ export default function MealPlanningPage() {
 
             <Card>
               <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <CardTitle className="flex items-center gap-2 text-emerald-900">
+                <CardTitle className="flex items-center gap-2 text-emerald-900 dark:text-emerald-400">
                   <SparklesIcon className="w-5 h-5 text-emerald-500" />
                   AI Meal Blueprint
                 </CardTitle>
@@ -166,17 +166,17 @@ export default function MealPlanningPage() {
                 )}
                 {aiLoading && (
                   <div className="animate-pulse space-y-3 mb-4">
-                    <div className="h-4 bg-gray-200 rounded" />
-                    <div className="h-4 bg-gray-200 rounded w-5/6" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6" />
                   </div>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {aiMeals.slice(0, 4).map((suggestion) => (
-                    <div key={suggestion.id} className="border border-emerald-200 rounded-xl p-4 bg-emerald-50/50">
+                    <div key={suggestion.id} className="border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-4 bg-emerald-50/50 dark:bg-emerald-900/10">
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <h4 className="font-semibold text-gray-900">{suggestion.name}</h4>
-                          <p className="text-xs text-gray-500">{suggestion.prepTime} · {suggestion.difficulty}</p>
+                          <h4 className="font-semibold text-gray-900 dark:text-white">{suggestion.name}</h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{suggestion.prepTime} · {suggestion.difficulty}</p>
                         </div>
                         <span className="text-xs font-semibold text-emerald-600">AI Pick</span>
                       </div>

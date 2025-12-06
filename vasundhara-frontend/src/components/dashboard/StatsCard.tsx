@@ -24,21 +24,21 @@ const colorVariants = {
   purple: 'from-purple-500 to-purple-600',
 };
 
-export function StatsCard({ 
-  title, 
-  value, 
-  change, 
-  icon, 
+export function StatsCard({
+  title,
+  value,
+  change,
+  icon,
   color = 'green',
-  className 
+  className
 }: StatsCardProps) {
   return (
     <Card className={cn('hover:shadow-lg transition-all duration-200', className)}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{title}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
             {change && (
               <div className="flex items-center mt-2">
                 <span
@@ -49,7 +49,7 @@ export function StatsCard({
                 >
                   {change.type === 'increase' ? '+' : '-'}{Math.abs(change.value)}%
                 </span>
-                <span className="text-sm text-gray-500 ml-1">vs last month</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400 ml-1">vs last month</span>
               </div>
             )}
           </div>

@@ -58,7 +58,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-black">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
@@ -119,8 +119,8 @@ function DashboardContent() {
 
               <div className="space-y-6">
                 <WasteAnalytics />
-                <div className="bg-white rounded-xl p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
                   <div className="space-y-3">
                     <button
                       onClick={() => handleProtectedNavigation('/inventory/new')}
@@ -133,7 +133,7 @@ function DashboardContent() {
                         </div>
                         <span className="text-sm font-medium text-gray-900">Add New Item</span>
                       </div>
-                      <span className="text-xs text-gray-500">→</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>
 
                     <button
@@ -147,7 +147,7 @@ function DashboardContent() {
                         </div>
                         <span className="text-sm font-medium text-gray-900">Scan Barcode</span>
                       </div>
-                      <span className="text-xs text-gray-500">→</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>
 
                     <button
@@ -161,7 +161,7 @@ function DashboardContent() {
                         </div>
                         <span className="text-sm font-medium text-gray-900">Plan Meals</span>
                       </div>
-                      <span className="text-xs text-gray-500">→</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>
 
                     <button
@@ -174,8 +174,8 @@ function DashboardContent() {
                           <ExclamationTriangleIcon className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-red-800 block">Clear Inventory</span>
-                          <span className="text-xs text-red-600">Deletes all items permanently</span>
+                          <span className="text-sm font-medium text-red-800 dark:text-red-300 block">Clear Inventory</span>
+                          <span className="text-xs text-red-600 dark:text-red-400">Deletes all items permanently</span>
                         </div>
                       </div>
                       <span className="text-xs text-red-600 font-semibold">⚠</span>
@@ -188,20 +188,20 @@ function DashboardContent() {
           {showClearConfirm && (
             <div className="fixed inset-0 z-50 flex items-center justify-center">
               <div className="absolute inset-0 bg-black/50" onClick={() => setShowClearConfirm(false)} />
-              <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl p-6 space-y-4">
+              <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-neutral-900 shadow-2xl p-6 space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
                     <ExclamationTriangleIcon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900">Clear inventory?</h4>
-                    <p className="text-sm text-gray-600">This permanently deletes every inventory item. This action cannot be undone.</p>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Clear inventory?</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">This permanently deletes every inventory item. This action cannot be undone.</p>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => setShowClearConfirm(false)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     Cancel
                   </button>

@@ -117,7 +117,7 @@ export default function AuthLanding() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+    <div className="min-h-screen relative overflow-hidden bg-gray-50 dark:bg-black transition-colors duration-300">
       {/* Animated gradient background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.04] dark:opacity-[0.02]" />
@@ -205,7 +205,7 @@ export default function AuthLanding() {
 
               {/* Right side - Auth form */}
               <div className="w-full">
-                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 dark:shadow-black/40 border border-white/40 dark:border-slate-700/50 p-6 sm:p-10 transition-all duration-300">
+                <div className="bg-white/80 dark:bg-black/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 dark:shadow-white/5 border border-white/40 dark:border-gray-800/50 p-6 sm:p-10 transition-all duration-300">
                   {/* Mobile logo */}
                   <div className="lg:hidden flex items-center gap-4 mb-8">
                     <Image src="/logo.svg" alt="Vasundhara emblem" width={48} height={48} />
@@ -222,8 +222,8 @@ export default function AuthLanding() {
                         <button
                           onClick={() => setIsLogin(true)}
                           className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 ${isLogin
-                            ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
-                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                            ? 'bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                             }`}
                         >
                           Login
@@ -252,7 +252,7 @@ export default function AuthLanding() {
                                 onClick={() => handleRoleSelect(key as 'household' | 'shopkeeper' | 'admin')}
                                 className={`relative p-3 rounded-2xl border-2 transition-all duration-200 group ${isActive
                                   ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20'
-                                  : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800/50 bg-transparent'
+                                  : 'border-gray-200 dark:border-gray-800 hover:border-emerald-200 dark:hover:border-emerald-800/50 bg-transparent'
                                   }`}
                               >
                                 <Icon className={`w-7 h-7 mx-auto mb-2 transition-colors ${isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`} />
@@ -318,7 +318,7 @@ export default function AuthLanding() {
                               <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                              <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-medium">or continue with</span>
+                              <span className="px-4 bg-white dark:bg-black text-gray-500 dark:text-gray-400 font-medium">or continue with</span>
                             </div>
                           </div>
 
@@ -333,7 +333,7 @@ export default function AuthLanding() {
                               setGuestMode(true);
                               router.push('/');
                             }}
-                            className="w-full h-12 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 font-semibold rounded-xl transition-all duration-200"
+                            className="w-full h-12 border-2 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-gray-900 font-semibold rounded-xl transition-all duration-200"
                           >
                             Continue as Guest
                           </Button>
@@ -437,7 +437,7 @@ export default function AuthLanding() {
                           <Button
                             variant="outline"
                             onClick={() => { setGuestMode(true); router.push('/'); }}
-                            className="w-full h-12 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 font-semibold rounded-xl transition-all duration-200"
+                            className="w-full h-12 border-2 border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-gray-900 font-semibold rounded-xl transition-all duration-200"
                           >
                             Try as Guest
                           </Button>
@@ -472,7 +472,7 @@ export default function AuthLanding() {
                         <Button
                           variant="outline"
                           onClick={logout}
-                          className="h-12 border-2 border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 dark:hover:text-red-400 font-semibold rounded-xl"
+                          className="h-12 border-2 border-gray-200 dark:border-gray-800 hover:border-red-300 dark:hover:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 dark:hover:text-red-400 font-semibold rounded-xl"
                         >
                           Logout
                         </Button>

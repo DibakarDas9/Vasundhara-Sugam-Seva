@@ -3,8 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { 
-  ChartBarIcon, 
+import {
+  ChartBarIcon,
   ArrowUpIcon,
   ArrowDownIcon
 } from '@heroicons/react/24/outline';
@@ -69,17 +69,17 @@ export function WasteAnalytics() {
         <div className="space-y-6">
           {/* Monthly Overview */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{mockData.monthlyStats.totalWaste}kg</div>
-              <div className="text-sm text-gray-600">Total Waste</div>
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{mockData.monthlyStats.totalWaste}kg</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Total Waste</div>
               <div className="flex items-center justify-center mt-1">
                 <ArrowDownIcon className="w-4 h-4 text-green-600" />
                 <span className="text-sm text-green-600 ml-1">{mockData.monthlyStats.wasteReduction}% less</span>
               </div>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{formatCurrency(mockData.monthlyStats.totalCost)}</div>
-              <div className="text-sm text-gray-600">Total Cost</div>
+            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(mockData.monthlyStats.totalCost)}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Total Cost</div>
               <div className="flex items-center justify-center mt-1">
                 <ArrowUpIcon className="w-4 h-4 text-green-600" />
                 <span className="text-sm text-green-600 ml-1">{formatCurrency(mockData.monthlyStats.moneySaved)} saved</span>
@@ -89,7 +89,7 @@ export function WasteAnalytics() {
 
           {/* Weekly Chart */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-3">This Week's Waste</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">This Week's Waste</h4>
             <div className="flex items-end space-x-2 h-32">
               {mockData.weeklyWaste.map((day, index) => (
                 <div key={day.day} className="flex-1 flex flex-col items-center">
@@ -99,8 +99,8 @@ export function WasteAnalytics() {
                       style={{ height: `${(day.amount / maxAmount) * 100}%` }}
                     />
                   </div>
-                  <div className="text-xs text-gray-600 mt-2">{day.day}</div>
-                  <div className="text-xs font-medium text-gray-900">{day.amount}kg</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">{day.day}</div>
+                  <div className="text-xs font-medium text-gray-900 dark:text-white">{day.amount}kg</div>
                 </div>
               ))}
             </div>
@@ -108,17 +108,17 @@ export function WasteAnalytics() {
 
           {/* Waste by Category */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Waste by Category</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Waste by Category</h4>
             <div className="space-y-3">
               {mockData.categories.map((category) => (
                 <div key={category.name} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"></div>
-                    <span className="text-sm text-gray-700">{category.name}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-900">{category.amount}kg</span>
-                    <span className="text-xs text-gray-500">({category.percentage}%)</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{category.amount}kg</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">({category.percentage}%)</span>
                   </div>
                 </div>
               ))}
