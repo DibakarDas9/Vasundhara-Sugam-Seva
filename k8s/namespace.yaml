@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vasundhara
+  labels:
+    name: vasundhara
+    app: vasundhara

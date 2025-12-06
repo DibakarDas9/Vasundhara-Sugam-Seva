@@ -1,0 +1,187 @@
+# Default values for vasundhara
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/vasundhara/vasundhara
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: vasundhara.app
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: api.vasundhara.app
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: ml.vasundhara.app
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: vasundhara-tls
+      hosts:
+        - vasundhara.app
+        - api.vasundhara.app
+        - ml.vasundhara.app
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# MongoDB configuration
+mongodb:
+  enabled: true
+  auth:
+    enabled: true
+    rootPassword: "password"
+    username: "admin"
+    password: "password"
+    database: "vasundhara"
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# ML Service configuration
+mlService:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ghcr.io/vasundhara/vasundhara/ml-service
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  env:
+    MONGODB_URL: "mongodb://admin:password@mongodb:27017/vasundhara?authSource=admin"
+    REDIS_URL: "redis://redis:6379"
+    API_SERVICE_URL: "http://api-service:5000"
+
+# API Service configuration
+apiService:
+  enabled: true
+  replicaCount: 3
+  image:
+    repository: ghcr.io/vasundhara/vasundhara/api-service
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 5000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: "production"
+    MONGODB_URI: "mongodb://admin:password@mongodb:27017/vasundhara?authSource=admin"
+    REDIS_URI: "redis://redis:6379"
+    ML_SERVICE_URL: "http://ml-service:8000"
+    JWT_SECRET: "your-super-secret-key-change-this-in-production"
+
+# Frontend configuration
+frontend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ghcr.io/vasundhara/vasundhara/frontend
+    tag: "latest"
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: 250m
+      memory: 512Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  env:
+    NODE_ENV: "production"
+    NEXT_PUBLIC_API_URL: "http://api-service:5000"
+    NEXT_PUBLIC_ML_SERVICE_URL: "http://ml-service:8000"

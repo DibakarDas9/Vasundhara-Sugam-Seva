@@ -1,0 +1,28 @@
+apiVersion: v2
+name: vasundhara
+description: AI-powered food waste management system
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - food-waste
+  - sustainability
+  - ai
+  - ml
+  - mongodb
+  - redis
+home: https://vasundhara.app
+sources:
+  - https://github.com/vasundhara/vasundhara
+maintainers:
+  - name: Vasundhara Team
+    email: team@vasundhara.app
+dependencies:
+  - name: mongodb
+    version: 13.6.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: mongodb.enabled
+  - name: redis
+    version: 17.3.7
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled

@@ -1,0 +1,231 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-start: #fbfdfd;
+  --bg-end: #ffffff;
+  --muted-border: rgba(34,34,34,0.06);
+  --card-bg: rgba(255,255,255,0.86);
+  --card-border: rgba(34,34,34,0.06);
+  --text-color: #0f172a;
+  --muted-text: #6b7280;
+}
+
+/* Dark theme overrides (toggle by adding .dark to <html> or <body>) */
+.dark {
+  --bg-start: #041221;
+  --bg-end: #071421;
+  --muted-border: rgba(255,255,255,0.06);
+  --card-bg: rgba(6,10,14,0.56);
+  --card-border: rgba(255,255,255,0.06);
+  --text-color: #e6eef6;
+  --muted-text: #9aa7b8;
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Poppins', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 60%);
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.45;
+  }
+
+  /* smooth theme transitions */
+  html, body { transition: background 240ms ease, color 220ms ease; }
+
+  a { color: inherit; }
+}
+
+@layer components {
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .gradient-text { @apply bg-gradient-to-r from-accent-500 to-primary-600 bg-clip-text text-transparent; }
+
+  /* Softer, glass-like cards */
+  .card-hover {
+    background: var(--card-bg);
+    border-radius: 1rem;
+    border: 1px solid var(--card-border);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    box-shadow: 0 6px 24px rgba(2,6,23,0.06);
+  }
+  .card-hover:hover { transform: translateY(-6px); box-shadow: 0 18px 46px rgba(2,6,23,0.08); }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-medium text-white;
+    background-image: linear-gradient(90deg, rgba(114,196,179,1) 0%, rgba(192,107,233,0.95) 100%);
+    box-shadow: 0 8px 20px rgba(43,105,96,0.12);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(43,105,96,0.14); }
+
+  .btn-secondary { @apply rounded-lg px-3 py-2 bg-white text-gray-700 border; border-color: var(--muted-border); }
+
+  /* make secondary friendlier in dark mode by using semi-transparent bg */
+  .dark .btn-secondary { background: rgba(255,255,255,0.03); color: var(--text-color); border-color: var(--card-border); }
+
+  .dark .btn-primary { box-shadow: 0 10px 26px rgba(18,60,57,0.12); }
+
+  /* Danger / destructive full button */
+  .btn-danger {
+    @apply inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white;
+    background-image: linear-gradient(90deg, rgba(239,68,68,1) 0%, rgba(220,38,38,0.95) 100%);
+    box-shadow: 0 10px 30px rgba(190,24,93,0.08);
+    transform-origin: center;
+    transition: transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s ease, filter .12s ease;
+  }
+  .btn-danger:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 14px 40px rgba(190,24,93,0.12); }
+  .btn-danger:active { transform: translateY(0) scale(0.98); }
+
+  /* Theme toggle track + knob */
+  .theme-toggle {
+    @apply relative inline-flex items-center rounded-full p-1 cursor-pointer;
+    width: 56px; height: 32px; background: rgba(255,255,255,0.06); border-radius: 9999px; transition: background .18s ease;
+  }
+  .theme-toggle .knob {
+    @apply absolute bg-white rounded-full shadow-md;
+    width: 26px; height: 26px; left: 4px; top: 3px; transition: transform .22s cubic-bezier(.2,.9,.3,1), background .18s ease;
+  }
+  .theme-toggle.dark { background: linear-gradient(90deg,#0f172a,#0b1220); }
+  .theme-toggle.dark .knob { transform: translateX(24px); background: linear-gradient(90deg,#fde68a,#f59e0b); }
+
+  /* App-level utilities for consistent theming */
+  .app-header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .app-sidebar {
+    background: var(--card-bg);
+    border-right: 1px solid var(--card-border);
+  }
+
+  .text-app { color: var(--text-color); }
+  .text-muted { color: var(--muted-text); }
+  .bg-app { background: var(--card-bg); }
+  .border-app { border-color: var(--card-border); }
+
+  .hover-soft:hover { background: rgba(0,0,0,0.02); }
+
+  /* navigation active state that adapts to theme */
+  .active-nav {
+    background: linear-gradient(90deg, rgba(114,196,179,0.08), rgba(192,107,233,0.06));
+    color: #065f46; /* green-800 */
+    border: 1px solid rgba(34,197,94,0.08);
+  }
+  .dark .active-nav {
+    background: linear-gradient(90deg, rgba(16,185,129,0.06), rgba(79,70,229,0.04));
+    color: #34d399; /* green-300 */
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+}
+
+/* Custom scrollbar (subtle) */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f8fafc; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Animation keyframes */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes bounce { 0%,20%,53%,80%,100% { transform: translate3d(0,0,0); } 40%,43% { transform: translate3d(0,-8px,0); } 70% { transform: translate3d(0,-4px,0); } 90% { transform: translate3d(0,-2px,0); } }
+
+.animate-fade-in { animation: fadeIn 0.5s ease-out; }
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
+.animate-bounce-gentle { animation: bounce 2s infinite; }
+
+/* Global click ripple and press animations */
+.global-click-ripple{
+  position: fixed;
+  pointer-events: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  transform: translate(-50%,-50%) scale(0.18);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95), rgba(255,255,255,0.18));
+  box-shadow: 0 6px 20px rgba(2,6,23,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+  animation: ripple-pop 560ms cubic-bezier(.22,.9,.25,1);
+  z-index: 9999;
+}
+
+.pressed-on-click{
+  transform: translateZ(0) scale(0.98) !important;
+  filter: brightness(0.98) saturate(1.03) !important;
+}
+
+@keyframes ripple-pop{
+  0%{ opacity:0.95; transform:translate(-50%,-50%) scale(0.18); }
+  30%{ opacity:0.9; transform:translate(-50%,-50%) scale(1.05); }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(2.8); }
+}
+
+/* Voice button gentle bob and glow to make it noticeable without being distracting */
+@keyframes voice-bob {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-6px); }
+  70% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes voice-glow {
+  0% { box-shadow: 0 6px 20px rgba(16,185,129,0.10); }
+  50% { box-shadow: 0 12px 28px rgba(16,185,129,0.18); }
+  100% { box-shadow: 0 6px 20px rgba(16,185,129,0.10); }
+}
+
+.voice-animate {
+  /* bob + glow + slow dim/bright cycle for a breathing effect */
+  animation: voice-bob 3.6s ease-in-out infinite,
+             voice-glow 3.6s ease-in-out infinite,
+             voice-dim 6.8s ease-in-out infinite;
+  will-change: transform, box-shadow, filter;
+}
+
+@keyframes voice-dim {
+  0% { filter: brightness(1); }
+  40% { filter: brightness(1.08); }
+  70% { filter: brightness(0.92); }
+  100% { filter: brightness(1); }
+}
+
+/* reduce intensity on small screens to avoid covering content */
+@media (max-width: 640px) {
+  .voice-animate { animation-duration: 4.2s, 4.2s; }
+}
+
+/* Invert-based theme: apply a global inversion and then re-invert images/svg/icons that should keep original colors
+   This approach makes the dark mode a visual inverse of light mode while allowing exceptions with the .no-invert class.
+*/
+html.invert-theme {
+  /* invert colors, adjust hue and contrast slightly for better results */
+  filter: invert(1) hue-rotate(180deg) saturate(0.95) contrast(0.95);
+  background-color: var(--bg-start);
+}
+
+/* Re-invert images, SVGs and any element marked .no-invert so they appear normal */
+html.invert-theme img,
+html.invert-theme svg,
+html.invert-theme .no-invert {
+  filter: invert(1) hue-rotate(180deg) saturate(1) contrast(1);
+}
+
+/* Provide a helper class to opt-out of inversion for small UI parts */
+.no-invert { filter: none !important; }

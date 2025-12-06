@@ -1,0 +1,41 @@
+{
+  "name": "Vasundhara",
+  "short_name": "Vasundhara",
+  "description": "Sugam Seva",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "features": [
+    "Food inventory management",
+    "AI-powered expiry prediction",
+    "Meal planning and recipes",
+    "Barcode scanning",
+    "Community marketplace",
+    "Waste analytics"
+  ]
+}

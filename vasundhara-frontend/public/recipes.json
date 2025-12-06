@@ -1,0 +1,585 @@
+[
+  {
+    "Title": "Baigan Chokha (Baigan Bharta)",
+    "Ingredients": [
+      "2 Large eggplants",
+      "1 Tbsp oil",
+      "1 Medium onion, chopped",
+      "2 Cloves garlic, chopped",
+      "1 Tomato, chopped",
+      "Salt",
+      "Green chillies",
+      "Fresh coriander"
+    ],
+    "Instructions": "Roast eggplants until soft and charred, peel and mash. Sauté onion, garlic and tomato in oil, add mashed eggplant, season with salt and chillies, finish with coriander.",
+    "Inventory": [
+      { "item": "2 Large eggplants", "expiry": "2025-11-05" },
+      { "item": "1 Tbsp oil", "expiry": "2025-11-05" },
+      { "item": "1 Medium onion, chopped", "expiry": "2025-11-05" },
+      { "item": "2 Cloves garlic, chopped", "expiry": "2025-11-05" },
+      { "item": "1 Tomato, chopped", "expiry": "2025-11-05" },
+      { "item": "Salt", "expiry": "2025-11-05" },
+      { "item": "Green chillies", "expiry": "2025-11-05" },
+      { "item": "Fresh coriander", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Tadka Dal (Yellow Lentils)",
+    "Ingredients": [
+      "1 Cup toor dal or moong dal",
+      "2 Cups water",
+      "1/2 Tsp turmeric",
+      "Salt",
+      "1 Tbsp ghee or oil",
+      "1 Tsp cumin seeds",
+      "1-2 Dried red chillies",
+      "1/2 Tsp mustard seeds",
+      "1 Pinch asafoetida (hing)",
+      "1 Small onion optional",
+      "2 Cloves garlic optional",
+      "Fresh coriander"
+    ],
+    "Instructions": "Pressure-cook dal with turmeric and water until soft. In a pan heat ghee, add cumin, mustard, hing and chillies, sauté onion/garlic, pour tadka over cooked dal, simmer and garnish with coriander.",
+    "Inventory": [
+      { "item": "1 Cup toor dal or moong dal", "expiry": "2025-11-05" },
+      { "item": "2 Cups water", "expiry": "2025-11-05" },
+      { "item": "1/2 Tsp turmeric", "expiry": "2025-11-05" },
+      { "item": "Salt", "expiry": "2025-11-05" },
+      { "item": "1 Tbsp ghee or oil", "expiry": "2025-11-05" },
+      { "item": "1 Tsp cumin seeds", "expiry": "2025-11-05" },
+      { "item": "1-2 Dried red chillies", "expiry": "2025-11-05" },
+      { "item": "1/2 Tsp mustard seeds", "expiry": "2025-11-05" },
+      { "item": "1 Pinch asafoetida (hing)", "expiry": "2025-11-05" },
+      { "item": "1 Small onion optional", "expiry": "2025-11-05" },
+      { "item": "2 Cloves garlic optional", "expiry": "2025-11-05" },
+      { "item": "Fresh coriander", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Jeera Rice",
+    "Ingredients": [
+      "1 Cup basmati rice",
+      "2 Cups water",
+      "1 Tbsp ghee or oil",
+      "1 Tsp cumin seeds",
+      "Salt",
+      "Bay leaf optional"
+    ],
+    "Instructions": "Rinse rice. Heat ghee, add cumin and bay leaf, add rice and water, salt and cook covered until done. Fluff and serve.",
+    "Inventory": [
+      { "item": "1 cup basmati rice", "expiry": "2025-11-05" },
+      { "item": "2 cups water", "expiry": "2025-11-05" },
+      { "item": "1 tbsp ghee or oil", "expiry": "2025-11-05" },
+      { "item": "1 tsp cumin seeds", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "bay leaf optional", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Aloo Sabzi (Simple Potato Curry)",
+    "Ingredients": [
+      "3 Potatoes, peeled and cubed",
+      "1 Tbsp oil",
+      "1/2 Tsp mustard seeds",
+      "1/2 Tsp cumin seeds",
+      "1 Onion, chopped",
+      "1 Tomato, chopped",
+      "1/2 Tsp turmeric",
+      "1 Tsp coriander powder",
+      "1 Tsp garam masala optional",
+      "Salt",
+      "Fresh coriander"
+    ],
+    "Instructions": "Boil or par-cook potatoes. Heat oil, add seeds, sauté onion and tomato, add spices and potatoes, cook until potatoes are tender and coated with masala. Garnish and serve.",
+    "Inventory": [
+      { "item": "3 potatoes, peeled and cubed", "expiry": "2025-11-05" },
+      { "item": "1 tbsp oil", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp mustard seeds", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp cumin seeds", "expiry": "2025-11-05" },
+      { "item": "1 onion, chopped", "expiry": "2025-11-05" },
+      { "item": "1 tomato, chopped", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp turmeric", "expiry": "2025-11-05" },
+      { "item": "1 tsp coriander powder", "expiry": "2025-11-05" },
+      { "item": "1 tsp garam masala optional", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "fresh coriander", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Paneer Butter Masala",
+    "Ingredients": [
+      "200g paneer cubes",
+      "2 Tbsp butter",
+      "1 Onion",
+      "2 Tomatoes",
+      "1 Tbsp ginger-garlic paste",
+      "1/2 Tsp turmeric",
+      "1 Tsp red chilli powder",
+      "1 Tsp garam masala",
+      "2 Tbsp cream or cashew paste",
+      "Salt",
+      "Kasuri methi"
+    ],
+    "Instructions": "Make a smooth gravy from sautéed onion and tomatoes, add spices, cream and butter, add paneer and simmer briefly. Finish with kasuri methi.",
+    "Inventory": [
+      { "item": "200g paneer cubes", "expiry": "2025-11-05" },
+      { "item": "2 tbsp butter", "expiry": "2025-11-05" },
+      { "item": "1 onion", "expiry": "2025-11-05" },
+      { "item": "2 tomatoes", "expiry": "2025-11-05" },
+      { "item": "1 tbsp ginger-garlic paste", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp turmeric", "expiry": "2025-11-05" },
+      { "item": "1 tsp red chilli powder", "expiry": "2025-11-05" },
+      { "item": "1 tsp garam masala", "expiry": "2025-11-05" },
+      { "item": "2 tbsp cream or cashew paste", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "kasuri methi", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Chole (Chickpea Curry)",
+    "image": "https://source.unsplash.com/800x600/?chole,chickpea,curry",
+    "Ingredients": [
+      "1 Cup chickpeas (soaked)",
+      "2 Onions",
+      "2 Tomatoes",
+      "1 Tbsp ginger-garlic paste",
+      "2 Tbsp oil",
+      "1 Tsp cumin",
+      "1/2 Tsp turmeric",
+      "2 Tsp chole masala or garam masala",
+      "Salt",
+      "Fresh coriander"
+    ],
+    "Instructions": "Pressure-cook soaked chickpeas. Make a onion-tomato gravy with spices, add chickpeas and simmer so flavors develop. Garnish.",
+    "Inventory": [
+      { "item": "1 cup chickpeas (soaked)", "expiry": "2025-11-05" },
+      { "item": "2 onions", "expiry": "2025-11-05" },
+      { "item": "2 tomatoes", "expiry": "2025-11-05" },
+      { "item": "1 tbsp ginger-garlic paste", "expiry": "2025-11-05" },
+      { "item": "2 tbsp oil", "expiry": "2025-11-05" },
+      { "item": "1 tsp cumin", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp turmeric", "expiry": "2025-11-05" },
+      { "item": "2 tsp chole masala or garam masala", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "fresh coriander", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Rajma Masala (Kidney Beans)",
+    "image": "https://source.unsplash.com/800x600/?rajma,kidney-beans,curry",
+    "Ingredients": [
+      "1 Cup rajma (soaked)",
+      "2 Onions",
+      "2 Tomatoes",
+      "1 Tbsp ginger-garlic paste",
+      "1 Tsp cumin",
+      "1/2 Tsp turmeric",
+      "2 Tsp garam masala",
+      "Oil",
+      "Salt"
+    ],
+    "Instructions": "Pressure-cook rajma until soft. Prepare masala from onion, tomato and spices, add rajma and simmer until thick and flavorful.",
+    "Inventory": [
+      { "item": "1 cup rajma (soaked)", "expiry": "2025-11-05" },
+      { "item": "2 onions", "expiry": "2025-11-05" },
+      { "item": "2 tomatoes", "expiry": "2025-11-05" },
+      { "item": "1 tbsp ginger-garlic paste", "expiry": "2025-11-05" },
+      { "item": "1 tsp cumin", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp turmeric", "expiry": "2025-11-05" },
+      { "item": "2 tsp garam masala", "expiry": "2025-11-05" },
+      { "item": "oil", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Masala Omelette",
+    "image": "https://source.unsplash.com/800x600/?masala-omelette,omelette,indian-breakfast",
+    "Ingredients": [
+      "2 Eggs",
+      "1 Small onion finely chopped",
+      "1 Small tomato chopped",
+      "1 Green chilli chopped",
+      "Salt",
+      "Pepper",
+      "Oil or butter"
+    ],
+    "Instructions": "Beat eggs, mix onion, tomato and chilli, season and cook on a hot pan with oil until set. Serve hot.",
+    "Inventory": [
+      { "item": "2 eggs", "expiry": "2025-11-05" },
+      { "item": "1 small onion finely chopped", "expiry": "2025-11-05" },
+      { "item": "1 small tomato chopped", "expiry": "2025-11-05" },
+      { "item": "1 green chilli chopped", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "pepper", "expiry": "2025-11-05" },
+      { "item": "oil or butter", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Poha (Flattened Rice)",
+    "image": "https://source.unsplash.com/800x600/?poha,flattened-rice,indian-breakfast",
+    "Ingredients": [
+      "2 Cups poha (flattened rice)",
+      "1 Onion chopped",
+      "1 Potato small diced optional",
+      "1/2 Tsp mustard seeds",
+      "1/2 Tsp turmeric",
+      "Green chillies",
+      "Curry leaves optional",
+      "Peanuts optional",
+      "Salt",
+      "Lemon"
+    ],
+    "Instructions": "Rinse poha briefly. Temper mustard seeds, sauté onion/potato, add turmeric and cooked poha, mix, finish with lemon and coriander.",
+    "Inventory": [
+      { "item": "2 cups poha (flattened rice)", "expiry": "2025-11-05" },
+      { "item": "1 onion chopped", "expiry": "2025-11-05" },
+      { "item": "1 potato small diced optional", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp mustard seeds", "expiry": "2025-11-05" },
+      { "item": "1/2 tsp turmeric", "expiry": "2025-11-05" },
+      { "item": "green chillies", "expiry": "2025-11-05" },
+      { "item": "curry leaves optional", "expiry": "2025-11-05" },
+      { "item": "peanuts optional", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "lemon", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Upma",
+    "image": "https://source.unsplash.com/800x600/?upma,semolina,breakfast",
+    "Ingredients": [
+      "1 Cup semolina (rava)",
+      "2 Cups water",
+      "1 Tsp mustard seeds",
+      "1 Onion chopped",
+      "1 Tsp ghee or oil",
+      "Salt",
+      "Vegetables optional",
+      "Curry leaves"
+    ],
+    "Instructions": "Roast semolina lightly. Temper seeds and sauté onion/veggies, add water and salt, slowly stir in semolina to form a soft porridge.",
+    "Inventory": [
+      { "item": "1 cup semolina (rava)", "expiry": "2025-11-05" },
+      { "item": "2 cups water", "expiry": "2025-11-05" },
+      { "item": "1 tsp mustard seeds", "expiry": "2025-11-05" },
+      { "item": "1 onion chopped", "expiry": "2025-11-05" },
+      { "item": "1 tsp ghee or oil", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "vegetables optional", "expiry": "2025-11-05" },
+      { "item": "curry leaves", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Idli (Steamed Rice Cakes) - Simple",
+    "image": "https://source.unsplash.com/800x600/?idli,steamed-rice-cakes,south-indian",
+    "Ingredients": [
+      "2 Cups idli rice or parboiled rice",
+      "1 Cup urad dal",
+      "Salt",
+      "Water"
+    ],
+    "Instructions": "Soak rice and dal separately, grind to batter, ferment overnight, steam in idli moulds until fluffy.",
+    "Inventory": [
+      { "item": "2 cups idli rice or parboiled rice", "expiry": "2025-11-05" },
+      { "item": "1 cup urad dal", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "water", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Dosa (Plain)",
+    "image": "https://source.unsplash.com/800x600/?dosa,crepe,south-indian",
+    "Ingredients": [
+      "1 Cup idli rice",
+      "1/2 Cup urad dal",
+      "Salt",
+      "Oil"
+    ],
+    "Instructions": "Prepare fermented batter like idli, spread thin on a hot tawa to make crepes, cook until crisp.",
+    "Inventory": [
+      { "item": "1 cup idli rice", "expiry": "2025-11-05" },
+      { "item": "1/2 cup urad dal", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "oil", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Sambar (Lentil & Vegetable Stew)",
+    "image": "https://source.unsplash.com/800x600/?sambar,lentil,stew",
+    "Ingredients": [
+      "1 Cup toor dal",
+      "Mixed vegetables (drumstick, carrot, pumpkin)",
+      "Sambar powder",
+      "Tamarind",
+      "Mustard seeds",
+      "Curry leaves",
+      "Salt"
+    ],
+    "Instructions": "Cook dal separately. Cook vegetables with tamarind and sambar powder, add dal, simmer and temper with mustard and curry leaves.",
+    "Inventory": [
+      { "item": "1 cup toor dal", "expiry": "2025-11-05" },
+      { "item": "mixed vegetables (drumstick, carrot, pumpkin)", "expiry": "2025-11-05" },
+      { "item": "sambar powder", "expiry": "2025-11-05" },
+      { "item": "tamarind", "expiry": "2025-11-05" },
+      { "item": "mustard seeds", "expiry": "2025-11-05" },
+      { "item": "curry leaves", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Aloo Paratha",
+    "image": "https://source.unsplash.com/800x600/?aloo-paratha,paratha,potato",
+    "Ingredients": [
+      "2 Cups wheat flour",
+      "3 Potatoes boiled and mashed",
+      "1 Tsp garam masala",
+      "Salt",
+      "Ghee or oil"
+    ],
+    "Instructions": "Mix masala into mashed potato, stuff into wheat dough balls, roll and cook on tawa with ghee.",
+    "Inventory": [
+      { "item": "2 cups wheat flour", "expiry": "2025-11-05" },
+      { "item": "3 potatoes boiled and mashed", "expiry": "2025-11-05" },
+      { "item": "1 tsp garam masala", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "ghee or oil", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Chole Bhature (simplified)",
+    "image": "https://source.unsplash.com/800x600/?chole-bhature,chickpea,bhature",
+    "Ingredients": [
+      "1 Cup chickpeas (soaked)",
+      "Flour for bhature (maida)",
+      "Oil for frying",
+      "Chole masala or spices",
+      "Tomato, onion"
+    ],
+    "Instructions": "Prepare spicy chole gravy from cooked chickpeas. Make and fry bhature (deep-fried bread) or use store-bought.",
+    "Inventory": [
+      { "item": "1 cup chickpeas (soaked)", "expiry": "2025-11-05" },
+      { "item": "flour for bhature (maida)", "expiry": "2025-11-05" },
+      { "item": "oil for frying", "expiry": "2025-11-05" },
+      { "item": "chole masala or spices", "expiry": "2025-11-05" },
+      { "item": "tomato, onion", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Palak Paneer",
+    "image": "https://source.unsplash.com/800x600/?palak-paneer,spinach,paneer",
+    "Ingredients": [
+      "200g spinach (palak)",
+      "200g paneer",
+      "1 Onion",
+      "1 Tomato optional",
+      "1 Tsp garam masala",
+      "1 Tbsp oil or butter",
+      "Salt"
+    ],
+    "Instructions": "Blanch spinach and blend to puree. Sauté onion, add spinach puree and spices, add paneer cubes and simmer briefly.",
+    "Inventory": [
+      { "item": "200g spinach (palak)", "expiry": "2025-11-05" },
+      { "item": "200g paneer", "expiry": "2025-11-05" },
+      { "item": "1 onion", "expiry": "2025-11-05" },
+      { "item": "1 tomato optional", "expiry": "2025-11-05" },
+      { "item": "1 tsp garam masala", "expiry": "2025-11-05" },
+      { "item": "1 tbsp oil or butter", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Butter Chicken (Simple)",
+    "Ingredients": [
+      "500g chicken pieces",
+      "2 Tbsp butter",
+      "1 Onion",
+      "2 Tomatoes or tomato puree",
+      "1 Tbsp ginger-garlic paste",
+      "1 Tsp garam masala",
+      "Cream optional",
+      "Salt"
+    ],
+    "Instructions": "Cook chicken until sealed. Make tomato-onion gravy with spices and butter, add chicken and simmer until cooked, finish with cream.",
+    "Inventory": [
+      { "item": "500g chicken pieces", "expiry": "2025-11-05" },
+      { "item": "2 tbsp butter", "expiry": "2025-11-05" },
+      { "item": "1 onion", "expiry": "2025-11-05" },
+      { "item": "2 tomatoes or tomato puree", "expiry": "2025-11-05" },
+      { "item": "1 tbsp ginger-garlic paste", "expiry": "2025-11-05" },
+      { "item": "1 tsp garam masala", "expiry": "2025-11-05" },
+      { "item": "cream optional", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Jeera Aloo",
+    "Ingredients": [
+      "3 Potatoes boiled and cubed",
+      "1 Tbsp oil",
+      "1 Tsp cumin seeds",
+      "Red chilli powder",
+      "Salt",
+      "Fresh coriander"
+    ],
+    "Instructions": "Sauté cumin and spices in oil, add boiled potatoes and toss until seasoned and slightly crisp. Garnish with coriander.",
+    "Inventory": [
+      { "item": "3 potatoes boiled and cubed", "expiry": "2025-11-05" },
+      { "item": "1 tbsp oil", "expiry": "2025-11-05" },
+      { "item": "1 tsp cumin seeds", "expiry": "2025-11-05" },
+      { "item": "red chilli powder", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "fresh coriander", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Aloo Gobi (Potato & Cauliflower)",
+    "Ingredients": [
+      "1 Small cauliflower",
+      "2 Potatoes",
+      "1 Onion",
+      "1 Tomato",
+      "Turmeric, coriander powder, garam masala",
+      "Oil, Salt"
+    ],
+    "Instructions": "Sauté onion & tomato, add spices, add potatoes and cauliflower, cover and cook until tender.",
+    "Inventory": [
+      { "item": "1 small cauliflower", "expiry": "2025-11-05" },
+      { "item": "2 potatoes", "expiry": "2025-11-05" },
+      { "item": "1 onion", "expiry": "2025-11-05" },
+      { "item": "1 tomato", "expiry": "2025-11-05" },
+      { "item": "turmeric, coriander powder, garam masala", "expiry": "2025-11-05" },
+      { "item": "oil, salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Matar Paneer",
+    "Ingredients": [
+      "200g paneer",
+      "1 Cup peas",
+      "1 Onion",
+      "1 Tomato",
+      "Spices",
+      "Oil, Salt"
+    ],
+    "Instructions": "Make a simple tomato-onion gravy, add peas and paneer, simmer until flavors blend.",
+    "Inventory": [
+      { "item": "200g paneer", "expiry": "2025-11-05" },
+      { "item": "1 cup peas", "expiry": "2025-11-05" },
+      { "item": "1 onion", "expiry": "2025-11-05" },
+      { "item": "1 tomato", "expiry": "2025-11-05" },
+      { "item": "spices", "expiry": "2025-11-05" },
+      { "item": "oil, salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Pav Bhaji (Quick)",
+    "Ingredients": [
+      "Mixed vegetables (potato, carrot, peas)",
+      "Pav bhaji masala",
+      "Butter",
+      "Pav or bread",
+      "Onion, Lemon"
+    ],
+    "Instructions": "Boil and mash vegetables, cook with pav bhaji masala and butter into a thick bhaji, serve with buttered toasted pav.",
+    "Inventory": [
+      { "item": "mixed vegetables (potato, carrot, peas)", "expiry": "2025-11-05" },
+      { "item": "pav bhaji masala", "expiry": "2025-11-05" },
+      { "item": "butter", "expiry": "2025-11-05" },
+      { "item": "pav or bread", "expiry": "2025-11-05" },
+      { "item": "onion, lemon", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Rice & Dal (Kadhi Chawal simple)",
+    "Ingredients": [
+      "Rice",
+      "Dal (lentils)",
+      "Yogurt and gram flour for kadhi optional",
+      "Salt, turmeric"
+    ],
+    "Instructions": "Cook dal and rice separately. For kadhi whisk yogurt with gram flour, simmer with spices and temper. Serve together.",
+    "Inventory": [
+      { "item": "rice", "expiry": "2025-11-05" },
+      { "item": "dal (lentils)", "expiry": "2025-11-05" },
+      { "item": "yogurt and gram flour for kadhi optional", "expiry": "2025-11-05" },
+      { "item": "salt, turmeric", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Vegetable Biryani (Simple Potluck)",
+    "Ingredients": [
+      "2 Cups basmati rice",
+      "Mixed vegetables (carrot, peas, beans)",
+      "Biryani masala or spices",
+      "Yogurt optional",
+      "Fried onions",
+      "Ghee or oil",
+      "Salt"
+    ],
+    "Instructions": "Par-cook rice. Cook vegetables with spices and yogurt, layer with rice and steam (dum) briefly.",
+    "Inventory": [
+      { "item": "2 cups basmati rice", "expiry": "2025-11-05" },
+      { "item": "mixed vegetables (carrot, peas, beans)", "expiry": "2025-11-05" },
+      { "item": "biryani masala or spices", "expiry": "2025-11-05" },
+      { "item": "yogurt optional", "expiry": "2025-11-05" },
+      { "item": "fried onions", "expiry": "2025-11-05" },
+      { "item": "ghee or oil", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Raita (Yogurt Salad)",
+    "Ingredients": [
+      "Yogurt",
+      "Cucumber or boondi",
+      "Salt",
+      "Roasted cumin powder",
+      "Fresh coriander"
+    ],
+    "Instructions": "Whisk yogurt, add chopped cucumber or boondi, season with salt and roasted cumin. Chill.",
+    "Inventory": [
+      { "item": "yogurt", "expiry": "2025-11-05" },
+      { "item": "cucumber or boondi", "expiry": "2025-11-05" },
+      { "item": "salt", "expiry": "2025-11-05" },
+      { "item": "roasted cumin powder", "expiry": "2025-11-05" },
+      { "item": "fresh coriander", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Simple Rasam",
+    "Ingredients": [
+      "Tamarind or rasam paste",
+      "Tomato",
+      "Rasam powder",
+      "Toor dal (small amount) optional",
+      "Coriander",
+      "Mustard seeds for tempering"
+    ],
+    "Instructions": "Boil tomato with tamarind water and rasam powder, temper with mustard seeds and curry leaves, garnish and serve.",
+    "Inventory": [
+      { "item": "tamarind or rasam paste", "expiry": "2025-11-05" },
+      { "item": "tomato", "expiry": "2025-11-05" },
+      { "item": "rasam powder", "expiry": "2025-11-05" },
+      { "item": "toor dal (small amount) optional", "expiry": "2025-11-05" },
+      { "item": "coriander", "expiry": "2025-11-05" },
+      { "item": "mustard seeds for tempering", "expiry": "2025-11-05" }
+    ]
+  },
+  {
+    "Title": "Kheer (Rice Pudding)",
+    "Ingredients": [
+      "1/2 Cup rice",
+      "1 Litre milk",
+      "Sugar to taste",
+      "Cardamom",
+      "Nuts (almonds, cashews) optional"
+    ],
+    "Instructions": "Boil milk, add washed rice and simmer until rice is soft and milk thickens. Sweeten and flavor with cardamom and nuts.",
+    "Inventory": [
+      { "item": "1/2 cup rice", "expiry": "2025-11-05" },
+      { "item": "1 litre milk", "expiry": "2025-11-05" },
+      { "item": "sugar to taste", "expiry": "2025-11-05" },
+      { "item": "cardamom", "expiry": "2025-11-05" },
+      { "item": "nuts (almonds, cashews) optional", "expiry": "2025-11-05" }
+    ]
+  }
+]
