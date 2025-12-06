@@ -117,72 +117,87 @@ export default function AuthLanding() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
-        <div className="absolute top-0 -left-4 w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
-        <div className="absolute top-0 -right-4 w-96 h-96 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.04] dark:opacity-[0.02]" />
+
+        {/* Light mode gradients - Premium & Vibrant */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden dark:opacity-20 transition-opacity duration-300">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-200/40 rounded-full mix-blend-multiply filter blur-[128px] animate-blob" />
+          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-200/40 rounded-full mix-blend-multiply filter blur-[128px] animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-cyan-200/40 rounded-full mix-blend-multiply filter blur-[128px] animate-blob animation-delay-4000" />
+        </div>
+
+        {/* Dark mode gradients - Subtle & Deep */}
+        <div className="absolute inset-0 opacity-0 dark:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-emerald-900/20 rounded-full filter blur-[128px] animate-pulse" />
+          <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-teal-900/20 rounded-full filter blur-[128px] animate-pulse animation-delay-2000" />
+        </div>
       </div>
 
       {/* Content */}
       <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
         {showSplash ? (
-          <div className="animate-fade-in text-center">
+          <div className="animate-fade-in text-center z-10">
             <div className="relative">
-              <div className="absolute inset-0 blur-2xl opacity-50">
+              <div className="absolute inset-0 blur-3xl opacity-30 dark:opacity-50">
                 <div className="w-40 h-40 mx-auto bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full" />
               </div>
               <div className="relative w-40 h-40 mx-auto mb-6 flex items-center justify-center">
-                <Image src="/logo.svg" alt="Vasundhara emblem" width={160} height={160} priority className="drop-shadow-2xl" />
+                <Image src="/logo.svg" alt="Vasundhara emblem" width={160} height={160} priority className="drop-shadow-2xl dark:brightness-110" />
               </div>
             </div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent tracking-tight">Vasundhara</h2>
-            <p className="text-emerald-600 mt-3 text-lg font-semibold tracking-widest">SUGAM SEVA</p>
-            <div className="mt-6 flex items-center justify-center gap-2 text-emerald-500">
+            <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent tracking-tight mb-2">Vasundhara</h2>
+            <p className="text-emerald-700 dark:text-emerald-400 text-lg font-bold tracking-[0.2em]">SUGAM SEVA</p>
+            <div className="mt-8 flex items-center justify-center gap-2 text-emerald-600 dark:text-emerald-400">
               <SparklesIcon className="w-5 h-5 animate-pulse" />
-              <span className="text-sm font-medium">Loading your experience...</span>
+              <span className="text-sm font-semibold uppercase tracking-wider">Loading your experience...</span>
             </div>
           </div>
         ) : (
           <div className="w-full max-w-6xl">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
               {/* Left side - Branding */}
-              <div className="hidden lg:block space-y-8 px-8">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="relative">
-                      <div className="absolute inset-0 blur-xl opacity-50">
-                        <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl" />
+              <div className="hidden lg:block space-y-10 px-4">
+                <div className="space-y-6">
+                  <div className="flex items-center gap-5">
+                    <div className="relative group">
+                      <div className="absolute inset-0 blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-500">
+                        <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl" />
                       </div>
-                      <div className="relative w-16 h-16">
-                        <Image src="/logo.svg" alt="Vasundhara emblem" width={64} height={64} className="drop-shadow-lg" />
+                      <div className="relative w-20 h-20 transition-transform duration-500 group-hover:scale-105">
+                        <Image src="/logo.svg" alt="Vasundhara emblem" width={80} height={80} className="drop-shadow-xl" />
                       </div>
                     </div>
                     <div>
-                      <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Vasundhara</h1>
-                      <p className="text-xs uppercase tracking-[0.3em] text-emerald-600 font-semibold">Sugam Seva</p>
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Vasundhara</h1>
+                      <p className="text-xs uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-400 font-bold mt-1">Sugam Seva</p>
                     </div>
                   </div>
-                  <h2 className="text-4xl font-bold text-gray-900 leading-tight">
-                    Smart Inventory<br />Management for<br />Modern Living
+                  <h2 className="text-5xl font-bold text-slate-800 dark:text-slate-100 leading-[1.15]">
+                    Smart Inventory<br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">Management for</span><br />
+                    Modern Living
                   </h2>
-                  <p className="text-lg text-gray-600 leading-relaxed">
+                  <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-lg">
                     Join thousands of households and shopkeepers streamlining their inventory with AI-powered insights.
                   </p>
                 </div>
 
                 {/* Feature highlights */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {[
-                    { icon: '🏠', text: 'Track household essentials effortlessly' },
-                    { icon: '📊', text: 'Get smart recommendations & analytics' },
-                    { icon: '🛒', text: 'Connect with local shops & marketplace' },
+                    { icon: '🏠', text: 'Track household essentials effortlessly', desc: 'Never run out of what you need' },
+                    { icon: '📊', text: 'Get smart recommendations & analytics', desc: 'Data-driven decisions for your home' },
+                    { icon: '🛒', text: 'Connect with local shops & marketplace', desc: 'Seamless shopping experience' },
                   ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-gray-700">
-                      <span className="text-2xl">{item.icon}</span>
-                      <span className="font-medium">{item.text}</span>
+                    <div key={idx} className="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 border border-white/60 dark:border-slate-700/50 backdrop-blur-sm transition-all hover:translate-x-2">
+                      <span className="text-3xl bg-slate-100 dark:bg-slate-700 p-2 rounded-xl">{item.icon}</span>
+                      <div>
+                        <span className="font-semibold text-slate-800 dark:text-slate-200 block text-lg">{item.text}</span>
+                        <span className="text-sm text-slate-500 dark:text-slate-400">{item.desc}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -190,34 +205,34 @@ export default function AuthLanding() {
 
               {/* Right side - Auth form */}
               <div className="w-full">
-                <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-emerald-500/10 border border-white/20 p-8 sm:p-10">
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 dark:shadow-black/40 border border-white/40 dark:border-slate-700/50 p-6 sm:p-10 transition-all duration-300">
                   {/* Mobile logo */}
-                  <div className="lg:hidden flex items-center gap-3 mb-6">
-                    <Image src="/logo.svg" alt="Vasundhara emblem" width={40} height={40} />
+                  <div className="lg:hidden flex items-center gap-4 mb-8">
+                    <Image src="/logo.svg" alt="Vasundhara emblem" width={48} height={48} />
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Vasundhara</h3>
-                      <p className="text-xs uppercase tracking-[0.3em] text-emerald-600 font-semibold">Sugam Seva</p>
+                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Vasundhara</h3>
+                      <p className="text-xs uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-400 font-bold">Sugam Seva</p>
                     </div>
                   </div>
 
                   {!user && (
                     <>
                       {/* Tab switcher */}
-                      <div className="flex gap-2 mb-8 p-1 bg-gray-100 rounded-xl">
+                      <div className="flex gap-2 mb-8 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl">
                         <button
                           onClick={() => setIsLogin(true)}
-                          className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${isLogin
-                              ? 'bg-white text-emerald-600 shadow-sm'
-                              : 'text-gray-500 hover:text-gray-700'
+                          className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 ${isLogin
+                            ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                             }`}
                         >
                           Login
                         </button>
                         <button
                           onClick={() => setIsLogin(false)}
-                          className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${!isLogin
-                              ? 'bg-white text-emerald-600 shadow-sm'
-                              : 'text-gray-500 hover:text-gray-700'
+                          className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-200 ${!isLogin
+                            ? 'bg-white dark:bg-slate-700 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
                             }`}
                         >
                           Sign up
@@ -225,9 +240,9 @@ export default function AuthLanding() {
                       </div>
 
                       {/* Role selector */}
-                      <div className="mb-6">
-                        <p className="text-sm font-semibold text-gray-700 mb-3">Continue as:</p>
-                        <div className="grid grid-cols-3 gap-2">
+                      <div className="mb-8">
+                        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 px-1">Continue as:</p>
+                        <div className="grid grid-cols-3 gap-3">
                           {Object.entries(roleConfig).map(([key, config]) => {
                             const Icon = config.icon;
                             const isActive = effectiveRole === key;
@@ -235,17 +250,19 @@ export default function AuthLanding() {
                               <button
                                 key={key}
                                 onClick={() => handleRoleSelect(key as 'household' | 'shopkeeper' | 'admin')}
-                                className={`relative p-3 rounded-xl border-2 transition-all duration-200 ${isActive
-                                    ? 'border-emerald-500 bg-emerald-50'
-                                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                                className={`relative p-3 rounded-2xl border-2 transition-all duration-200 group ${isActive
+                                  ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20'
+                                  : 'border-slate-200 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-800/50 bg-transparent'
                                   }`}
                               >
-                                <Icon className={`w-6 h-6 mx-auto mb-2 ${isActive ? 'text-emerald-600' : 'text-gray-400'}`} />
-                                <p className={`text-xs font-semibold ${isActive ? 'text-emerald-600' : 'text-gray-600'}`}>
+                                <Icon className={`w-7 h-7 mx-auto mb-2 transition-colors ${isActive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`} />
+                                <p className={`text-[11px] font-bold uppercase tracking-wide ${isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}>
                                   {config.label}
                                 </p>
                                 {isActive && (
-                                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
+                                  <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-white dark:border-slate-900 flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                                  </div>
                                 )}
                               </button>
                             );
@@ -255,9 +272,9 @@ export default function AuthLanding() {
 
                       {/* Form */}
                       {isLogin ? (
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Email</label>
                             <Input
                               placeholder="you@example.com"
                               value={email}
@@ -266,7 +283,7 @@ export default function AuthLanding() {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Password</label>
                             <Input
                               placeholder="Enter your password"
                               value={password}
@@ -277,18 +294,18 @@ export default function AuthLanding() {
                           </div>
 
                           <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center gap-2 text-gray-600 cursor-pointer">
-                              <input type="checkbox" className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                            <label className="flex items-center gap-2.5 text-slate-600 dark:text-slate-400 cursor-pointer select-none">
+                              <input type="checkbox" className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 bg-transparent" />
                               Remember me
                             </label>
-                            <button className="text-emerald-600 hover:text-emerald-700 font-semibold">
+                            <button className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold">
                               Forgot password?
                             </button>
                           </div>
 
                           <Button
                             onClick={handleLogin}
-                            className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 transition-all duration-200"
+                            className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-900/40 transition-all duration-200 transform hover:-translate-y-0.5"
                           >
                             <span className="flex items-center justify-center gap-2">
                               Sign in
@@ -296,12 +313,12 @@ export default function AuthLanding() {
                             </span>
                           </Button>
 
-                          <div className="relative my-6">
+                          <div className="relative my-8">
                             <div className="absolute inset-0 flex items-center">
-                              <div className="w-full border-t border-gray-200" />
+                              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                              <span className="px-4 bg-white text-gray-500 font-medium">or</span>
+                              <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-medium">or continue with</span>
                             </div>
                           </div>
 
@@ -316,61 +333,61 @@ export default function AuthLanding() {
                               setGuestMode(true);
                               router.push('/');
                             }}
-                            className="w-full h-12 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 font-semibold rounded-xl transition-all duration-200"
+                            className="w-full h-12 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 font-semibold rounded-xl transition-all duration-200"
                           >
                             Continue as Guest
                           </Button>
                         </div>
                       ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">First name</label>
+                              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">First name</label>
                               <Input placeholder="Enter your first name" value={firstName} onChange={e => setFirstName(e.target.value)} />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">Last name</label>
+                              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Last name</label>
                               <Input placeholder="Enter your last name" value={lastName} onChange={e => setLastName(e.target.value)} />
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-gray-700">Profile picture</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">Profile picture</label>
                             <div className="flex flex-wrap items-center gap-4">
-                              <div className="w-16 h-16 rounded-full border-2 border-dashed border-emerald-200 bg-emerald-50 flex items-center justify-center overflow-hidden">
+                              <div className="w-16 h-16 rounded-full border-2 border-dashed border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center overflow-hidden">
                                 {profileImage ? (
                                   <img src={profileImage} alt="Profile preview" className="w-full h-full object-cover" />
                                 ) : (
-                                  <UserCircleIcon className="w-10 h-10 text-emerald-400" />
+                                  <UserCircleIcon className="w-10 h-10 text-emerald-400 dark:text-emerald-600" />
                                 )}
                               </div>
                               <div className="flex flex-col gap-2">
-                                <label className="inline-flex items-center justify-center rounded-lg border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 cursor-pointer hover:border-emerald-400">
+                                <label className="inline-flex items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors">
                                   Upload photo
                                   <input type="file" accept="image/*" className="sr-only" onChange={handleProfileImageUpload} />
                                 </label>
                                 {profileImage && (
-                                  <button type="button" onClick={() => setProfileImage(null)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 text-left">
+                                  <button type="button" onClick={() => setProfileImage(null)} className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-left">
                                     Remove photo
                                   </button>
                                 )}
-                                <p className="text-xs text-gray-500">Square images work best. Max 3 MB.</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-500">Square images work best. Max 3 MB.</p>
                               </div>
                             </div>
                           </div>
 
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Phone number</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Phone number</label>
                             <Input placeholder="+91 98765 43210" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} />
                           </div>
 
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Email</label>
                             <Input placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} />
                           </div>
 
                           <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Password</label>
                             <Input placeholder="Create a strong password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
                           </div>
 
@@ -400,7 +417,7 @@ export default function AuthLanding() {
 
                           <Button
                             onClick={handleRegister}
-                            className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 transition-all duration-200"
+                            className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-900/40 transition-all duration-200 transform hover:-translate-y-0.5"
                           >
                             <span className="flex items-center justify-center gap-2">
                               Create Account
@@ -408,19 +425,19 @@ export default function AuthLanding() {
                             </span>
                           </Button>
 
-                          <div className="relative my-4">
+                          <div className="relative my-6">
                             <div className="absolute inset-0 flex items-center">
-                              <div className="w-full border-t border-gray-200" />
+                              <div className="w-full border-t border-slate-200 dark:border-slate-700" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                              <span className="px-4 bg-white text-gray-500 font-medium">or</span>
+                              <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-medium">or continue with</span>
                             </div>
                           </div>
 
                           <Button
                             variant="outline"
                             onClick={() => { setGuestMode(true); router.push('/'); }}
-                            className="w-full h-12 border-2 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 font-semibold rounded-xl transition-all duration-200"
+                            className="w-full h-12 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-slate-800 font-semibold rounded-xl transition-all duration-200"
                           >
                             Try as Guest
                           </Button>
@@ -430,8 +447,8 @@ export default function AuthLanding() {
                   )}
 
                   {user && (
-                    <div className="text-center space-y-4">
-                      <div className="w-16 h-16 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold border border-emerald-100">
+                    <div className="text-center space-y-6">
+                      <div className="w-20 h-20 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-3xl font-bold border-4 border-emerald-100 dark:border-emerald-900 shadow-xl">
                         {user.profileImage ? (
                           <img src={user.profileImage} alt={`${user.firstName} ${user.lastName}`} className="w-full h-full object-cover" />
                         ) : (
@@ -442,20 +459,20 @@ export default function AuthLanding() {
                         )}
                       </div>
                       <div>
-                        <p className="text-lg font-semibold text-gray-900">Welcome back!</p>
-                        <p className="text-sm text-gray-600">{user.firstName} {user.lastName}</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-white">Welcome back!</p>
+                        <p className="text-slate-600 dark:text-slate-400 mt-1">{user.firstName} {user.lastName}</p>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                           onClick={() => router.push('/')}
-                          className="flex-1 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl"
+                          className="flex-1 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl"
                         >
                           Go to Dashboard
                         </Button>
                         <Button
                           variant="outline"
                           onClick={logout}
-                          className="h-12 border-2 border-gray-200 hover:border-red-300 hover:bg-red-50 hover:text-red-600 font-semibold rounded-xl"
+                          className="h-12 border-2 border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-800/50 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-600 dark:hover:text-red-400 font-semibold rounded-xl"
                         >
                           Logout
                         </Button>
@@ -465,11 +482,11 @@ export default function AuthLanding() {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-sm text-gray-500 mt-6">
+                <p className="text-center text-sm text-slate-500 dark:text-slate-500 mt-8">
                   By continuing, you agree to our{' '}
-                  <a href="#" className="text-emerald-600 hover:text-emerald-700 font-semibold">Terms</a>
+                  <a href="#" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold underline decoration-2 decoration-transparent hover:decoration-emerald-500 transition-all">Terms</a>
                   {' '}and{' '}
-                  <a href="#" className="text-emerald-600 hover:text-emerald-700 font-semibold">Privacy Policy</a>
+                  <a href="#" className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-semibold underline decoration-2 decoration-transparent hover:decoration-emerald-500 transition-all">Privacy Policy</a>
                 </p>
               </div>
             </div>

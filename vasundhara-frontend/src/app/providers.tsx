@@ -9,6 +9,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 import Splash from '@/components/Splash';
 import { MobileNavProvider } from '@/contexts/MobileNavContext';
+import { ThemeController } from '@/components/ThemeController';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +44,7 @@ export function Providers({ children }: ProvidersProps) {
         enableSystem
         disableTransitionOnChange
       >
+        <ThemeController />
         <AuthProvider>
           <NotificationProvider>
             <AnalyticsProvider>
