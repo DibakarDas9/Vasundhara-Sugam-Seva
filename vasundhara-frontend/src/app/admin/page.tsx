@@ -324,11 +324,26 @@ export default function AdminPage() {
                         </td>
                       </tr>
                     ) : (
-                      users.map((candidate) => (
+                      users.map((candidate) => {
+                        const isProtected = candidate.isProtected || candidate.email?.toLowerCase() === 'admin' || candidate._id === 'admin_default';
+                        return (
                         <tr key={candidate._id} className="text-sm text-gray-700">
                           <td className="px-4 py-3">
-                            <div className="font-semibold text-gray-900">{candidate.firstName} {candidate.lastName}</div>
-                            <div className="text-xs text-gray-500">{candidate.email}</div>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <div className="font-semibold text-gray-900">{candidate.firstName} {candidate.lastName}</div>
+                                {isProtected && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-purple-700">
+                                    <ShieldCheckIcon className="h-3.5 w-3.5" />
+                                    Protected
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500">{candidate.email}</div>
+                              {isProtected && candidate.protectedLabel && (
+                                <p className="text-[11px] text-purple-600">{candidate.protectedLabel}</p>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3 capitalize">
                             {candidate.role.replace('_', ' ')}
@@ -348,25 +363,32 @@ export default function AdminPage() {
                             {candidate.lastLoginAt ? formatDate(candidate.lastLoginAt) : '—'}
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => openActionModal(candidate, 'approve')}
-                                disabled={candidate.approvalStatus === 'approved'}
-                                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => openActionModal(candidate, 'reject')}
-                                disabled={candidate.approvalStatus === 'rejected'}
-                                className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                Reject
-                              </button>
-                            </div>
+                            {isProtected ? (
+                              <div className="rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700">
+                                System admin protected
+                              </div>
+                            ) : (
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => openActionModal(candidate, 'approve')}
+                                  disabled={candidate.approvalStatus === 'approved'}
+                                  className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => openActionModal(candidate, 'reject')}
+                                  disabled={candidate.approvalStatus === 'rejected'}
+                                  className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            )}
                           </td>
                         </tr>
-                      ))
+                      );
+                    })
                     )}
                   </tbody>
                 </table>

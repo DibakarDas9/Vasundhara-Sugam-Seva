@@ -5,6 +5,15 @@
 
 const USERS_STORAGE_KEY = 'vasundhara_users';
 const CURRENT_USER_KEY = 'vasundhara_current_user';
+export const SYSTEM_ADMIN_EMAIL = 'admin';
+export const SYSTEM_ADMIN_ID = 'admin_default';
+
+export function isSystemAdminAccount(subject: { id?: string; email?: string }): boolean {
+    if (!subject) return false;
+    const idMatch = subject.id === SYSTEM_ADMIN_ID;
+    const emailMatch = subject.email?.toLowerCase() === SYSTEM_ADMIN_EMAIL;
+    return Boolean(idMatch || emailMatch);
+}
 
 export interface StoredUser {
     id: string;
@@ -57,12 +66,12 @@ export function getAllUsers(): StoredUser[] {
         let users: StoredUser[] = usersData ? JSON.parse(usersData) : [];
 
         // Seed default admin if not exists
-        const adminExists = users.some(u => u.email === 'admin');
+        const adminExists = users.some(u => isSystemAdminAccount(u));
         if (!adminExists) {
             const defaultAdmin: StoredUser = {
-                id: 'admin_default',
-                email: 'admin',
-                password: hashPassword('admin'),
+            id: SYSTEM_ADMIN_ID,
+            email: SYSTEM_ADMIN_EMAIL,
+            password: hashPassword('admin'),
                 firstName: 'System',
                 lastName: 'Admin',
                 role: 'admin',
@@ -258,12 +267,17 @@ export function clearCurrentUser(): void {
  */
 export function deleteUser(id: string): boolean {
     const users = getAllUsers();
-    const filteredUsers = users.filter(user => user.id !== id);
+    const target = users.find(user => user.id === id);
 
-    if (filteredUsers.length === users.length) {
+    if (!target) {
         return false; // User not found
     }
 
+    if (isSystemAdminAccount(target)) {
+        throw new Error('The system admin account cannot be deleted.');
+    }
+
+    const filteredUsers = users.filter(user => user.id !== id);
     saveUsers(filteredUsers);
     return true;
 }

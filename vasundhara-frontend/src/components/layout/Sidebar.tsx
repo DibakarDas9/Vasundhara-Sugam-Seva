@@ -85,6 +85,15 @@ export function Sidebar({ className }: SidebarProps) {
 
   const navItems = persona === 'shopkeeper' ? shopNav : persona === 'admin' ? adminNav : homeownerNav;
   const { open, setOpen } = useMobileNav();
+  const profileName = guestMode
+    ? (guestName || 'Guest User')
+    : user
+      ? `${user.firstName} ${user.lastName}`.trim()
+      : 'John Doe';
+  const profileEmail = guestMode
+    ? (guestEmail || '')
+    : user?.email || 'john@example.com';
+  const profileImage = !guestMode ? user?.profileImage : undefined;
 
   return (
     <>
@@ -148,16 +157,20 @@ export function Sidebar({ className }: SidebarProps) {
             'flex items-center space-x-3',
             collapsed && 'justify-center'
           )}>
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <UserIcon className="w-5 h-5 text-gray-600" />
+            <div className="w-9 h-9 rounded-full border border-gray-200 overflow-hidden bg-gray-100 flex items-center justify-center">
+              {profileImage ? (
+                <img src={profileImage} alt={profileName} className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon className="w-5 h-5 text-gray-600" />
+              )}
             </div>
             {!collapsed && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-app truncate">
-                  {guestMode ? (guestName || 'Guest User') : 'John Doe'}
+                  {profileName}
                 </p>
                 <p className="text-xs text-muted truncate">
-                  {guestMode ? (guestEmail || '') : 'john@example.com'}
+                  {profileEmail}
                 </p>
               </div>
             )}

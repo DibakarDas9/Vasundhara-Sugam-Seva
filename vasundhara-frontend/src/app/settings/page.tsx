@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
+import { SystemAdminControls } from '@/components/admin/SystemAdminControls';
 import { CameraIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 
@@ -136,6 +137,15 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {user?.role === 'admin' && (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-purple-200 bg-purple-50 p-4 text-sm text-purple-900">
+                  You are managing the non-removable system admin account. Update its identity or password below to keep credentials current.
+                </div>
+                <SystemAdminControls showBanner={false} />
+              </div>
+            )}
           </div>
         </main>
       </div>

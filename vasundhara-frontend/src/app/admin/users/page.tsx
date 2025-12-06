@@ -1,60 +1,63 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { toast } from 'react-hot-toast';
 import { TrashIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-
-interface User {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    isActive: boolean;
-    approvalStatus: string;
-    createdAt: string;
-}
+import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode } from '@/lib/admin';
+import { deleteUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
 
 export default function AdminUsersPage() {
-    const [users, setUsers] = useState<User[]>([]);
+    const [users, setUsers] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [localMode, setLocalMode] = useState(true);
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
-
-    const fetchUsers = async () => {
+    const loadUsers = useCallback(async () => {
+        setLoading(true);
         try {
-            const res = await fetch('/api/users');
-            if (!res.ok) throw new Error('Failed to fetch users');
-            const data = await res.json();
-            setUsers(data);
+            const response = await fetchAdminUsers({ limit: 200, sort: 'desc' });
+            setUsers(response.data);
         } catch (error) {
-            toast.error('Error loading users');
             console.error(error);
+            toast.error(error instanceof Error ? error.message : 'Error loading users');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        setLocalMode(isLocalAdminDataMode());
+        loadUsers();
+
+        const handleStorage = (event: StorageEvent) => {
+            if (!event.key) return;
+            if (event.key === 'vasundhara_users' || event.key === 'vasundhara_admin_audit_logs') {
+                loadUsers();
+            }
+        };
+
+        window.addEventListener('storage', handleStorage);
+        return () => window.removeEventListener('storage', handleStorage);
+    }, [loadUsers]);
 
     const handleDelete = async () => {
         if (!deleteId) return;
 
+        if (!localMode) {
+            toast.error('User removal is only available in local admin mode.');
+            setDeleteId(null);
+            return;
+        }
+
         try {
-            const res = await fetch(`/api/users/${deleteId}`, {
-                method: 'DELETE',
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || 'Failed to delete user');
+            const removed = deleteUser(deleteId);
+            if (!removed) {
+                throw new Error('Unable to remove user');
             }
-
-            setUsers(users.filter(u => u.id !== deleteId));
             toast.success('User removed successfully');
             setDeleteId(null);
+            await loadUsers();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to remove user');
             console.error(error);
@@ -84,8 +87,10 @@ export default function AdminUsersPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {users.map((user) => (
-                                        <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
+                                    {users.map((user) => {
+                                        const isSystemAdmin = user._id === SYSTEM_ADMIN_ID || user.email?.toLowerCase() === SYSTEM_ADMIN_EMAIL;
+                                        return (
+                                            <tr key={user._id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
@@ -94,6 +99,9 @@ export default function AdminUsersPage() {
                                                     <div>
                                                         <div className="font-medium text-gray-900">{user.firstName} {user.lastName}</div>
                                                         <div className="text-xs text-gray-500">{user.email}</div>
+                                                        {isSystemAdmin && (
+                                                            <p className="text-[11px] font-semibold text-purple-600 mt-1">Protected system admin</p>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>
@@ -102,30 +110,35 @@ export default function AdminUsersPage() {
                           ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
                                                         user.role === 'shopkeeper' ? 'bg-amber-100 text-amber-700' :
                                                             'bg-emerald-100 text-emerald-700'}`}>
-                                                    {user.role}
+                                                    {user.role.replace('_', ' ')}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium
-                          ${user.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`} />
-                                                    {user.isActive ? 'Active' : 'Inactive'}
+                          ${(user.isActive ?? true) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${(user.isActive ?? true) ? 'bg-green-500' : 'bg-red-500'}`} />
+                                                    {(user.isActive ?? true) ? 'Active' : 'Inactive'}
                                                 </span>
+                                                <div className="mt-1 text-xs text-gray-500 capitalize">{user.approvalStatus}</div>
                                             </td>
                                             <td className="px-6 py-4 text-gray-500">
                                                 {new Date(user.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <button
-                                                    onClick={() => setDeleteId(user.id)}
-                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                                                    title="Remove User"
+                                                    onClick={() => setDeleteId(user._id)}
+                                                    className={`text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors ${(localMode && !isSystemAdmin) ? '' : 'opacity-40 cursor-not-allowed'}`}
+                                                    title={isSystemAdmin
+                                                        ? 'The system admin account cannot be removed.'
+                                                        : (localMode ? 'Remove User' : 'Removal disabled in remote mode')}
+                                                    disabled={!localMode || isSystemAdmin}
                                                 >
                                                     <TrashIcon className="w-5 h-5" />
                                                 </button>
                                             </td>
-                                        </tr>
-                                    ))}
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

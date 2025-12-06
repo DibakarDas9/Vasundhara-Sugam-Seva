@@ -11,7 +11,8 @@ import {
   BuildingStorefrontIcon,
   ShieldCheckIcon,
   SparklesIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 
 export default function AuthLanding() {
@@ -30,6 +31,7 @@ export default function AuthLanding() {
   const [businessName, setBusinessName] = useState('');
   const [licenseNumber, setLicenseNumber] = useState('');
   const [shopAddress, setShopAddress] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const effectiveRole = useMemo<'household' | 'shopkeeper' | 'admin'>(() => {
     if (role === 'shopkeeper' || role === 'admin' || role === 'household') return role;
@@ -57,6 +59,7 @@ export default function AuthLanding() {
         firstName,
         lastName,
         phoneNumber,
+        profileImage: profileImage || undefined,
         role: effectiveRole,
         householdProfile: effectiveRole === 'household' ? {
           familySize: householdFamilySize ? Number(householdFamilySize) : undefined,
@@ -71,6 +74,18 @@ export default function AuthLanding() {
       });
     } catch (e) { }
   }
+
+  const handleProfileImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        setProfileImage(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const roleConfig = {
     household: {
@@ -91,6 +106,14 @@ export default function AuthLanding() {
       description: 'System administration',
       gradient: 'from-purple-500 to-indigo-600'
     }
+  };
+
+  const handleRoleSelect = (targetRole: 'household' | 'shopkeeper' | 'admin') => {
+    if (targetRole === 'admin') {
+      router.push('/admin/access');
+      return;
+    }
+    setRole(targetRole);
   };
 
   return (
@@ -211,7 +234,7 @@ export default function AuthLanding() {
                             return (
                               <button
                                 key={key}
-                                onClick={() => setRole(key as any)}
+                                onClick={() => handleRoleSelect(key as 'household' | 'shopkeeper' | 'admin')}
                                 className={`relative p-3 rounded-xl border-2 transition-all duration-200 ${isActive
                                     ? 'border-emerald-500 bg-emerald-50'
                                     : 'border-gray-200 hover:border-gray-300 bg-white'
@@ -303,11 +326,36 @@ export default function AuthLanding() {
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-semibold text-gray-700 mb-2">First name</label>
-                              <Input placeholder="John" value={firstName} onChange={e => setFirstName(e.target.value)} />
+                              <Input placeholder="Enter your first name" value={firstName} onChange={e => setFirstName(e.target.value)} />
                             </div>
                             <div>
                               <label className="block text-sm font-semibold text-gray-700 mb-2">Last name</label>
-                              <Input placeholder="Doe" value={lastName} onChange={e => setLastName(e.target.value)} />
+                              <Input placeholder="Enter your last name" value={lastName} onChange={e => setLastName(e.target.value)} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-gray-700">Profile picture</label>
+                            <div className="flex flex-wrap items-center gap-4">
+                              <div className="w-16 h-16 rounded-full border-2 border-dashed border-emerald-200 bg-emerald-50 flex items-center justify-center overflow-hidden">
+                                {profileImage ? (
+                                  <img src={profileImage} alt="Profile preview" className="w-full h-full object-cover" />
+                                ) : (
+                                  <UserCircleIcon className="w-10 h-10 text-emerald-400" />
+                                )}
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                <label className="inline-flex items-center justify-center rounded-lg border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 cursor-pointer hover:border-emerald-400">
+                                  Upload photo
+                                  <input type="file" accept="image/*" className="sr-only" onChange={handleProfileImageUpload} />
+                                </label>
+                                {profileImage && (
+                                  <button type="button" onClick={() => setProfileImage(null)} className="text-xs font-semibold text-gray-500 hover:text-gray-700 text-left">
+                                    Remove photo
+                                  </button>
+                                )}
+                                <p className="text-xs text-gray-500">Square images work best. Max 3 MB.</p>
+                              </div>
                             </div>
                           </div>
 
@@ -383,8 +431,15 @@ export default function AuthLanding() {
 
                   {user && (
                     <div className="text-center space-y-4">
-                      <div className="w-16 h-16 mx-auto bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                        {user.firstName[0]}{user.lastName[0]}
+                      <div className="w-16 h-16 mx-auto rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold border border-emerald-100">
+                        {user.profileImage ? (
+                          <img src={user.profileImage} alt={`${user.firstName} ${user.lastName}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>
+                            {user.firstName[0]}
+                            {user.lastName[0]}
+                          </span>
+                        )}
                       </div>
                       <div>
                         <p className="text-lg font-semibold text-gray-900">Welcome back!</p>

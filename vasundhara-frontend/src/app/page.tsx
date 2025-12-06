@@ -146,7 +146,7 @@ const motionFade = {
 
 export default function HomePage() {
   const router = useRouter();
-  const { login, register } = useAuth();
+  const { login, register, user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -236,6 +236,15 @@ export default function HomePage() {
     }
   };
 
+  const userInitials = user
+    ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.trim() || user.email?.[0] || 'U'
+    : '';
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
       <motion.div
@@ -278,18 +287,48 @@ export default function HomePage() {
 
           <div className="hidden items-center gap-3 lg:flex">
             <ThemeToggle />
-            <Link
-              href="/auth"
-              className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              Login
-            </Link>
-            <Link
-              href="/auth"
-              className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-emerald-500/40 transition hover:-translate-y-0.5"
-            >
-              Sign up
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-4 rounded-full border border-white/15 bg-white/5 px-4 py-2">
+                <div className="h-10 w-10 rounded-full border border-white/20 bg-white/10 overflow-hidden flex items-center justify-center text-base font-semibold text-white">
+                  {user.profileImage ? (
+                    <img src={user.profileImage} alt={user.firstName} className="h-full w-full object-cover" />
+                  ) : (
+                    <span>{userInitials}</span>
+                  )}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-white">{user.firstName} {user.lastName}</p>
+                  <p className="text-xs text-emerald-200">Logged in</p>
+                </div>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="rounded-full bg-emerald-400/90 px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-emerald-300"
+                >
+                  Open app
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs font-semibold text-white/70 hover:text-white"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/auth"
+                  className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/auth"
+                  className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-emerald-500/40 transition hover:-translate-y-0.5"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </div>
 
           <button className="inline-flex lg:hidden" onClick={() => setNavOpen((prev) => !prev)} aria-label="Toggle navigation">
@@ -317,22 +356,54 @@ export default function HomePage() {
                     {link.label}
                   </Link>
                 ))}
-                <div className="flex gap-3 pt-2">
-                  <Link
-                    href="/auth"
-                    className="flex-1 rounded-2xl border border-white/20 px-4 py-2 text-center"
-                    onClick={() => setNavOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/auth"
-                    className="flex-1 rounded-2xl bg-emerald-400 px-4 py-2 text-center text-slate-900"
-                    onClick={() => setNavOpen(false)}
-                  >
-                    Sign up
-                  </Link>
-                </div>
+                {user ? (
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full border border-white/20 bg-white/10 overflow-hidden flex items-center justify-center text-lg font-semibold">
+                        {user.profileImage ? (
+                          <img src={user.profileImage} alt={user.firstName} className="h-full w-full object-cover" />
+                        ) : (
+                          <span>{userInitials}</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-white">{user.firstName} {user.lastName}</p>
+                        <p className="text-xs text-emerald-200">You are signed in</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        onClick={() => { setNavOpen(false); router.push('/dashboard'); }}
+                        className="flex-1 rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900"
+                      >
+                        Go to dashboard
+                      </button>
+                      <button
+                        onClick={() => { setNavOpen(false); handleLogout(); }}
+                        className="flex-1 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white/80"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex gap-3 pt-2">
+                    <Link
+                      href="/auth"
+                      className="flex-1 rounded-2xl border border-white/20 px-4 py-2 text-center"
+                      onClick={() => setNavOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/auth"
+                      className="flex-1 rounded-2xl bg-emerald-400 px-4 py-2 text-center text-slate-900"
+                      onClick={() => setNavOpen(false)}
+                    >
+                      Sign up
+                    </Link>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

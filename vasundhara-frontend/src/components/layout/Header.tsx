@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { BellIcon, MagnifyingGlassIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useMobileNav } from '@/contexts/MobileNavContext';
+import { NotificationPanel } from '@/components/ui/NotificationPanel';
 
 interface HeaderProps {
   title: string;
@@ -20,6 +21,7 @@ export function Header({ title, subtitle, className }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { toggle } = useMobileNav();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   // Check if we're in the admin area
   const isAdminArea = pathname?.startsWith('/admin');
@@ -37,6 +39,7 @@ export function Header({ title, subtitle, className }: HeaderProps) {
   };
 
   return (
+    <>
     <header className={`app-header px-6 py-4 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -66,7 +69,13 @@ export function Header({ title, subtitle, className }: HeaderProps) {
           )}
 
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="relative"
+            aria-label="Open notifications"
+            onClick={() => setNotificationsOpen(true)}
+          >
             <BellIcon className="w-5 h-5" />
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
               3
@@ -108,5 +117,7 @@ export function Header({ title, subtitle, className }: HeaderProps) {
         </div>
       </div>
     </header>
+    <NotificationPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
+    </>
   );
 }
