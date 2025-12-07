@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Logo } from '@/components/ui/Logo';
+import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   HomeIcon,
@@ -145,7 +147,7 @@ export default function AuthLanding() {
                 <div className="w-40 h-40 mx-auto bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full" />
               </div>
               <div className="relative w-40 h-40 mx-auto mb-6 flex items-center justify-center">
-                <Image src="/logo.svg" alt="Vasundhara emblem" width={160} height={160} priority className="drop-shadow-2xl dark:brightness-110" />
+                <AnimatedLogo size={160} className="drop-shadow-2xl" />
               </div>
             </div>
             <h2 className="text-5xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent tracking-tight mb-2">Vasundhara</h2>
@@ -167,7 +169,7 @@ export default function AuthLanding() {
                         <div className="w-20 h-20 bg-gradient-to-br from-emerald-400 to-teal-600 rounded-2xl" />
                       </div>
                       <div className="relative w-20 h-20 transition-transform duration-500 group-hover:scale-105">
-                        <Image src="/logo.svg" alt="Vasundhara emblem" width={80} height={80} className="drop-shadow-xl" />
+                        <Logo className="w-20 h-20 drop-shadow-xl text-emerald-600" />
                       </div>
                     </div>
                     <div>
@@ -208,7 +210,7 @@ export default function AuthLanding() {
                 <div className="bg-white/80 dark:bg-black/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 dark:shadow-white/5 border border-white/40 dark:border-gray-800/50 p-6 sm:p-10 transition-all duration-300">
                   {/* Mobile logo */}
                   <div className="lg:hidden flex items-center gap-4 mb-8">
-                    <Image src="/logo.svg" alt="Vasundhara emblem" width={48} height={48} />
+                    <Logo className="w-12 h-12 text-emerald-600 dark:text-emerald-400" />
                     <div>
                       <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Vasundhara</h3>
                       <p className="text-xs uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-400 font-bold">Sugam Seva</p>

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useRef, type ComponentType, type SVGProps } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Logo } from '@/components/ui/Logo';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -259,7 +260,7 @@ export default function HomePage() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8">
           <Link href="/" className="flex items-center gap-3 text-white">
-            <Image src="/logo.svg" alt="Vasundhara Sugam Seva logo" width={40} height={40} className="h-10 w-10" priority />
+            <Logo className="h-10 w-10 text-emerald-400" />
             <div>
               <p className="font-semibold tracking-wide">Vasundhara</p>
               <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Sugam Seva</p>

@@ -2,8 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocalInventory } from '@/lib/localInventory';
-
-const POS_KEY = 'vasundhara_voice_button_pos_v1';
+import { cn } from '@/lib/utils';
 
 type Parsed = {
   name?: string;
@@ -80,20 +79,8 @@ function parseFreeFormTranscript(t: string): Parsed {
 
 export default function VoiceAddFloating() {
   const { addItem } = useLocalInventory();
-  const ref = useRef<HTMLButtonElement | null>(null);
-  const [pos, setPos] = useState<{ x: number; y: number }>(() => {
-    try {
-      const raw = localStorage.getItem(POS_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {
-      // ignore
-    }
-    return { x: 24, y: 200 };
-  });
-  const draggingRef = useRef(false);
-  const didMoveRef = useRef(false);
-  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
-  const originRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Audio / Speech State
   const [listening, setListening] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const messageTimeoutRef = useRef<number | null>(null);
@@ -101,39 +88,11 @@ export default function VoiceAddFloating() {
   const [transcript, setTranscript] = useState<string>('');
   const [parsed, setParsed] = useState<Parsed | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Inputs
   const [categoryInput, setCategoryInput] = useState<string>('');
   const [expiryInput, setExpiryInput] = useState<string>(''); // expected dd/mm/yyyy
   const [expiryError, setExpiryError] = useState<string | null>(null);
-
-  useEffect(() => {
-    try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch (e) {}
-  }, [pos]);
-
-  useEffect(() => {
-    const onPointerMove = (e: PointerEvent) => {
-      if (!draggingRef.current) return;
-      if (!pointerStartRef.current || !originRef.current) return;
-      const dx = e.clientX - pointerStartRef.current.x;
-      const dy = e.clientY - pointerStartRef.current.y;
-      // mark as moved if beyond small threshold to distinguish drag vs click
-      if (Math.abs(dx) > 6 || Math.abs(dy) > 6) didMoveRef.current = true;
-      setPos({ x: Math.max(8, originRef.current.x + dx), y: Math.max(8, originRef.current.y + dy) });
-    };
-    const onPointerUp = () => { draggingRef.current = false; pointerStartRef.current = null; originRef.current = null; };
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
-    return () => {
-      window.removeEventListener('pointermove', onPointerMove);
-      window.removeEventListener('pointerup', onPointerUp);
-    };
-  }, []);
-
-  function startDrag(e: React.PointerEvent) {
-    (e.target as Element).setPointerCapture?.(e.pointerId);
-    draggingRef.current = true;
-    pointerStartRef.current = { x: e.clientX, y: e.clientY };
-    originRef.current = { x: pos.x, y: pos.y };
-  }
 
   // Speech recognition and parsing
   function startListening() {
@@ -252,86 +211,77 @@ export default function VoiceAddFloating() {
 
   const btnBg = listening ? 'bg-red-600 hover:bg-red-500' : (stoppedFlash ? 'bg-emerald-500/95' : 'bg-emerald-600 hover:bg-emerald-500');
 
+  // FIXED POSITION CLASS: bottom-6 right-6
   return (
     <div>
-      <button
-        ref={ref}
-        onPointerDown={startDrag}
-        onClick={(e) => {
-          // if we moved (dragged) recently, ignore click
-          if (didMoveRef.current) {
-            // reset flag for next interaction
-            didMoveRef.current = false;
-            return;
-          }
-          // else start listening
-          startListening();
-        }}
-        style={{
-          position: 'fixed',
-          left: pos.x,
-          top: pos.y,
-          zIndex: 9999,
-        }}
-  className={`no-invert voice-animate ${btnBg} active:scale-95 transition-transform duration-150 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl ring-2 ring-white/20 relative`}
-        aria-label="Voice add"
-        title="Voice Add — drag to move"
-      >
-        {/* main mic icon */}
-        <svg xmlns="http://www.w3.org/2000/svg" className={`w-7 h-7 ${listening ? 'animate-pulse' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" d="M12 1v11m0 0a3 3 0 0 0 3-3V4a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
-          <path strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 0 1-14 0" />
-        </svg>
-        {/* plus badge to indicate add/inventory */}
-        <div className="absolute -top-1 -right-1 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center text-emerald-700 text-xs font-semibold">+</div>
-      </button>
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
 
-      {/* small label so user recognizes purpose */}
-      <div style={{ position: 'fixed', left: pos.x + 50, top: pos.y + 10 }} className="z-50 select-none">
-        <div className="bg-black/70 text-white text-xs px-2 py-1 rounded-md">Voice Add</div>
+        {/* Label: shows on hover or always for clarity? Let's hide it to be clean, or show on hover. */}
+        {/* User wanted a "single place", implying clarity. A label helps. */}
+        <div className="bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap mb-1">
+          Voice Add
+        </div>
+
+        <button
+          onClick={startListening}
+          className={cn(
+            "no-invert voice-animate active:scale-95 transition-all duration-200 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-xl ring-2 ring-white/20 relative",
+            btnBg
+          )}
+          aria-label="Voice add"
+          title="Voice Add"
+        >
+          {/* main mic icon */}
+          <svg xmlns="http://www.w3.org/2000/svg" className={`w-7 h-7 ${listening ? 'animate-pulse' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" d="M12 1v11m0 0a3 3 0 0 0 3-3V4a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
+            <path strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 0 1-14 0" />
+          </svg>
+          {/* plus badge to indicate add/inventory */}
+          <div className="absolute -top-1 -right-1 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center text-emerald-700 text-xs font-semibold">+</div>
+        </button>
       </div>
 
-      {/* confirmation popup */}
+      {/* confirmation popup - Anchored to valid screen area */}
       {showConfirm && parsed && (
-        <div style={{ position: 'fixed', left: pos.x + 64, top: pos.y }} className="z-50 max-w-xs p-3 bg-white rounded-lg shadow-lg border">
-          <div className="text-sm text-slate-700">Detected:</div>
-          <div className="mt-1 font-medium">{parsed.name || '—'}</div>
-          <div className="text-xs text-slate-500 mt-1">{parsed.quantity ?? ''} {parsed.unit ?? ''}</div>
+        <div className="fixed bottom-24 right-6 z-50 w-72 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 animate-in slide-in-from-bottom-5 fade-in duration-200">
+          <div className="text-sm text-slate-500 dark:text-slate-400">Detected:</div>
+          <div className="mt-1 font-semibold text-lg text-slate-900 dark:text-white">{parsed.name || '—'}</div>
+          <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{parsed.quantity ?? ''} {parsed.unit ?? ''}</div>
 
           {/* editable category and expiry fields (optional) */}
           <div className="mt-3">
-            <label className="text-xs text-slate-600">Category (optional)</label>
+            <label className="text-xs text-slate-500 dark:text-slate-400">Category (optional)</label>
             <input
               value={categoryInput || parsed.category || ''}
               onChange={(e) => setCategoryInput(e.target.value)}
               placeholder="e.g. fruit"
-              className="mt-1 block w-full border px-2 py-1 rounded text-sm"
+              className="mt-1 block w-full border dark:border-slate-600 bg-transparent px-2 py-1.5 rounded text-sm dark:text-white"
             />
           </div>
 
           <div className="mt-3">
-            <label className="text-xs text-slate-600">Expiry date (optional, dd/mm/yyyy)</label>
+            <label className="text-xs text-slate-500 dark:text-slate-400">Expiry date (optional, dd/mm/yyyy)</label>
             <input
               value={expiryInput || (parsed.expiryDays ? isoToDDMMYYYY(daysFromNowToISO(parsed.expiryDays)) : '')}
               onChange={(e) => { setExpiryInput(e.target.value); setExpiryError(null); }}
               placeholder="dd/mm/yyyy"
-              className="mt-1 block w-full border px-2 py-1 rounded text-sm"
+              className="mt-1 block w-full border dark:border-slate-600 bg-transparent px-2 py-1.5 rounded text-sm dark:text-white"
             />
             {expiryError && <div className="text-xs text-red-600 mt-1">{expiryError}</div>}
           </div>
 
-          <div className="mt-3 flex gap-2">
-            <button onClick={confirmAdd} className="px-3 py-1 bg-emerald-600 text-white rounded">Add</button>
+          <div className="mt-4 flex gap-2">
+            <button onClick={confirmAdd} className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors">Add Item</button>
             <button onClick={() => {
               setShowConfirm(false); setParsed(null); setTranscript(''); setCategoryInput(''); setExpiryInput(''); setExpiryError(null);
-            }} className="px-3 py-1 border rounded">Cancel</button>
+            }} className="px-3 py-2 border dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-white transition-colors">Cancel</button>
           </div>
         </div>
       )}
 
       {/* transient message */}
       {message && (
-        <div style={{ position: 'fixed', left: pos.x, top: pos.y + 72 }} className="z-50 p-2 bg-black/80 text-white rounded text-sm">
+        <div className="fixed bottom-24 right-6 z-[60] p-3 bg-black/80 backdrop-blur text-white rounded-lg text-sm shadow-xl animate-in fade-in zoom-in-95 duration-200">
           {message}
         </div>
       )}

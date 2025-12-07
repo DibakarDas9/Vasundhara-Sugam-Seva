@@ -2,7 +2,7 @@ import { forwardRef, SVGProps } from 'react';
 import { cn } from '@/lib/utils';
 
 interface LogoProps extends SVGProps<SVGSVGElement> {
-  className?: string;
+  className?: string; // Kept for compatibility, though we mostly rely on props
 }
 
 export const Logo = forwardRef<SVGSVGElement, LogoProps>(
@@ -10,40 +10,53 @@ export const Logo = forwardRef<SVGSVGElement, LogoProps>(
     return (
       <svg
         ref={ref}
-        viewBox="0 0 40 40"
+        viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className={cn('h-8 w-8', className)}
         {...props}
       >
-        {/* Leaf/Plant icon representing sustainability and growth */}
-        <path
-          d="M20 2C20 2 8 8 8 20C8 28 12 32 20 32C28 32 32 28 32 20C32 8 20 2 20 2Z"
-          fill="currentColor"
-          fillOpacity="0.8"
+        <defs>
+          <linearGradient id="staticGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
+          </linearGradient>
+          <linearGradient id="staticGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.8" />
+          </linearGradient>
+          <radialGradient id="staticSunGradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(50 20) rotate(90) scale(10)">
+            <stop stopColor="#FBBF24" />
+            <stop offset="1" stopColor="#F59E0B" />
+          </radialGradient>
+        </defs>
+
+        {/* Sun - Orange/Gold */}
+        <circle
+          cx="50"
+          cy="20"
+          r="8"
+          fill="url(#staticSunGradient)"
         />
+
+        {/* Left Arm */}
         <path
-          d="M20 4C20 4 10 9 10 20C10 26 13 29 20 29C27 29 30 26 30 20C30 9 20 4 20 4Z"
-          fill="currentColor"
-        />
-        {/* Stem */}
-        <path
-          d="M20 32L20 38"
-          stroke="currentColor"
-          strokeWidth="2"
+          d="M25 25 L50 75"
+          stroke="url(#staticGrad1)"
+          strokeWidth="16"
           strokeLinecap="round"
+          className="mix-blend-multiply dark:mix-blend-screen"
         />
-        {/* Small leaves */}
+
+        {/* Right Arm */}
         <path
-          d="M16 6C16 6 12 8 12 12C12 14 13 15 16 15C19 15 20 14 20 12C20 8 16 6 16 6Z"
-          fill="currentColor"
-          fillOpacity="0.6"
+          d="M75 25 L50 75"
+          stroke="url(#staticGrad2)"
+          strokeWidth="16"
+          strokeLinecap="round"
+          className="mix-blend-multiply dark:mix-blend-screen"
         />
-        <path
-          d="M24 6C24 6 28 8 28 12C28 14 27 15 24 15C21 15 20 14 20 12C20 8 24 6 24 6Z"
-          fill="currentColor"
-          fillOpacity="0.6"
-        />
+
       </svg>
     );
   }

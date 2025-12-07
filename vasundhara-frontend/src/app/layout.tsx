@@ -36,7 +36,7 @@ export default function RootLayout({
         <div className="h-full">
           <Providers>
             {children}
-            <ChatBot />
+            {/* <ChatBot /> */}
             <VoiceAddMount />
             <ClickEffects />
           </Providers>

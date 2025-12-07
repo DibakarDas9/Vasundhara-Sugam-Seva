@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Logo } from '@/components/ui/Logo';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -107,7 +108,7 @@ export function Sidebar({ className }: SidebarProps) {
         <div className="flex items-center justify-between p-4 border-b border-app">
           <div className="flex items-center space-x-2">
             <div className="w-9 h-9 relative">
-              <Image src="/logo.svg" alt="Vasundhara icon" fill sizes="36px" priority className="object-contain" />
+              <Logo className="w-full h-full text-emerald-600" />
             </div>
             {!collapsed && (
               <div className="leading-tight">
@@ -187,7 +188,7 @@ export function Sidebar({ className }: SidebarProps) {
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 relative">
-                    <Image src="/logo.svg" alt="Vasundhara icon" fill sizes="32px" className="object-contain" />
+                    <Logo className="w-full h-full text-emerald-600" />
                   </div>
                   <div>
                     <span className="text-lg font-bold text-app block leading-tight">Vasundhara</span>
