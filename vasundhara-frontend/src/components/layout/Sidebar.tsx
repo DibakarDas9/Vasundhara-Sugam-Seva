@@ -23,7 +23,7 @@ import {
   ChevronRightIcon,
   Squares2X2Icon,
   ShieldCheckIcon,
-  BoltIcon
+
 } from '@heroicons/react/24/outline';
 
 const baseNav = [
@@ -61,7 +61,7 @@ const adminNav = [
   { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon },
   { name: 'Rewards', href: '/admin/rewards', icon: GiftIcon },
   { name: 'Notifications', href: '/admin/notifications', icon: BellIcon },
-  { name: 'ML Monitoring', href: '/admin/monitoring', icon: BoltIcon },
+
   { name: 'Settings', href: '/admin/settings', icon: CogIcon },
 ];
 
