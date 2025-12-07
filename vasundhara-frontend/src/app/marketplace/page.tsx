@@ -18,84 +18,27 @@ import {
   FunnelIcon
 } from '@heroicons/react/24/outline';
 
-const mockListings = [
-  {
-    id: 1,
-    title: 'Fresh Organic Bananas',
-    description: '6 organic bananas, still fresh, expiring in 2 days',
-    category: 'Fruits',
-    quantity: 6,
-    unit: 'pieces',
-    price: 0,
-    originalPrice: 3.50,
-    location: 'Downtown',
-    distance: '0.5 miles',
-    postedBy: 'Sarah M.',
-    postedTime: '2 hours ago',
-    image: '/api/placeholder/200/150',
-    isFree: true,
-    isLiked: false,
-    rating: 4.8,
-    pickupTime: 'Today 6-8 PM'
-  },
-  {
-    id: 2,
-    title: 'Greek Yogurt Containers',
-    description: '2 containers of Greek yogurt, unopened, expires tomorrow',
-    category: 'Dairy',
-    quantity: 2,
-    unit: 'containers',
-    price: 2.00,
-    originalPrice: 5.99,
-    location: 'Midtown',
-    distance: '1.2 miles',
-    postedBy: 'Mike R.',
-    postedTime: '4 hours ago',
-    image: '/api/placeholder/200/150',
-    isFree: false,
-    isLiked: true,
-    rating: 4.6,
-    pickupTime: 'Tomorrow 10-12 AM'
-  },
-  {
-    id: 3,
-    title: 'Fresh Spinach Bundle',
-    description: 'Large bundle of fresh spinach, perfect for salads',
-    category: 'Vegetables',
-    quantity: 1,
-    unit: 'bundle',
-    price: 0,
-    originalPrice: 2.99,
-    location: 'Uptown',
-    distance: '0.8 miles',
-    postedBy: 'Lisa K.',
-    postedTime: '6 hours ago',
-    image: '/api/placeholder/200/150',
-    isFree: true,
-    isLiked: false,
-    rating: 4.9,
-    pickupTime: 'Today 4-6 PM'
-  },
-  {
-    id: 4,
-    title: 'Chicken Breast (Frozen)',
-    description: '1.5 lbs of frozen chicken breast, good for another week',
-    category: 'Meat',
-    quantity: 1.5,
-    unit: 'lbs',
-    price: 5.00,
-    originalPrice: 12.99,
-    location: 'Westside',
-    distance: '2.1 miles',
-    postedBy: 'David L.',
-    postedTime: '1 day ago',
-    image: '/api/placeholder/200/150',
-    isFree: false,
-    isLiked: false,
-    rating: 4.7,
-    pickupTime: 'Tomorrow 2-4 PM'
-  }
-];
+type MarketplaceListing = {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  price: number;
+  originalPrice: number;
+  location: string;
+  distance: string;
+  postedBy: string;
+  postedTime: string;
+  image: string;
+  isFree: boolean;
+  isLiked: boolean;
+  rating: number;
+  pickupTime: string;
+};
+
+const mockListings: MarketplaceListing[] = [];
 
 const categories = ['All', 'Fruits', 'Vegetables', 'Dairy', 'Meat', 'Grains', 'Beverages'];
 
@@ -149,6 +92,20 @@ function MarketplaceContent() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
+            <Card className="border-dashed border-green-500/50 bg-green-50 dark:bg-green-950/20">
+              <CardContent className="flex flex-col gap-2 text-center py-6">
+                <p className="text-sm font-semibold uppercase tracking-wide text-green-600 dark:text-green-300">
+                  Feature coming soon
+                </p>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Community marketplace opens shortly
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                  We are finalizing the sharing workflow so everyone can safely exchange surplus food. Hang tight while we polish the experience.
+                </p>
+              </CardContent>
+            </Card>
+
             {/* Search and Filters */}
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex-1">
@@ -280,13 +237,13 @@ function MarketplaceContent() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No items found</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Marketplace launching soon</h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Try adjusting your search or filters to find more items
+                    We&apos;re preparing curated listings for everyone. Check back shortly to discover and share surplus meals.
                   </p>
-                  <Button icon={<PlusIcon className="w-4 h-4" />}>
-                    List Your First Item
-                  </Button>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Stay tuned for updates in your dashboard notifications.
+                  </div>
                 </CardContent>
               </Card>
             )}
