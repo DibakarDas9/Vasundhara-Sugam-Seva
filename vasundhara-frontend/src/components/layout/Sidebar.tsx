@@ -86,15 +86,15 @@ export function Sidebar({ className }: SidebarProps) {
 
   const navItems = persona === 'shopkeeper' ? shopNav : persona === 'admin' ? adminNav : homeownerNav;
   const { open, setOpen } = useMobileNav();
+  const userFullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '';
   const profileName = guestMode
     ? (guestName || 'Guest User')
-    : user
-      ? `${user.firstName} ${user.lastName}`.trim()
-      : 'John Doe';
+    : userFullName;
   const profileEmail = guestMode
     ? (guestEmail || '')
-    : user?.email || 'john@example.com';
+    : user?.email || '';
   const profileImage = !guestMode ? user?.profileImage : undefined;
+  const showProfileDetails = Boolean(profileName || profileEmail || profileImage);
 
   return (
     <>
@@ -153,30 +153,36 @@ export function Sidebar({ className }: SidebarProps) {
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-app">
-          <div className={cn(
-            'flex items-center space-x-3',
-            collapsed && 'justify-center'
-          )}>
-            <div className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              {profileImage ? (
-                <img src={profileImage} alt={profileName} className="w-full h-full object-cover" />
-              ) : (
-                <UserIcon className="w-5 h-5 text-gray-600" />
+        {showProfileDetails && (
+          <div className="p-4 border-t border-app">
+            <div className={cn(
+              'flex items-center space-x-3',
+              collapsed && 'justify-center'
+            )}>
+              <div className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                {profileImage ? (
+                  <img src={profileImage} alt={profileName || 'Profile'} className="w-full h-full object-cover" />
+                ) : (
+                  <UserIcon className="w-5 h-5 text-gray-600" />
+                )}
+              </div>
+              {!collapsed && (profileName || profileEmail) && (
+                <div className="flex-1 min-w-0">
+                  {profileName && (
+                    <p className="text-sm font-medium text-app truncate">
+                      {profileName}
+                    </p>
+                  )}
+                  {profileEmail && (
+                    <p className="text-xs text-muted truncate">
+                      {profileEmail}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
-            {!collapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-app truncate">
-                  {profileName}
-                </p>
-                <p className="text-xs text-muted truncate">
-                  {profileEmail}
-                </p>
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* Mobile drawer overlay */}
