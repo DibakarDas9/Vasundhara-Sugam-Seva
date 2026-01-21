@@ -14,7 +14,9 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
   ArrowRightIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline';
 
 export default function AuthLanding() {
@@ -34,6 +36,8 @@ export default function AuthLanding() {
   const [licenseNumber, setLicenseNumber] = useState('');
   const [shopAddress, setShopAddress] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
 
   const effectiveRole = useMemo<'household' | 'shopkeeper' | 'admin'>(() => {
     if (role === 'shopkeeper' || role === 'admin' || role === 'household') return role;
@@ -286,13 +290,26 @@ export default function AuthLanding() {
                           </div>
                           <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Password</label>
-                            <Input
-                              placeholder="Enter your password"
-                              value={password}
-                              onChange={e => setPassword(e.target.value)}
-                              type="password"
-                              className="w-full"
-                            />
+                            <div className="relative">
+                              <Input
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                type={showLoginPassword ? "text" : "password"}
+                                className="w-full pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                              >
+                                {showLoginPassword ? (
+                                  <EyeSlashIcon className="w-5 h-5" />
+                                ) : (
+                                  <EyeIcon className="w-5 h-5" />
+                                )}
+                              </button>
+                            </div>
                           </div>
 
                           <div className="flex items-center justify-between text-sm">
@@ -390,7 +407,26 @@ export default function AuthLanding() {
 
                           <div>
                             <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Password</label>
-                            <Input placeholder="Create a strong password" value={password} onChange={e => setPassword(e.target.value)} type="password" />
+                            <div className="relative">
+                              <Input
+                                placeholder="Create a strong password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                type={showSignupPassword ? "text" : "password"}
+                                className="pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowSignupPassword(!showSignupPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                              >
+                                {showSignupPassword ? (
+                                  <EyeSlashIcon className="w-5 h-5" />
+                                ) : (
+                                  <EyeIcon className="w-5 h-5" />
+                                )}
+                              </button>
+                            </div>
                           </div>
 
                           {effectiveRole === 'household' && (

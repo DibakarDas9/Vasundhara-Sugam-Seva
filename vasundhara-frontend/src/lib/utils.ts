@@ -26,6 +26,12 @@ export function calculateDaysUntilExpiry(expiryDate: string | Date) {
   // Normalize both dates to local midnight to compute whole days difference
   const today = new Date();
   const expiry = new Date(expiryDate);
+
+  // Check for invalid date
+  if (isNaN(expiry.getTime())) {
+    return 0; // Return 0 or some indicator for invalid date
+  }
+
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const startOfExpiry = new Date(expiry.getFullYear(), expiry.getMonth(), expiry.getDate());
   const diffTime = startOfExpiry.getTime() - startOfToday.getTime();

@@ -16,16 +16,18 @@ export default function InventoryModal({ item, onClose, onSave }: Props) {
   const [category, setCategory] = useState(item?.category || '');
   const [expiryDate, setExpiryDate] = useState(item?.expiryDate || '');
   const [quantity, setQuantity] = useState(item?.quantity?.toString() || '1');
+  const [price, setPrice] = useState(item?.price?.toString() || '');
 
   useEffect(() => {
     setName(item?.name || '');
     setCategory(item?.category || '');
     setExpiryDate(item?.expiryDate || '');
     setQuantity(item?.quantity?.toString() || '1');
+    setPrice(item?.price?.toString() || '');
   }, [item]);
 
   function handleSave() {
-    onSave({ name, category, expiryDate: expiryDate || null, quantity: Number(quantity) });
+    onSave({ name, category, expiryDate: expiryDate || null, quantity: Number(quantity), price: Number(price) });
     onClose();
   }
 
@@ -36,8 +38,18 @@ export default function InventoryModal({ item, onClose, onSave }: Props) {
         <div className="space-y-3">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Item name" />
           <Input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" />
-          <Input value={expiryDate || ''} onChange={(e) => setExpiryDate(e.target.value)} placeholder="Expiry date (YYYY-MM-DD)" />
-          <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Quantity" />
+          <Input type="date" value={expiryDate || ''} onChange={(e) => setExpiryDate(e.target.value)} placeholder="Expiry date" />
+          <div className="flex gap-2">
+            <Input value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Qty" className="flex-1" />
+            <Input value={item?.unit || ''} onChange={(e) => onSave({ ...item, unit: e.target.value })} placeholder="Unit (kg, g...)" className="flex-1" />
+            <Input
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Price"
+              className="flex-1"
+              icon={<span className="text-gray-500 dark:text-gray-400 font-bold">₹</span>}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 mt-4">

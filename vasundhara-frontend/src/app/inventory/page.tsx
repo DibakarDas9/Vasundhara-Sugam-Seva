@@ -1,84 +1,29 @@
 'use client';
 
 import React, { useState } from 'react';
+import AddItemModal from '@/components/inventory/AddItemModal';
 import InventoryModal from '@/components/inventory/InventoryModal';
+import UseItemModal from '@/components/inventory/UseItemModal';
 import { useLocalInventory } from '@/lib/localInventory';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
-  FunnelIcon,
   CameraIcon,
   QrCodeIcon,
   XMarkIcon,
+  PencilIcon,
   ExclamationTriangleIcon,
   ClockIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
-import { getExpiryStatus, calculateDaysUntilExpiry } from '@/lib/utils';
-
-const mockInventory = [
-  {
-    id: 1,
-    name: 'Organic Bananas',
-    category: 'Fruits',
-    expiryDate: '2024-01-15',
-    quantity: 6,
-    unit: 'pieces',
-    status: 'warning',
-    addedDate: '2024-01-10',
-    image: '/api/placeholder/60/60'
-  },
-  {
-    id: 2,
-    name: 'Greek Yogurt',
-    category: 'Dairy',
-    expiryDate: '2024-01-20',
-    quantity: 2,
-    unit: 'containers',
-    status: 'good',
-    addedDate: '2024-01-12',
-    image: '/api/placeholder/60/60'
-  },
-  {
-    id: 3,
-    name: 'Fresh Spinach',
-    category: 'Vegetables',
-    expiryDate: '2024-01-12',
-    quantity: 1,
-    unit: 'bunch',
-    status: 'critical',
-    addedDate: '2024-01-08',
-    image: '/api/placeholder/60/60'
-  },
-  {
-    id: 4,
-    name: 'Chicken Breast',
-    category: 'Meat',
-    expiryDate: '2024-01-18',
-    quantity: 1.5,
-    unit: 'lbs',
-    status: 'caution',
-    addedDate: '2024-01-11',
-    image: '/api/placeholder/60/60'
-  },
-  {
-    id: 5,
-    name: 'Whole Milk',
-    category: 'Dairy',
-    expiryDate: '2024-01-25',
-    quantity: 1,
-    unit: 'gallon',
-    status: 'good',
-    addedDate: '2024-01-13',
-    image: '/api/placeholder/60/60'
-  },
-];
+import { calculateDaysUntilExpiry } from '@/lib/utils';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 const statusConfig = {
   critical: {
@@ -103,8 +48,6 @@ const statusConfig = {
   },
 };
 
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-
 export default function InventoryPage() {
   return (
     <ProtectedRoute>
@@ -118,8 +61,10 @@ function InventoryContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
-  const { items, addItem, updateItem, deleteItem, useNow, clearInventory } = useLocalInventory();
+  const { items, addItem, updateItem, deleteItem, useNow, consumeItem, restockItem, clearInventory } = useLocalInventory();
   const [editing, setEditing] = useState<number | null>(null);
+  const [usingItem, setUsingItem] = useState<number | null>(null);
+  const [addingItem, setAddingItem] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   function handleScan() {
@@ -141,7 +86,35 @@ function InventoryContent() {
   }
 
   function handleUseNow(id: number) {
-    useNow(id);
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    // Check if item is weighted (kg, g, l, ml)
+    const u = (item.unit || '').toLowerCase();
+    const isWeighted = ['kg', 'g', 'l', 'ml', 'gram', 'kilogram', 'litre', 'liter'].some(w => u.includes(w));
+
+    if (isWeighted) {
+      setUsingItem(id);
+    } else {
+      // Simple decrement for pieces/packets
+      useNow(id);
+    }
+  }
+
+  function handleAddItemStock(id: number) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    // Check if item is weighted
+    const u = (item.unit || '').toLowerCase();
+    const isWeighted = ['kg', 'g', 'l', 'ml', 'gram', 'kilogram', 'litre', 'liter'].some(w => u.includes(w));
+
+    if (isWeighted) {
+      setAddingItem(id);
+    } else {
+      // Simple increment for pieces/packets
+      restockItem(id, 1, item.unit || '');
+    }
   }
 
   const filteredItems = items.filter(item => {
@@ -243,7 +216,6 @@ function InventoryContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredItems.map((item) => {
                 const config = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.good;
-                const Icon = config.icon;
                 const daysUntilExpiry = calculateDaysUntilExpiry(item.expiryDate || '1970-01-01');
 
                 return (
@@ -256,9 +228,21 @@ function InventoryContent() {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full border ${config.color}`}>
-                            {config.label}
-                          </span>
+                          {item.expiryDate && (
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full border ${config.color}`}>
+                              {config.label}
+                            </span>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditItem(item.id);
+                            }}
+                            className="p-1 rounded-md text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                            title="Edit item"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -271,7 +255,7 @@ function InventoryContent() {
                             }}
                             aria-label={`Remove ${item.name}`}
                             title="Remove item"
-                            className="p-1 rounded-md text-gray-500 hover:bg-gray-100"
+                            className="p-1 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <XMarkIcon className="w-4 h-4" />
                           </button>
@@ -289,20 +273,30 @@ function InventoryContent() {
                           <span className="font-medium dark:text-gray-200">{item.quantity} {item.unit}</span>
                         </div>
                         <div className="flex justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                          <span className="font-medium dark:text-gray-200">{item.price ? `₹${item.price}` : '-'}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600 dark:text-gray-400">Unit Cost:</span>
+                          <span className="font-medium text-gray-500 dark:text-gray-400">
+                            {item.price && item.quantity ? `₹${(item.price / item.quantity).toFixed(2)} / ${item.unit || 'unit'}` : '-'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
                           <span className="text-gray-600 dark:text-gray-400">Expires:</span>
-                          <span className="font-medium dark:text-gray-200">{item.expiryDate}</span>
+                          <span className="font-medium dark:text-gray-200">{item.expiryDate || '-'}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600 dark:text-gray-400">Days left:</span>
-                          <span className={`font-medium ${daysUntilExpiry < 0 ? 'text-gray-500 dark:text-gray-400' : daysUntilExpiry === 0 ? 'text-red-600 dark:text-red-400' : daysUntilExpiry <= 3 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}`}>
-                            {daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry === 0 ? 'Expires today' : daysUntilExpiry === 1 ? '1 day' : `${daysUntilExpiry} days`}
+                          <span className={`font-medium ${!item.expiryDate ? 'text-gray-500 dark:text-gray-400' : daysUntilExpiry < 0 ? 'text-gray-500 dark:text-gray-400' : daysUntilExpiry === 0 ? 'text-red-600 dark:text-red-400' : daysUntilExpiry <= 3 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}`}>
+                            {!item.expiryDate ? 'Enter expiry' : daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry === 0 ? 'Expires today' : daysUntilExpiry === 1 ? '1 day' : `${daysUntilExpiry} days`}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="flex-1" onClick={() => handleEditItem(item.id)}>
-                          Edit
+                        <Button size="sm" variant="outline" className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" onClick={() => handleAddItemStock(item.id)}>
+                          Add
                         </Button>
                         <Button size="sm" className="flex-1" onClick={() => handleUseNow(item.id)}>
                           Use Now
@@ -334,6 +328,7 @@ function InventoryContent() {
                 </CardContent>
               </Card>
             )}
+
             {showModal && (
               <InventoryModal
                 item={editing ? items.find(i => i.id === editing) || null : null}
@@ -341,6 +336,28 @@ function InventoryContent() {
                 onSave={(data) => {
                   if (editing) updateItem(editing, data);
                   else addItem(data);
+                }}
+              />
+            )}
+
+            {/* Partial Usage Modal */}
+            {usingItem && (
+              <UseItemModal
+                item={items.find(i => i.id === usingItem)!}
+                onClose={() => setUsingItem(null)}
+                onConfirm={(amount, unit) => {
+                  consumeItem(usingItem, amount, unit);
+                }}
+              />
+            )}
+
+            {/* Add Stock Modal */}
+            {addingItem && (
+              <AddItemModal
+                item={items.find(i => i.id === addingItem)!}
+                onClose={() => setAddingItem(null)}
+                onConfirm={(amount, unit) => {
+                  restockItem(addingItem, amount, unit);
                 }}
               />
             )}

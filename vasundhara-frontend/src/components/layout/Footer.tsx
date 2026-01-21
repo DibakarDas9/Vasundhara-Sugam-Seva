@@ -1,199 +1,159 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 
-export function Footer() {
-  const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
+const footerLinks = {
     product: [
-      { name: 'Features', href: '#features' },
-      { name: 'How it Works', href: '#how-it-works' },
-      { name: 'Pricing', href: '#pricing' },
-      { name: 'API', href: '/api-docs' },
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'Inventory', href: '/inventory' },
+        { label: 'Marketplace', href: '/marketplace' },
+        { label: 'Scan', href: '/scan' },
+        { label: 'Analytics', href: '/analytics' },
     ],
     company: [
-      { name: 'About', href: '#about' },
-      { name: 'Blog', href: '/blog' },
-      { name: 'Careers', href: '/careers' },
-      { name: 'Contact', href: '/contact' },
-    ],
-    support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Documentation', href: '/docs' },
-      { name: 'Community', href: '/community' },
-      { name: 'Status', href: '/status' },
+        { label: 'Know the Founders', href: '/about' },
+        { label: 'Mission', href: '#' },
+        { label: 'Contact', href: '#' },
     ],
     legal: [
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
-      { name: 'Cookie Policy', href: '/cookies' },
-      { name: 'GDPR', href: '/gdpr' },
+        { label: 'Privacy Policy', href: '#' },
+        { label: 'Terms of Service', href: '#' },
+        { label: 'Cookie Policy', href: '#' },
     ],
-  };
+    social: [
+        {
+            label: 'X',
+            href: 'https://twitter.com',
+            icon: (props: any) => (
+                <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+            )
+        },
+        {
+            label: 'GitHub',
+            href: 'https://github.com/DibakarDas9',
+            icon: (props: any) => (
+                <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+                    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+            )
+        },
+        {
+            label: 'LinkedIn',
+            href: 'https://www.linkedin.com/in/dibakar-das-453653248/',
+            icon: (props: any) => (
+                <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+                    <path fillRule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clipRule="evenodd" />
+                </svg>
+            )
+        },
 
-  const socialLinks = [
-    {
-      name: 'Twitter',
-      href: 'https://twitter.com/vasundhara',
-      icon: (props: any) => (
-        <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
-          <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-        </svg>
-      ),
-    },
-    {
-      name: 'GitHub',
-      href: 'https://github.com/vasundhara',
-      icon: (props: any) => (
-        <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
-          <path
-            fillRule="evenodd"
-            d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-    },
-    {
-      name: 'LinkedIn',
-      href: 'https://linkedin.com/company/vasundhara',
-      icon: (props: any) => (
-        <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
-          <path
-            fillRule="evenodd"
-            d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
-            clipRule="evenodd"
-          />
-        </svg>
-      ),
-    },
-  ];
+    ]
+};
 
-  return (
-    <footer className="bg-gray-900 text-white">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <Logo className="h-8 w-8 text-white" />
-              <span className="text-xl font-bold">Vasundhara</span>
-            </Link>
-            <p className="text-gray-400 mb-6 max-w-md">
-              AI-powered food waste management system that helps households and businesses reduce waste, 
-              save money, and contribute to a sustainable future.
-            </p>
-            <div className="flex space-x-4">
-              {socialLinks.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-400 hover:text-white transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-6 w-6" />
-                </a>
-              ))}
+export default function Footer() {
+    return (
+        <footer className="border-t border-white/10 bg-slate-950 pt-16 pb-8 text-slate-400">
+            <div className="mx-auto max-w-7xl px-4 sm:px-8">
+                <div className="grid gap-12 lg:grid-cols-4">
+                    {/* Brand Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3 text-white">
+                            <Logo className="h-8 w-8 text-emerald-400" />
+                            <div>
+                                <p className="font-semibold tracking-wide">Vasundhara</p>
+                                <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-300">Sugam Seva</p>
+                            </div>
+                        </div>
+                        <p className="text-sm leading-relaxed">
+                            Empowering communities to reduce food waste and feed more people through smart technology and local action.
+                        </p>
+
+                        {/* Social Media Icons */}
+                        <div className="flex gap-4">
+                            {footerLinks.social.map((item) => (
+                                <a
+                                    key={item.label}
+                                    href={item.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-slate-400 transition hover:text-emerald-400"
+                                    aria-label={item.label}
+                                >
+                                    <item.icon className="h-5 w-5" aria-hidden="true" />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Product Links */}
+                    <div>
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Product</h3>
+                        <ul className="mt-4 space-y-3">
+                            {footerLinks.product.map((item) => (
+                                <li key={item.label}>
+                                    <Link href={item.href} className="text-sm transition hover:text-emerald-400">
+                                        {item.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Company Links */}
+                    <div>
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Company</h3>
+                        <ul className="mt-4 space-y-3">
+                            {footerLinks.company.map((item) => (
+                                <li key={item.label}>
+                                    <Link href={item.href} className="text-sm transition hover:text-emerald-400">
+                                        {item.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    {/* Contact Section */}
+                    <div>
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Contact</h3>
+                        <ul className="mt-4 space-y-3 text-sm">
+                            <li>
+                                <a
+                                    href="mailto:dibakardas612@gmail.com"
+                                    className="flex items-center gap-2 transition hover:text-emerald-400"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                    dibakardas612@gmail.com
+                                </a>
+                            </li>
+                            <li>
+                                <p className="text-slate-400">Support available 24/7</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="mt-16 border-t border-white/10 pt-8">
+                    <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+                        <p className="text-xs text-slate-500">
+                            &copy; {new Date().getFullYear()} Vasundhara Sugam Seva. All rights reserved.
+                        </p>
+                        <div className="flex gap-6 text-xs">
+                            {footerLinks.legal.map((item) => (
+                                <Link key={item.label} href={item.href} className="text-slate-500 transition hover:text-white">
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          {/* Product Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Product
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.product.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Company
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.company.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Support Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Support
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.support.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
-              Legal
-            </h3>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-gray-400 hover:text-white transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom section */}
-        <div className="mt-8 pt-8 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © {currentYear} Vasundhara. All rights reserved.
-            </p>
-            <div className="mt-4 md:mt-0 flex items-center space-x-6">
-              <span className="text-gray-400 text-sm">
-                Made with ❤️ for the planet
-              </span>
-              <div className="flex items-center space-x-2 text-sm text-gray-400">
-                <span>🌱</span>
-                <span>Carbon Neutral</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
+        </footer>
+    );
 }

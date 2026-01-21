@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Architectural Block Diagram & System Specification</title>
+    <style>
+        body {
+            font-family: Calibri, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2E74B5;
+            border-bottom: 2px solid #2E74B5;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #1F4D78;
+            margin-top: 30px;
+        }
+
+        h3 {
+            color: #2E74B5;
+            margin-top: 20px;
+        }
+
+        h4 {
+            color: #5B9BD5;
+        }
+
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, monospace;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #2E74B5;
+            overflow-x: auto;
+        }
+
+        ul {
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .diagram-box {
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fafafa;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Architectural Block Diagram & System Specification</h1>
+
+    <h2>1. Architectural Block Diagram</h2>
+
+    <div class="diagram-box">
+        <p><strong>[Mermaid Diagram Representation]</strong></p>
+        <pre>
+graph TD
+    subgraph "Client Layer (Next.js)"
+        UI[User Interface]
+        
+        subgraph "Pages"
+            Dashboard[Dashboard Page]
+            Inventory[Inventory Page]
+            Analytics[Analytics Page]
+            Scan[Scan/QR Page]
+            Auth[Auth/Login Page]
+            Admin[Admin Panel]
+        end
+        
+        subgraph "Components"
+            Nav[Navigation/Sidebar]
+            Header[Header & Notifications]
+            Modals[Action Modals]
+            Voice[Voice Input Component]
+        end
+    end
+
+    subgraph "Logic Layer"
+        AuthCtx[Auth Context]
+        InvHook[useLocalInventory Hook]
+        VoiceLogic[Voice Parser Engine]
+        AnalyticsEngine[Analytics Calculation Engine]
+    end
+
+    subgraph "Data Persistence Layer"
+        LS_Inv[(localStorage: Inventory)]
+        LS_User[(localStorage: Users)]
+        LS_Logs[(localStorage: Usage Logs)]
+        LS_Notif[(localStorage: Notifications)]
+    end
+
+    subgraph "Browser APIs"
+        SpeechAPI[Web Speech API]
+        CameraAPI[Camera/Media API]
+    end
+
+    %% Connections
+    UI --> Pages
+    Pages --> Components
+    
+    %% Page Logic Connections
+    Dashboard --> InvHook
+    Dashboard --> AnalyticsEngine
+    Inventory --> InvHook
+    Inventory --> Voice
+    Analytics --> AnalyticsEngine
+    Scan --> CameraAPI
+    Auth --> AuthCtx
+    
+    %% Component Logic Connections
+    Voice --> SpeechAPI
+    Voice --> VoiceLogic
+    VoiceLogic --> InvHook
+    Header --> InvHook
+    
+    %% Data Connections
+    InvHook <--> LS_Inv
+    InvHook <--> LS_Logs
+    InvHook <--> LS_Notif
+    AuthCtx <--> LS_User
+    AnalyticsEngine -.-> InvHook
+        </pre>
+        <p><em>Note: You can render this diagram using a Mermaid viewer or plugin.</em></p>
+    </div>
+
+    <hr>
+
+    <h2>2. Detailed Component Specification</h2>
+    <p>This section provides a comprehensive breakdown of every component illustrated in the Architectural Block Diagram
+        above.</p>
+
+    <h3>A. Client Layer (Frontend)</h3>
+    <p>The Client Layer is the user-facing part of the application, built using <strong>Next.js 14</strong> (App Router)
+        and <strong>Tailwind CSS</strong>. It handles all user interactions and visual rendering.</p>
+
+    <h4>1. User Interface (UI) Pages</h4>
+    <p>These are the main views accessible to the user via routing.</p>
+
+    <ul>
+        <li><strong>Dashboard Page</strong> (<code>src/app/dashboard/page.tsx</code>)
+            <ul>
+                <li><strong>Purpose</strong>: Provides a high-level overview of the user's inventory and waste reduction
+                    progress.</li>
+                <li><strong>Key Features</strong>: Stats Cards, Charts, Meal Suggestions.</li>
+                <li><strong>Dependencies</strong>: <code>useLocalInventory</code>, <code>AnalyticsEngine</code>.</li>
+            </ul>
+        </li>
+        <li><strong>Inventory Page</strong> (<code>src/app/inventory/page.tsx</code>)
+            <ul>
+                <li><strong>Purpose</strong>: The central hub for managing food items.</li>
+                <li><strong>Key Features</strong>: Item Grid, Filtering & Search, Actions (Add, Edit, Delete, Consume),
+                    Voice Input.</li>
+                <li><strong>Dependencies</strong>: <code>InventoryModal</code>, <code>UseItemModal</code>,
+                    <code>AddItemModal</code>.</li>
+            </ul>
+        </li>
+        <li><strong>Analytics Page</strong> (<code>src/app/analytics/page.tsx</code>)
+            <ul>
+                <li><strong>Purpose</strong>: Detailed insights into consumption habits.</li>
+                <li><strong>Key Features</strong>: Waste costs, savings, historical usage logs.</li>
+                <li><strong>Dependencies</strong>: <code>WasteAnalytics</code> component.</li>
+            </ul>
+        </li>
+        <li><strong>Scan/QR Page</strong> (<code>src/app/scan/page.tsx</code>)
+            <ul>
+                <li><strong>Purpose</strong>: Interface for scanning barcodes or QR codes.</li>
+                <li><strong>Key Features</strong>: Camera feed integration.</li>
+            </ul>
+        </li>
+        <li><strong>Authentication Pages</strong> (<code>src/app/auth/page.tsx</code>)
+            <ul>
+                <li><strong>Purpose</strong>: Entry point for users.</li>
+                <li><strong>Key Features</strong>: Login and Sign-up forms.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h4>2. UI Components</h4>
+    <p>Reusable building blocks used across pages.</p>
+
+    <ul>
+        <li><strong>Navigation / Sidebar</strong> (<code>src/components/layout/Sidebar.tsx</code>): Provides persistent
+            navigation links.</li>
+        <li><strong>Header</strong> (<code>src/components/layout/Header.tsx</code>): Top bar containing Page Title,
+            Search, Theme Toggle, and Notification Bell.</li>
+        <li><strong>Action Modals</strong> (<code>src/components/inventory/*.tsx</code>): Forms for adding/editing items
+            and partial usage.</li>
+        <li><strong>Voice Input Component</strong> (<code>src/components/voice/VoiceAddFloating.tsx</code>): Floating
+            microphone button for voice commands.</li>
+    </ul>
+
+    <h3>B. Logic Layer (Business Logic)</h3>
+    <p>This layer bridges the UI and the Data Layer, handling calculations, state, and rules.</p>
+
+    <h4>1. useLocalInventory Hook (<code>src/lib/localInventory.ts</code>)</h4>
+    <p>The "Brain" of the application. A custom React Hook that manages the global state of the inventory.</p>
+    <ul>
+        <li><strong>State Managed</strong>: <code>items</code>, <code>usageLog</code>, <code>notifications</code>.</li>
+        <li><strong>Core Functions</strong>: <code>addItem()</code>, <code>consumeItem()</code>,
+            <code>updateItem()</code>, <code>clearInventory()</code>.</li>
+    </ul>
+
+    <h4>2. Auth Context (<code>src/contexts/AuthContext.tsx</code>)</h4>
+    <p>Wraps the application to provide user session data to all components and handles security.</p>
+
+    <h4>3. Voice Parser Engine (<code>src/lib/voiceParser.ts</code>)</h4>
+    <p>Converts raw text from the Speech API into structured data (Name, Quantity, Unit, Price).</p>
+
+    <h4>4. Analytics Engine (<code>src/lib/analytics.ts</code>)</h4>
+    <p>Performs mathematical calculations for the dashboard (Money Saved, Waste Reduction).</p>
+
+    <h3>C. Data Persistence Layer</h3>
+    <p>Uses the Browser's <strong>Local Storage</strong> as a database.</p>
+    <ul>
+        <li><strong>Inventory Storage</strong> (<code>vasundhara_inventory_{userId}</code>)</li>
+        <li><strong>Usage Logs</strong> (<code>vasundhara_usage_log_{userId}</code>)</li>
+        <li><strong>Notifications</strong> (<code>vasundhara_notifications_{userId}</code>)</li>
+        <li><strong>User Data</strong> (<code>vasundhara_users</code>)</li>
+    </ul>
+
+    <h3>D. External / Browser APIs</h3>
+    <ul>
+        <li><strong>Web Speech API</strong>: Powers Voice Input.</li>
+        <li><strong>Storage API</strong>: Powers Data Persistence.</li>
+    </ul>
+
+</body>
+
+</html>

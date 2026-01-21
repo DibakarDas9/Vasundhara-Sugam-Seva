@@ -10,6 +10,7 @@ import { InventoryOverview } from '@/components/dashboard/InventoryOverview';
 import { MealSuggestions } from '@/components/dashboard/MealSuggestions';
 import { WasteAnalytics } from '@/components/dashboard/WasteAnalytics';
 import { calculateDaysUntilExpiry, formatCurrency } from '@/lib/utils';
+import { calculateMoneySaved, calculateWasteReduction } from '@/lib/analytics';
 import type { LocalItem } from '@/lib/localInventory';
 import { useLocalInventory } from '@/lib/localInventory';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,12 +27,17 @@ import {
 
 function DashboardContent() {
   const router = useRouter();
-  const { items, clearInventory } = useLocalInventory();
+  const { items, usageLog, clearInventory } = useLocalInventory();
   const { pendingApproval, user } = useAuth();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
   const total = items.length;
-  const expiringSoon = items.filter((it: LocalItem) => it.expiryDate !== null && it.expiryDate !== undefined && calculateDaysUntilExpiry(it.expiryDate) <= 3).length;
+  const expiringSoon = items.filter((it: LocalItem) => it.expiryDate !== null && it.expiryDate !== undefined && calculateDaysUntilExpiry(it.expiryDate) <= 3 && calculateDaysUntilExpiry(it.expiryDate) >= 0).length;
   const expired = items.filter((it: LocalItem) => it.expiryDate !== null && it.expiryDate !== undefined && calculateDaysUntilExpiry(it.expiryDate) < 0).length;
+
+  const moneySaved = calculateMoneySaved(usageLog);
+  const wasteReduced = calculateWasteReduction(usageLog);
+
   const isApprovalRestricted = Boolean(pendingApproval && user?.role !== 'admin');
   const approvalMessage = 'Your account is pending admin approval. You can explore data but can\'t make changes yet.';
 
@@ -97,14 +103,14 @@ function DashboardContent() {
               />
               <StatsCard
                 title="Money Saved"
-                value={formatCurrency(127)}
+                value={formatCurrency(moneySaved)}
                 change={{ value: 18, type: 'increase' }}
                 icon={<CurrencyDollarIcon className="w-6 h-6" />}
                 color="green"
               />
               <StatsCard
                 title="Waste Reduced"
-                value="23%"
+                value={`${wasteReduced}%`}
                 change={{ value: 8, type: 'increase' }}
                 icon={<ArrowDownIcon className="w-6 h-6" />}
                 color="purple"

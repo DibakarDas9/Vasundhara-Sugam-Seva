@@ -25,12 +25,13 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
+import Footer from '@/components/layout/Footer';
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 
 const navLinks = [
   { label: 'Dashboard', href: '/dashboard' },
-  { label: 'About Us', href: '#about' },
+  { label: 'Know the Founders', href: '/about' },
   { label: 'Inventory', href: '#inventory' },
   { label: 'Marketplace', href: '/marketplace' },
   { label: 'Scan', href: '/scan' },
@@ -749,6 +750,8 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      <Footer />
     </div>
   );
 }

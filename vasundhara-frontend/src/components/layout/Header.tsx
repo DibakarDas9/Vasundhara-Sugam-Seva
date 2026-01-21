@@ -9,6 +9,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useMobileNav } from '@/contexts/MobileNavContext';
 import { NotificationPanel } from '@/components/ui/NotificationPanel';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useLocalInventory } from '@/lib/localInventory';
 
 interface HeaderProps {
   title: string;
@@ -22,9 +23,12 @@ export function Header({ title, subtitle, className }: HeaderProps) {
   const pathname = usePathname();
   const { toggle } = useMobileNav();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { notifications, markNotificationRead, clearNotifications } = useLocalInventory();
 
   // Check if we're in the admin area
   const isAdminArea = pathname?.startsWith('/admin');
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleLogout = () => {
     if (isAdminArea) {
@@ -80,9 +84,11 @@ export function Header({ title, subtitle, className }: HeaderProps) {
               onClick={() => setNotificationsOpen(true)}
             >
               <BellIcon className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                3
-              </span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
             </Button>
 
             {/* Auth / Profile - Admin or Regular */}
@@ -115,7 +121,13 @@ export function Header({ title, subtitle, className }: HeaderProps) {
           </div>
         </div>
       </header>
-      <NotificationPanel open={notificationsOpen} onClose={() => setNotificationsOpen(false)} />
+      <NotificationPanel
+        open={notificationsOpen}
+        onClose={() => setNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkRead={markNotificationRead}
+        onClearAll={clearNotifications}
+      />
     </>
   );
 }

@@ -5,7 +5,7 @@
 
 const USERS_STORAGE_KEY = 'vasundhara_users';
 const CURRENT_USER_KEY = 'vasundhara_current_user';
-export const SYSTEM_ADMIN_EMAIL = 'admin';
+export const SYSTEM_ADMIN_EMAIL = 'Dibakar';
 export const SYSTEM_ADMIN_ID = 'admin_default';
 
 export function isSystemAdminAccount(subject: { id?: string; email?: string }): boolean {
@@ -69,9 +69,9 @@ export function getAllUsers(): StoredUser[] {
         const adminExists = users.some(u => isSystemAdminAccount(u));
         if (!adminExists) {
             const defaultAdmin: StoredUser = {
-            id: SYSTEM_ADMIN_ID,
-            email: SYSTEM_ADMIN_EMAIL,
-            password: hashPassword('admin'),
+                id: SYSTEM_ADMIN_ID,
+                email: SYSTEM_ADMIN_EMAIL,
+                password: hashPassword('admin'),
                 firstName: 'System',
                 lastName: 'Admin',
                 role: 'admin',

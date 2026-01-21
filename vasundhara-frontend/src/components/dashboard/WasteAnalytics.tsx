@@ -39,22 +39,39 @@ const mockData = {
 
 export function WasteAnalytics() {
   const router = useRouter();
-  const { items } = useLocalInventory();
+  const { items, usageLog } = useLocalInventory();
 
-  // compute simple derived metrics from the inventory
-  const expiredItems = items.filter(it => it.expiryDate && calculateDaysUntilExpiry(it.expiryDate) < 0);
-  const expiringSoonCount = items.filter(it => it.expiryDate && calculateDaysUntilExpiry(it.expiryDate) <= 3).length;
-  const totalWasteKg = expiredItems.reduce((sum, it) => sum + (Number(it.quantity) || 0), 0);
+  // Calculate actual analytics from inventory
+  const { calculateWasteAnalytics } = require('@/lib/analytics');
+  const analytics = calculateWasteAnalytics(items, usageLog);
 
-  const monthlyStats = {
-    totalWaste: Number(totalWasteKg.toFixed(1)),
-    totalCost: Number((totalWasteKg * 3.5).toFixed(2)), // rough cost estimate
-    wasteReduction: 20,
-    moneySaved: Number((expiringSoonCount * 2.5).toFixed(2)),
-  };
+  // Calculate weekly waste from logs
+  const weeklyWaste = React.useMemo(() => {
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const today = new Date();
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() - (6 - i));
+      return d;
+    });
 
-  const weeklyWaste = mockData.weeklyWaste; // keep placeholder weekly data for visual
-  const maxAmount = Math.max(...weeklyWaste.map(d => d.amount));
+    return last7Days.map(date => {
+      const dayName = days[date.getDay()];
+      const dateStr = date.toISOString().slice(0, 10);
+
+      // Filter logs for this day (waste only)
+      const dayLogs = usageLog.filter(log =>
+        log.type === 'waste' &&
+        log.date.startsWith(dateStr)
+      );
+
+      const amount = dayLogs.reduce((sum, log) => sum + log.amount, 0);
+
+      return { day: dayName, amount: Number(amount.toFixed(2)) };
+    });
+  }, [usageLog]);
+
+  const maxAmount = Math.max(...weeklyWaste.map(d => d.amount), 1); // Avoid div by 0
 
   function handleViewAnalytics() {
     router.push('/analytics');
@@ -70,19 +87,19 @@ export function WasteAnalytics() {
           {/* Monthly Overview */}
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{mockData.monthlyStats.totalWaste}kg</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{analytics.totalWasteKg}kg</div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Total Waste</div>
               <div className="flex items-center justify-center mt-1">
                 <ArrowDownIcon className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-600 ml-1">{mockData.monthlyStats.wasteReduction}% less</span>
+                <span className="text-sm text-green-600 ml-1">{analytics.wasteReductionPercent}% less</span>
               </div>
             </div>
             <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(mockData.monthlyStats.totalCost)}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(analytics.totalWasteCost)}</div>
               <div className="text-sm text-gray-600 dark:text-gray-300">Total Cost</div>
               <div className="flex items-center justify-center mt-1">
                 <ArrowUpIcon className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-600 ml-1">{formatCurrency(mockData.monthlyStats.moneySaved)} saved</span>
+                <span className="text-sm text-green-600 ml-1">{formatCurrency(analytics.moneySaved)} saved</span>
               </div>
             </div>
           </div>
@@ -91,11 +108,11 @@ export function WasteAnalytics() {
           <div>
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">This Week's Waste</h4>
             <div className="flex items-end space-x-2 h-32">
-              {mockData.weeklyWaste.map((day, index) => (
-                <div key={day.day} className="flex-1 flex flex-col items-center">
-                  <div className="w-full bg-gray-200 rounded-t-lg relative">
+              {weeklyWaste.map((day, index) => (
+                <div key={index} className="flex-1 flex flex-col items-center">
+                  <div className="w-full bg-gray-200 rounded-t-lg relative flex-1 flex items-end justify-center">
                     <div
-                      className="bg-gradient-to-t from-red-500 to-orange-400 rounded-t-lg transition-all duration-500"
+                      className="w-full bg-gradient-to-t from-red-500 to-orange-400 rounded-t-lg transition-all duration-500"
                       style={{ height: `${(day.amount / maxAmount) * 100}%` }}
                     />
                   </div>
@@ -110,18 +127,22 @@ export function WasteAnalytics() {
           <div>
             <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Waste by Category</h4>
             <div className="space-y-3">
-              {mockData.categories.map((category) => (
-                <div key={category.name} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-full"></div>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
+              {analytics.categoryBreakdown.length > 0 ? (
+                analytics.categoryBreakdown.slice(0, 4).map((category: any) => (
+                  <div key={category.name} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">{category.wasteKg}kg</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">({category.percentage}%)</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">{category.amount}kg</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">({category.percentage}%)</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 text-center py-2">No waste data yet</p>
+              )}
             </div>
           </div>
 
