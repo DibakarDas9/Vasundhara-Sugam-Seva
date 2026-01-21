@@ -3,17 +3,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { BellIcon, CheckCircleIcon, ExclamationTriangleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
-
-export type NotificationKind = 'success' | 'warning' | 'info';
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  timestamp: string;
-  kind?: NotificationKind;
-}
-
 import { NotificationItem } from '@/lib/localInventory';
 
 interface NotificationPanelProps {
