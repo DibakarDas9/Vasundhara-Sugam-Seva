@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 import Splash from '@/components/Splash';
@@ -45,16 +46,18 @@ export function Providers({ children }: ProvidersProps) {
         disableTransitionOnChange
       >
         <ThemeController />
-        <AuthProvider>
-          <NotificationProvider>
-            <AnalyticsProvider>
-              <MobileNavProvider>
-                {children}
-                <Toaster position="top-center" />
-              </MobileNavProvider>
-            </AnalyticsProvider>
-          </NotificationProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <AnalyticsProvider>
+                <MobileNavProvider>
+                  {children}
+                  <Toaster position="top-center" />
+                </MobileNavProvider>
+              </AnalyticsProvider>
+            </NotificationProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

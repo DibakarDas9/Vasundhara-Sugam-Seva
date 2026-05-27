@@ -58,13 +58,13 @@ export default function Footer() {
                 <div className="grid gap-12 lg:grid-cols-4">
                     {/* Brand Section */}
                     <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-white">
+                        <Link href="/" className="flex items-center gap-3 text-white hover:opacity-80 transition-opacity">
                             <Logo className="h-8 w-8 text-emerald-400" />
                             <div>
                                 <p className="font-semibold tracking-wide">Vasundhara</p>
                                 <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-300">Sugam Seva</p>
                             </div>
-                        </div>
+                        </Link>
                         <p className="text-sm leading-relaxed">
                             Empowering communities to reduce food waste and feed more people through smart technology and local action.
                         </p>

@@ -3,26 +3,39 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useLocalInventory } from '@/lib/localInventory';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type StepKey = 'name' | 'brand' | 'category' | 'quantity' | 'unit' | 'expiry';
 
-const STEPS: { key: StepKey; label: string; placeholder?: string }[] = [
-  { key: 'name', label: 'Product name' },
-  { key: 'brand', label: 'Brand' },
-  { key: 'category', label: 'Category' },
-  { key: 'quantity', label: 'Quantity (number)', placeholder: 'eg. 2' },
-  { key: 'unit', label: 'Unit (eg. kg, pieces)', placeholder: 'eg. kg' },
-  { key: 'expiry', label: 'Expiry date (YYYY-MM-DD) or say none', placeholder: 'YYYY-MM-DD' }
+const STEPS: { key: StepKey; placeholder?: string }[] = [
+  { key: 'name' },
+  { key: 'brand' },
+  { key: 'category' },
+  { key: 'quantity', placeholder: 'eg. 2' },
+  { key: 'unit', placeholder: 'eg. kg' },
+  { key: 'expiry', placeholder: 'YYYY-MM-DD' }
 ];
 
 export default function VoiceAdd() {
   const { addItem } = useLocalInventory();
+  const { t, language } = useLanguage();
   const [supported, setSupported] = useState<boolean | null>(null);
   const [listening, setListening] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [values, setValues] = useState<Record<string, string | number | null>>({});
   const [transcript, setTranscript] = useState('');
   const recogRef = useRef<any>(null);
+
+  const getStepLabel = (key: StepKey) => {
+    switch (key) {
+      case 'name': return t('inventory.modal.itemName', 'Product name');
+      case 'brand': return t('scan.confirm.brand', 'Brand');
+      case 'category': return t('inventory.modal.category', 'Category');
+      case 'quantity': return t('inventory.modal.qty', 'Quantity');
+      case 'unit': return t('inventory.modal.unit', 'Unit');
+      case 'expiry': return t('inventory.modal.expiryDate', 'Expiry date');
+    }
+  };
 
   useEffect(() => {
     const Recog = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null;
@@ -39,7 +52,14 @@ export default function VoiceAdd() {
     const Recog = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition || null;
     if (!Recog) return setSupported(false);
     const r = new Recog();
-    r.lang = 'en-US';
+    
+    // Set speech recognition locale dynamically
+    const locales = {
+      en: 'en-IN',
+      hi: 'hi-IN',
+      bn: 'bn-IN'
+    };
+    r.lang = locales[language] || 'en-IN';
     r.interimResults = false;
     r.maxAlternatives = 1;
     r.onresult = (ev: any) => {
@@ -82,6 +102,12 @@ export default function VoiceAdd() {
     }
   }
 
+  // capitalize helper (per requirement: every product name's first alphabet will be capital by default)
+  const capitalize = (str: string) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   function prevStep() {
     if (stepIndex > 0) {
       setStepIndex(i => i - 1);
@@ -91,11 +117,12 @@ export default function VoiceAdd() {
 
   function finishAdd() {
     // construct item
+    const finalName = capitalize(String(values.name || 'New Item'));
     const item: any = {
       id: Date.now(),
-      name: String(values.name || 'New Item'),
-      brand: String(values.brand || ''),
-      category: String(values.category || ''),
+      name: finalName,
+      brand: capitalize(String(values.brand || '')),
+      category: capitalize(String(values.category || '')),
       expiryDate: values.expiry || null,
       quantity: values.quantity ? Number(values.quantity) : 1,
       unit: String(values.unit || ''),
@@ -107,30 +134,44 @@ export default function VoiceAdd() {
     setValues({});
     setStepIndex(0);
     setTranscript('');
-    alert('Item added via voice: ' + item.name);
+    alert(t('voice.manual.addedAlert', 'Item added via voice:') + ' ' + item.name);
   }
 
   return (
     <div className="mt-4 p-4 border rounded-lg bg-white">
-      <h3 className="text-sm font-semibold mb-2">Add item by voice</h3>
+      <h3 className="text-sm font-semibold mb-2">{t('voice.manual.title', 'Add item by voice')}</h3>
       {supported === false && (
-        <p className="text-xs text-red-600">Speech recognition not supported in this browser. Use Manual entry.</p>
+        <p className="text-xs text-red-600">{t('voice.manual.notSupported', 'Speech recognition not supported in this browser. Use Manual entry.')}</p>
       )}
 
       <div className="space-y-2">
-        <div className="text-xs text-gray-600">Step: {STEPS[stepIndex].label}</div>
+        <div className="text-xs text-gray-600">
+          {t('voice.manual.step', 'Step')}: {getStepLabel(STEPS[stepIndex].key)}
+        </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => startListening()} disabled={!supported || listening}>🎤 Start listening</Button>
-          <Button size="sm" variant="outline" onClick={() => stopListening()} disabled={!listening}>Stop</Button>
-          <div className="text-sm text-gray-700">{transcript || <span className="text-gray-400">No input yet</span>}</div>
+          <Button size="sm" onClick={() => startListening()} disabled={!supported || listening}>
+            {t('voice.manual.micStart', '🎤 Start listening')}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => stopListening()} disabled={!listening}>
+            {t('voice.manual.stop', 'Stop')}
+          </Button>
+          <div className="text-sm text-gray-700">
+            {transcript || <span className="text-gray-400">{t('voice.manual.noInput', 'No input yet')}</span>}
+          </div>
         </div>
 
         <div className="flex gap-2 mt-2">
-          <Button size="sm" variant="outline" onClick={prevStep} disabled={stepIndex === 0}>Prev</Button>
+          <Button size="sm" variant="outline" onClick={prevStep} disabled={stepIndex === 0}>
+            {t('voice.manual.prev', 'Prev')}
+          </Button>
           {stepIndex < STEPS.length - 1 ? (
-            <Button size="sm" onClick={nextStep}>Next</Button>
+            <Button size="sm" onClick={nextStep}>
+              {t('voice.manual.next', 'Next')}
+            </Button>
           ) : (
-            <Button size="sm" onClick={finishAdd}>Finish & Add</Button>
+            <Button size="sm" onClick={finishAdd}>
+              {t('voice.manual.finish', 'Finish & Add')}
+            </Button>
           )}
         </div>
 

@@ -17,7 +17,7 @@ interface ProtectedRouteProps {
  * Shows a login prompt to unauthenticated users
  */
 export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteProps) {
-    const { user, loading } = useAuth();
+    const { user, loading, guestMode } = useAuth();
 
     // Show loading state while checking authentication
     if (loading) {
@@ -31,11 +31,11 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
         );
     }
 
-    // If auth is required and user is not authenticated, show login prompt
-    if (requireAuth && !user) {
+    // If auth is required and user is not authenticated AND not in guest mode, show login prompt
+    if (requireAuth && !user && !guestMode) {
         return <LoginPrompt />;
     }
 
-    // Render children if authenticated or auth not required
+    // Render children if authenticated, guest mode active, or auth not required
     return <>{children}</>;
 }

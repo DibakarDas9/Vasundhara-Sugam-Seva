@@ -11,6 +11,7 @@ import {
 
 import { useLocalInventory } from '@/lib/localInventory';
 import { calculateDaysUntilExpiry, formatCurrency } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Derive small analytics from the local inventory so the dashboard updates when items change
 const mockData = {
@@ -39,6 +40,7 @@ const mockData = {
 
 export function WasteAnalytics() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { items, usageLog } = useLocalInventory();
 
   // Calculate actual analytics from inventory
@@ -80,7 +82,7 @@ export function WasteAnalytics() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Waste Analytics</CardTitle>
+        <CardTitle>{t('dashboard.wasteAnalytics', 'Waste Analytics')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -88,25 +90,25 @@ export function WasteAnalytics() {
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{analytics.totalWasteKg}kg</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total Waste</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">{t('dashboard.stats.waste', 'Waste Reduced')}</div>
               <div className="flex items-center justify-center mt-1">
                 <ArrowDownIcon className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-600 ml-1">{analytics.wasteReductionPercent}% less</span>
+                <span className="text-sm text-green-600 ml-1">{analytics.wasteReductionPercent}% {t('dashboard.less', 'less')}</span>
               </div>
             </div>
             <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(analytics.totalWasteCost)}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total Cost</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">{t('dashboard.stats.money', 'Money Saved')}</div>
               <div className="flex items-center justify-center mt-1">
                 <ArrowUpIcon className="w-4 h-4 text-green-600" />
-                <span className="text-sm text-green-600 ml-1">{formatCurrency(analytics.moneySaved)} saved</span>
+                <span className="text-sm text-green-600 ml-1">{formatCurrency(analytics.moneySaved)} {t('dashboard.saved', 'saved')}</span>
               </div>
             </div>
           </div>
 
           {/* Weekly Chart */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">This Week's Waste</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">{t('dashboard.thisWeekWaste', "This Week's Waste")}</h4>
             <div className="flex items-end space-x-2 h-32">
               {weeklyWaste.map((day, index) => (
                 <div key={index} className="flex-1 flex flex-col items-center">
@@ -125,7 +127,7 @@ export function WasteAnalytics() {
 
           {/* Waste by Category */}
           <div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Waste by Category</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">{t('dashboard.wasteByCategory', 'Waste by Category')}</h4>
             <div className="space-y-3">
               {analytics.categoryBreakdown.length > 0 ? (
                 analytics.categoryBreakdown.slice(0, 4).map((category: any) => (
@@ -141,14 +143,14 @@ export function WasteAnalytics() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 text-center py-2">No waste data yet</p>
+                <p className="text-sm text-gray-500 text-center py-2">{t('dashboard.noWasteData', 'No waste data yet')}</p>
               )}
             </div>
           </div>
 
           <div className="flex justify-end">
             <button className="text-sm text-blue-600 hover:underline" onClick={handleViewAnalytics}>
-              View Details
+              {t('dashboard.viewDetails', 'View Details')}
             </button>
           </div>
         </div>

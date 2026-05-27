@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -56,7 +57,7 @@ const teamMembers: TeamMemberData[] = [
             { degree: 'Class X (ICSE)', institution: 'Jogamaya Memorial Institute', year: '2020', score: '76%' },
         ],
         projects: [
-            { name: 'Vasundhara - AI Sustainability Assistant', description: 'A web-based, AI-powered chatbot that helps users understand the harmful impacts of everyday pollutants they use, and suggests sustainable alternatives.', tech: 'Built React + Tailwind UI with chat, context memory, and charts; integrated Gemini and ChatGPT for pollutant-to-alternative recommendations' },
+            { name: 'Vasundhara - AI Sustainability Assistant', description: 'A web-based, AI-powered chatbot that helps users understand the harmful impacts of everyday pollutants they use, and suggests sustainable alternatives.', tech: 'Built React + Tailwind UI with chat, context memory, and charts; integrated VARD for pollutant-to-alternative recommendations' },
             { name: 'Vasundhara-Sugam Seva (Your Kitchen Assistant)', description: 'A comprehensive full-stack food application that reduces household and retail food waste using predictive AI, meal planning, expiry alerts, gamification, and surplus sharing.', tech: 'Next.js PWA, Express API, and FastAPI ML services linked via Docker/K8s, delivering predictive expiry, meal planning, alerts, and surplus marketplace features' },
             { name: 'Scholar Soar', description: 'Designed relational schema (users, courses, enrollments, applications); implemented auth, role-based access, and recruiter filters.', tech: 'In-progress Node/Express + MySQL backend; target features: instructor onboarding, course CRUD, and recruiter search with pagination' },
             { name: 'Food Delivery WebApp', description: 'Implemented responsive UI and order flow in HTML/CSS/JS and servlets (Advanced Java); added cart, checkout, and order history', tech: 'HTML/CSS/JS with Java Servlets' },
@@ -114,6 +115,7 @@ const getAnimationVariant = (index: number) => {
 };
 
 export default function AboutPage() {
+    const { t } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(0);
     const contentRef = useRef<HTMLDivElement>(null);
     const [isAtBottom, setIsAtBottom] = useState(false);
@@ -361,7 +363,7 @@ export default function AboutPage() {
                                                 className="h-2.5 w-2.5 rounded-full bg-emerald-400"
                                             />
                                             <span className="text-sm font-bold text-emerald-300">
-                                                Mode of Communication: {currentMember.modeOfCommunication}
+                                                {t('about.communicationMode', 'Mode of Communication')}: {currentMember.modeOfCommunication}
                                             </span>
                                         </motion.div>
                                     </motion.div>
@@ -560,7 +562,7 @@ export default function AboutPage() {
                                 transition={{ duration: 2, repeat: Infinity }}
                                 className="pb-8 text-center text-sm text-slate-500"
                             >
-                                <p>Scroll down for more details</p>
+                                <p>{t('about.scrollDown', 'Scroll down for more details')}</p>
                                 <p className="mt-1">↓</p>
                             </motion.div>
                         )}
@@ -572,7 +574,7 @@ export default function AboutPage() {
                                 animate={{ opacity: 1 }}
                                 className="pb-8 text-center text-sm text-emerald-400"
                             >
-                                <p>Scroll down to view {teamMembers[currentIndex + 1].name}</p>
+                                <p>{t('about.scrollMember', 'Scroll down to view')} {teamMembers[currentIndex + 1].name}</p>
                                 <motion.p
                                     animate={{ y: [0, 10, 0] }}
                                     transition={{ duration: 1.5, repeat: Infinity }}
@@ -587,7 +589,7 @@ export default function AboutPage() {
             </AnimatePresence>
 
             <Link href="/" className="absolute left-8 top-8 z-50 text-sm text-slate-400 transition hover:text-white">
-                ← Back to Home
+                {t('about.backHome', '← Back to Home')}
             </Link>
         </div>
     );

@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { getExpiryStatus, calculateDaysUntilExpiry, formatDate } from '@/lib/utils';
 import { useLocalInventory } from '@/lib/localInventory';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Note: InventoryOverview now reads live data from the local inventory hook
 
@@ -40,10 +41,20 @@ const statusConfig = {
 
 export function InventoryOverview() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { items } = useLocalInventory();
   const totalItems = items.length;
   const criticalItems = items.filter(item => item.status === 'critical').length;
   const warningItems = items.filter(item => item.status === 'warning').length;
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'critical': return t('inventory.critical', 'Expires Today');
+      case 'warning': return t('inventory.warning', 'Expires Soon');
+      case 'caution': return t('inventory.caution', 'Expires This Week');
+      case 'good': default: return t('inventory.good', 'Fresh');
+    }
+  };
 
   function handleAddItem() {
     // navigate to inventory add page (assumption: /inventory/new exists)
@@ -54,9 +65,9 @@ export function InventoryOverview() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Inventory Overview</CardTitle>
+          <CardTitle>{t('dashboard.inventoryOverview', 'Inventory Overview')}</CardTitle>
           <Button size="sm" icon={<PlusIcon className="w-4 h-4" />} onClick={handleAddItem}>
-            Add Item
+            {t('inventory.addItem', 'Add Item')}
           </Button>
         </div>
       </CardHeader>
@@ -66,21 +77,21 @@ export function InventoryOverview() {
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{totalItems}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Total Items</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">{t('dashboard.stats.total', 'Total Items')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600 dark:text-red-400">{criticalItems}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Critical</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">{t('dashboard.stats.critical', 'Critical')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{warningItems}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-300">Warning</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">{t('dashboard.stats.warning', 'Warning')}</div>
             </div>
           </div>
 
           {/* Recent Items */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-900 dark:text-white">Recent Items</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white">{t('dashboard.recentItems', 'Recent Items')}</h4>
             {items.slice(0, 5).map((item) => {
               const config = statusConfig[item.status as keyof typeof statusConfig] || statusConfig.good;
               const Icon = config.icon;
@@ -93,12 +104,17 @@ export function InventoryOverview() {
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{item.expiryDate ? `Expires ${formatDate(item.expiryDate)}` : 'No expiry'}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name || 'Unnamed Item'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {item.expiryDate 
+                          ? `${t('dashboard.expiresDate', 'Expires')} ${formatDate(item.expiryDate)}` 
+                          : t('dashboard.noExpiry', 'No expiry')
+                        }
+                      </p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}>
-                    {config.label}
+                    {getStatusLabel(item.status || 'good')}
                   </span>
                 </div>
               );

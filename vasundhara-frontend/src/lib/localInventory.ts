@@ -12,6 +12,35 @@ export interface LocalItem {
   addedDate?: string;
   status?: string;
   price?: number;
+  photo?: string;
+}
+
+export const capitalizeName = (name: string): string => {
+  if (!name) return '';
+  return name
+    .trim()
+    .split(/\s+/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+/** Sanitize a raw item from localStorage to ensure all fields are valid */
+function sanitizeItem(raw: any): LocalItem | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const name = typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : null;
+  if (!name) return null; // Skip items with no name
+  return {
+    id: typeof raw.id === 'number' ? raw.id : Date.now(),
+    name: capitalizeName(name),
+    category: typeof raw.category === 'string' && raw.category.trim() ? capitalizeName(raw.category.trim()) : 'Uncategorized',
+    expiryDate: typeof raw.expiryDate === 'string' ? raw.expiryDate : null,
+    quantity: typeof raw.quantity === 'number' ? raw.quantity : 1,
+    unit: typeof raw.unit === 'string' ? raw.unit : '',
+    price: typeof raw.price === 'number' ? raw.price : 0,
+    photo: typeof raw.photo === 'string' ? raw.photo : '',
+    addedDate: typeof raw.addedDate === 'string' ? raw.addedDate : new Date().toISOString().slice(0, 10),
+    status: typeof raw.status === 'string' ? raw.status : 'good',
+  };
 }
 
 export interface UsageLog {
@@ -35,18 +64,31 @@ export interface NotificationItem {
 }
 
 export function useLocalInventory() {
-  const { user } = useAuth();
+  const { user, guestMode } = useAuth();
   const [items, setItems] = useState<LocalItem[]>([]);
   const [usageLog, setUsageLog] = useState<UsageLog[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Construct user-specific key. If no user, we can use a guest key or just empty.
-  // The requirement is "new user everything should be empty".
-  // So we strictly bind to user.id.
-  const storageKey = user ? `vasundhara_inventory_${user.id}` : null;
-  const usageLogKey = user ? `vasundhara_usage_log_${user.id}` : null;
-  const notificationsKey = user ? `vasundhara_notifications_${user.id}` : null;
+  // Construct user-specific key.
+  // If logged in: bind to user.id.
+  // If guest mode: use a shared guest key so they can explore freely.
+  // Otherwise (no user, no guest): use null = no persistence.
+  const storageKey = user
+    ? `vasundhara_inventory_${user.id}`
+    : guestMode
+    ? 'vasundhara_inventory_guest'
+    : null;
+  const usageLogKey = user
+    ? `vasundhara_usage_log_${user.id}`
+    : guestMode
+    ? 'vasundhara_usage_log_guest'
+    : null;
+  const notificationsKey = user
+    ? `vasundhara_notifications_${user.id}`
+    : guestMode
+    ? 'vasundhara_notifications_guest'
+    : null;
 
   // Load from storage when user changes or event triggers
   useEffect(() => {
@@ -61,7 +103,11 @@ export function useLocalInventory() {
       try {
         const rawItems = localStorage.getItem(storageKey);
         if (rawItems) {
-          setItems(JSON.parse(rawItems));
+          const parsed: any[] = JSON.parse(rawItems);
+          const sanitized = Array.isArray(parsed)
+            ? (parsed.map(sanitizeItem).filter(Boolean) as LocalItem[])
+            : [];
+          setItems(sanitized);
         } else {
           setItems([]);
         }
@@ -192,20 +238,12 @@ export function useLocalInventory() {
   }, []);
 
   const addItem = useCallback((item: Partial<LocalItem>) => {
-    // Capitalize first letter of product name (handle multi-word names properly)
-    const capitalizeName = (name: string) => {
-      return name
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-    };
-
     const capitalizedName = item.name ? capitalizeName(item.name) : 'New Item';
 
     // Check for existing item (case-insensitive) and merge quantities
     setItems(prev => {
       const existingItem = prev.find(
-        i => i.name.toLowerCase() === capitalizedName.toLowerCase()
+        i => (i.name || '').toLowerCase() === capitalizedName.toLowerCase()
       );
 
       if (existingItem) {
@@ -222,7 +260,7 @@ export function useLocalInventory() {
         // Update the quantity of existing item
         return prev.map(it =>
           it.id === existingItem.id
-            ? { ...it, quantity: newQuantity }
+            ? { ...it, quantity: newQuantity, photo: it.photo || item.photo || '' }
             : it
         );
       }
@@ -236,6 +274,7 @@ export function useLocalInventory() {
         quantity: item.quantity ?? 1,
         unit: item.unit || '',
         price: item.price ?? 0,
+        photo: item.photo || '',
         addedDate: item.addedDate || new Date().toISOString().slice(0, 10),
         status: item.status || (() => {
           if (!item.expiryDate) return 'good';
@@ -262,7 +301,14 @@ export function useLocalInventory() {
   const updateItem = useCallback((id: number, patch: Partial<LocalItem>) => {
     setItems(prev => prev.map(it => {
       if (it.id !== id) return it;
-      const updated = { ...it, ...patch } as LocalItem;
+      const mergedPatch = { ...patch };
+      if (patch.name !== undefined) {
+        mergedPatch.name = capitalizeName(patch.name);
+      }
+      if (patch.category !== undefined) {
+        mergedPatch.category = capitalizeName(patch.category);
+      }
+      const updated = { ...it, ...mergedPatch } as LocalItem;
       if (patch.expiryDate !== undefined) {
         if (!updated.expiryDate) updated.status = 'good';
         else {

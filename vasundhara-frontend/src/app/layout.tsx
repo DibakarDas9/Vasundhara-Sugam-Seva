@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 const ChatBot = dynamic(() => import('@/components/chat/ChatBot'), { ssr: false });
 const ClickEffects = dynamic(() => import('@/components/ui/ClickEffects'), { ssr: false });
 const VoiceAddMount = dynamic(() => import('@/components/voice/VoiceAddMount'), { ssr: false });
+const VardAssistant = dynamic(() => import('@/components/ai/VardAssistant'), { ssr: false });
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -37,6 +38,7 @@ export default function RootLayout({
           <Providers>
             {children}
             {/* <ChatBot /> */}
+            <VardAssistant />
             <VoiceAddMount />
             <ClickEffects />
           </Providers>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { LocalItem } from '@/lib/localInventory';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Props {
     item: LocalItem;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function UseItemModal({ item, onClose, onConfirm }: Props) {
+    const { t } = useLanguage();
     const [amount, setAmount] = useState('');
     const [unit, setUnit] = useState(item.unit || 'units');
 
@@ -34,14 +36,18 @@ export default function UseItemModal({ item, onClose, onConfirm }: Props) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-800 rounded-xl p-6 w-full max-w-sm shadow-2xl border border-slate-200 dark:border-slate-700 animate-in zoom-in-95 duration-200">
-                <h3 className="text-lg font-semibold mb-2 dark:text-white">Use {item.name}</h3>
+                <h3 className="text-lg font-semibold mb-2 dark:text-white">
+                    {t('inventory.modal.useItemTitle', 'Use')} {item.name}
+                </h3>
                 <p className="text-sm text-slate-500 mb-4">
-                    Current Stock: {item.quantity} {item.unit}
+                    {t('inventory.modal.currentStock', 'Current Stock')}: {item.quantity} {item.unit}
                 </p>
 
                 <div className="space-y-4">
                     <div>
-                        <label className="text-xs font-medium text-slate-500 mb-1 block">Amount Used</label>
+                        <label className="text-xs font-medium text-slate-500 mb-1 block">
+                            {t('inventory.modal.amountUsed', 'Amount Used')}
+                        </label>
                         <div className="flex gap-2">
                             <Input
                                 type="number"
@@ -64,9 +70,11 @@ export default function UseItemModal({ item, onClose, onConfirm }: Props) {
                     </div>
 
                     <div className="flex gap-2 pt-2">
-                        <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
+                        <Button variant="outline" onClick={onClose} className="flex-1">
+                            {t('inventory.modal.cancel', 'Cancel')}
+                        </Button>
                         <Button onClick={handleConfirm} className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white">
-                            Confirm Usage
+                            {t('inventory.modal.confirmUsage', 'Confirm Usage')}
                         </Button>
                     </div>
                 </div>

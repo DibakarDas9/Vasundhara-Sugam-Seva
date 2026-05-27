@@ -4,11 +4,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocalInventory } from '@/lib/localInventory';
 import { cn } from '@/lib/utils';
 import { parseVoiceInput, parseDateString, parsePrice } from '@/lib/voiceParser';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type VoiceStep = 'IDLE' | 'LISTENING_INITIAL' | 'PROCESSING_INITIAL' | 'ASK_QUANTITY' | 'LISTENING_QUANTITY' | 'ASK_CATEGORY' | 'LISTENING_CATEGORY' | 'ASK_EXPIRY' | 'LISTENING_EXPIRY' | 'ASK_PRICE' | 'LISTENING_PRICE' | 'CONFIRM';
 
 export default function VoiceAddFloating() {
   const { addItem } = useLocalInventory();
+  const { t, language } = useLanguage();
 
   // State
   const [step, setStep] = useState<VoiceStep>('IDLE');
@@ -26,21 +28,38 @@ export default function VoiceAddFloating() {
     messageTimeoutRef.current = window.setTimeout(() => setMessage(null), duration);
   };
 
-  // Text-to-Speech Helper
-  const speak = (text: string, onEnd?: () => void) => {
+  // Text-to-Speech Helper with translations support
+  const speak = (textKey: string, defaultText: string, onEnd?: () => void) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel(); // Stop any previous speech
-      const utterance = new SpeechSynthesisUtterance(text);
+      const translatedText = t(textKey, defaultText);
+      const utterance = new SpeechSynthesisUtterance(translatedText);
 
-      // Try to select a more natural voice
+      // Select voice based on current language
       const voices = window.speechSynthesis.getVoices();
-      // Priority: Google US English -> Microsoft Zira -> Any English
-      const preferredVoice = voices.find(v => v.name.includes('Google US English')) ||
-        voices.find(v => v.name.includes('Zira')) ||
-        voices.find(v => v.lang.startsWith('en'));
+      let preferredVoice;
+      if (language === 'hi') {
+        preferredVoice = voices.find(v => v.lang.startsWith('hi'));
+      } else if (language === 'bn') {
+        preferredVoice = voices.find(v => v.lang.startsWith('bn'));
+      } else {
+        // Priority: Google US English -> Microsoft Zira -> Any English
+        preferredVoice = voices.find(v => v.name.includes('Google US English')) ||
+          voices.find(v => v.name.includes('Zira')) ||
+          voices.find(v => v.lang.startsWith('en'));
+      }
 
       if (preferredVoice) {
         utterance.voice = preferredVoice;
+        utterance.lang = preferredVoice.lang;
+      } else {
+        // Fallback setting lang property directly on the utterance
+        const langMap = {
+          en: 'en-IN',
+          hi: 'hi-IN',
+          bn: 'bn-IN'
+        };
+        utterance.lang = langMap[language] || 'en-US';
       }
 
       utterance.rate = 1.0;
@@ -55,29 +74,36 @@ export default function VoiceAddFloating() {
     }
   };
 
-  // Start Listening
+  // Start Listening with language-specific locale
   const startListening = (nextStep: VoiceStep) => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      showMessage('Speech recognition not supported');
+      showMessage(t('voice.manual.notSupported', 'Speech recognition not supported'));
       return;
     }
 
     const rec = new SpeechRecognition();
-    rec.lang = 'en-IN'; // Explicitly set to Indian English
+    
+    // Set speech recognition locale dynamically
+    const locales = {
+      en: 'en-IN',
+      hi: 'hi-IN',
+      bn: 'bn-IN'
+    };
+    rec.lang = locales[language] || 'en-IN';
     rec.interimResults = true; // Enable real-time feedback
     rec.maxAlternatives = 1;
 
     rec.onstart = () => {
       setStep(nextStep);
       setTranscript('');
-      showMessage('Listening...');
+      showMessage(t('voice.floating.listening', 'Listening...'));
     };
 
     rec.onerror = (ev: any) => {
       console.error('Speech error', ev);
       if (ev.error === 'no-speech') {
-        showMessage('No speech detected. Please try again.');
+        showMessage(t('voice.floating.noSpeech', 'No speech detected. Please try again.'));
       } else {
         showMessage('Error: ' + (ev.error || 'unknown'));
       }
@@ -149,13 +175,13 @@ export default function VoiceAddFloating() {
         // Check if quantity is missing
         if (!capitalizedParsed.quantity) {
           setStep('ASK_QUANTITY');
-          speak("How many?", () => startListening('LISTENING_QUANTITY'));
+          speak('voice.floating.speakQty', 'How many?', () => startListening('LISTENING_QUANTITY'));
           break;
         }
 
         // Move to next step: Ask Category
         setStep('ASK_CATEGORY');
-        speak("What category is this?", () => startListening('LISTENING_CATEGORY'));
+        speak('voice.floating.speakCategory', 'What category is this?', () => startListening('LISTENING_CATEGORY'));
         break;
       }
       case 'LISTENING_QUANTITY': {
@@ -173,7 +199,7 @@ export default function VoiceAddFloating() {
         }
 
         setStep('ASK_CATEGORY');
-        speak("What category is this?", () => startListening('LISTENING_CATEGORY'));
+        speak('voice.floating.speakCategory', 'What category is this?', () => startListening('LISTENING_CATEGORY'));
         break;
       }
       case 'LISTENING_CATEGORY': {
@@ -186,7 +212,7 @@ export default function VoiceAddFloating() {
 
         // Move to next step: Ask Expiry
         setStep('ASK_EXPIRY');
-        speak("When does it expire?", () => startListening('LISTENING_EXPIRY'));
+        speak('voice.floating.speakExpiry', 'When does it expire?', () => startListening('LISTENING_EXPIRY'));
         break;
       }
       case 'LISTENING_EXPIRY': {
@@ -199,7 +225,7 @@ export default function VoiceAddFloating() {
 
         // Move to next step: Ask Price
         setStep('ASK_PRICE');
-        speak("What is the price?", () => startListening('LISTENING_PRICE'));
+        speak('voice.floating.speakPrice', 'What is the price?', () => startListening('LISTENING_PRICE'));
         break;
       }
       case 'LISTENING_PRICE': {
@@ -222,7 +248,7 @@ export default function VoiceAddFloating() {
 
         // Move to Confirm
         setStep('CONFIRM');
-        speak("Please confirm the details.");
+        speak('voice.floating.speakConfirm', 'Please confirm the details.');
         break;
       }
       default:
@@ -233,7 +259,7 @@ export default function VoiceAddFloating() {
   // Initial Trigger
   const handleMainClick = () => {
     if (step === 'IDLE') {
-      speak("What would you like to add?", () => startListening('LISTENING_INITIAL'));
+      speak('voice.floating.speakInitial', 'What would you like to add?', () => startListening('LISTENING_INITIAL'));
     } else {
       // Cancel/Reset
       window.speechSynthesis.cancel();
@@ -245,16 +271,16 @@ export default function VoiceAddFloating() {
 
   const confirmAdd = () => {
     const finalItem = {
-      name: tempItem.name || 'New Item',
+      name: tempItem.name ? tempItem.name.charAt(0).toUpperCase() + tempItem.name.slice(1) : 'New Item',
       quantity: tempItem.quantity || 1,
       unit: tempItem.unit || '',
-      category: tempItem.category || 'Uncategorized',
+      category: tempItem.category ? tempItem.category.charAt(0).toUpperCase() + tempItem.category.slice(1) : 'Uncategorized',
       expiryDate: tempItem.expiryDate || null,
       price: tempItem.price || 0
     };
 
     const added = addItem(finalItem);
-    showMessage(`Added ${added.name}`);
+    showMessage(t('voice.floating.added', 'Added') + ` ${added.name}`);
     setStep('IDLE');
     setTempItem({});
   };
@@ -274,7 +300,7 @@ export default function VoiceAddFloating() {
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
         {/* Helper Label */}
         <div className="bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity whitespace-nowrap mb-1">
-          Interactive Voice Add
+          {t('voice.floating.label', 'Interactive Voice Add')}
         </div>
 
         <button
@@ -301,16 +327,16 @@ export default function VoiceAddFloating() {
       {step !== 'IDLE' && (
         <div className="fixed bottom-24 right-6 z-50 w-80 p-4 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 animate-in slide-in-from-bottom-5 fade-in duration-200">
           <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">
-            {step === 'LISTENING_INITIAL' && "Listening for item..."}
-            {step === 'ASK_QUANTITY' && "Processing..."}
-            {step === 'LISTENING_QUANTITY' && "Listening for quantity..."}
-            {step === 'ASK_CATEGORY' && "Processing..."}
-            {step === 'LISTENING_CATEGORY' && "Listening for category..."}
-            {step === 'ASK_EXPIRY' && "Processing..."}
-            {step === 'LISTENING_EXPIRY' && "Listening for expiry..."}
-            {step === 'ASK_PRICE' && "Processing..."}
-            {step === 'LISTENING_PRICE' && "Listening for price..."}
-            {step === 'CONFIRM' && "Confirm Details"}
+            {step === 'LISTENING_INITIAL' && t('voice.floating.listeningItem', 'Listening for item...')}
+            {step === 'ASK_QUANTITY' && t('voice.floating.processing', 'Processing...')}
+            {step === 'LISTENING_QUANTITY' && t('voice.floating.listeningQty', 'Listening for quantity...')}
+            {step === 'ASK_CATEGORY' && t('voice.floating.processing', 'Processing...')}
+            {step === 'LISTENING_CATEGORY' && t('voice.floating.listeningCategory', 'Listening for category...')}
+            {step === 'ASK_EXPIRY' && t('voice.floating.processing', 'Processing...')}
+            {step === 'LISTENING_EXPIRY' && t('voice.floating.listeningExpiry', 'Listening for expiry...')}
+            {step === 'ASK_PRICE' && t('voice.floating.processing', 'Processing...')}
+            {step === 'LISTENING_PRICE' && t('voice.floating.listeningPrice', 'Listening for price...')}
+            {step === 'CONFIRM' && t('voice.floating.confirmDetails', 'Confirm Details')}
           </div>
 
           {/* Live Transcript */}
@@ -323,7 +349,7 @@ export default function VoiceAddFloating() {
           {/* Item Preview */}
           <div className="space-y-2">
             <div className="flex justify-between text-sm items-center">
-              <span className="text-slate-500 w-20">Name:</span>
+              <span className="text-slate-500 w-20">{t('voice.floating.name', 'Name')}:</span>
               {step === 'CONFIRM' ? (
                 <input
                   value={tempItem.name || ''}
@@ -335,7 +361,7 @@ export default function VoiceAddFloating() {
               )}
             </div>
             <div className="flex justify-between text-sm items-center">
-              <span className="text-slate-500 w-20">Qty:</span>
+              <span className="text-slate-500 w-20">{t('voice.floating.qty', 'Qty')}:</span>
               {step === 'CONFIRM' ? (
                 <div className="flex gap-1 flex-1 justify-end">
                   <input
@@ -343,7 +369,7 @@ export default function VoiceAddFloating() {
                     value={tempItem.quantity || ''}
                     onChange={e => setTempItem({ ...tempItem, quantity: parseFloat(e.target.value) })}
                     className="w-16 bg-slate-50 dark:bg-slate-700 border-none rounded px-2 py-1 text-right"
-                    placeholder="Qty"
+                    placeholder={t('voice.floating.qty', 'Qty')}
                   />
                   <input
                     value={tempItem.unit || ''}
@@ -357,7 +383,7 @@ export default function VoiceAddFloating() {
               )}
             </div>
             <div className="flex justify-between text-sm items-center">
-              <span className="text-slate-500 w-20">Category:</span>
+              <span className="text-slate-500 w-20">{t('voice.floating.category', 'Category')}:</span>
               {step === 'CONFIRM' ? (
                 <input
                   value={tempItem.category || ''}
@@ -369,7 +395,7 @@ export default function VoiceAddFloating() {
               )}
             </div>
             <div className="flex justify-between text-sm items-center">
-              <span className="text-slate-500 w-20">Expiry:</span>
+              <span className="text-slate-500 w-20">{t('voice.floating.expiry', 'Expiry')}:</span>
               {step === 'CONFIRM' ? (
                 <input
                   value={tempItem.expiryDate || ''}
@@ -382,7 +408,7 @@ export default function VoiceAddFloating() {
               )}
             </div>
             <div className="flex justify-between text-sm items-center">
-              <span className="text-slate-500 w-20">Price:</span>
+              <span className="text-slate-500 w-20">{t('voice.floating.price', 'Price')}:</span>
               {step === 'CONFIRM' ? (
                 <input
                   type="number"
@@ -399,13 +425,13 @@ export default function VoiceAddFloating() {
 
           {step === 'CONFIRM' && (
             <div className="mt-4 flex gap-2">
-              <button onClick={confirmAdd} className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors">Confirm</button>
-              <button onClick={cancelAdd} className="px-3 py-2 border dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-white transition-colors">Cancel</button>
+              <button onClick={confirmAdd} className="flex-1 px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors">{t('voice.floating.confirm', 'Confirm')}</button>
+              <button onClick={cancelAdd} className="px-3 py-2 border dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 dark:text-white transition-colors">{t('voice.floating.cancel', 'Cancel')}</button>
             </div>
           )}
           {step !== 'CONFIRM' && (
             <div className="mt-4">
-              <button onClick={cancelAdd} className="w-full px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 text-sm">Cancel Interaction</button>
+              <button onClick={cancelAdd} className="w-full px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 text-sm">{t('voice.floating.cancelInteraction', 'Cancel Interaction')}</button>
             </div>
           )}
         </div>

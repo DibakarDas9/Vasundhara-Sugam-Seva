@@ -5,6 +5,7 @@ import AddItemModal from '@/components/inventory/AddItemModal';
 import InventoryModal from '@/components/inventory/InventoryModal';
 import UseItemModal from '@/components/inventory/UseItemModal';
 import { useLocalInventory } from '@/lib/localInventory';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
@@ -20,10 +21,13 @@ import {
   PencilIcon,
   ExclamationTriangleIcon,
   ClockIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { calculateDaysUntilExpiry } from '@/lib/utils';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { generateProductImage } from '@/lib/productImages';
+import { toast } from 'react-hot-toast';
 
 const statusConfig = {
   critical: {
@@ -58,6 +62,17 @@ export default function InventoryPage() {
 
 function InventoryContent() {
   const router = useRouter();
+  const { t } = useLanguage();
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'critical': return t('inventory.critical', 'Expires Today');
+      case 'warning': return t('inventory.warning', 'Expires Soon');
+      case 'caution': return t('inventory.caution', 'Expires This Week');
+      case 'good': default: return t('inventory.good', 'Fresh');
+    }
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -66,6 +81,7 @@ function InventoryContent() {
   const [usingItem, setUsingItem] = useState<number | null>(null);
   const [addingItem, setAddingItem] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [generatingPhotoFor, setGeneratingPhotoFor] = useState<number | null>(null);
 
   function handleScan() {
     router.push('/scan');
@@ -117,14 +133,31 @@ function InventoryContent() {
     }
   }
 
+  async function handleGenerateItemPhoto(id: number) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    setGeneratingPhotoFor(id);
+    try {
+      const imageUrl = await generateProductImage(item.name, item.category);
+      updateItem(id, { photo: imageUrl });
+      toast.success(`AI photo added for ${item.name}`);
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not generate product photo');
+    } finally {
+      setGeneratingPhotoFor(null);
+    }
+  }
+
   const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
-    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
+    const itemName = item.name || '';
+    const matchesSearch = itemName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || (item.status || 'good') === filterStatus;
+    const matchesCategory = filterCategory === 'all' || (item.category || '') === filterCategory;
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const categories = Array.from(new Set(items.map(item => item.category)));
+  const categories = Array.from(new Set(items.map(item => item.category || 'Uncategorized')));
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-black">
@@ -135,8 +168,8 @@ function InventoryContent() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <Header
-          title="Inventory Management"
-          subtitle="Track and manage your food items with AI-powered insights"
+          title={t('inventory.title', 'Inventory Management')}
+          subtitle={t('inventory.subtitle', 'Track and manage your food items with AI-powered insights')}
         />
 
         {/* Main Content */}
@@ -147,7 +180,7 @@ function InventoryContent() {
               <div className="flex flex-col sm:flex-row gap-4 flex-1">
                 <div className="relative flex-1 max-w-md">
                   <Input
-                    placeholder="Search items..."
+                    placeholder={t('inventory.searchPlaceholder', 'Search items...')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     icon={<MagnifyingGlassIcon className="w-4 h-4 text-gray-400" />}
@@ -160,11 +193,11 @@ function InventoryContent() {
                     onChange={(e) => setFilterStatus(e.target.value)}
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <option value="all">All Status</option>
-                    <option value="critical">Critical</option>
-                    <option value="warning">Warning</option>
-                    <option value="caution">Caution</option>
-                    <option value="good">Good</option>
+                    <option value="all">{t('inventory.allStatus', 'All Status')}</option>
+                    <option value="critical">{t('inventory.critical', 'Expires Today')}</option>
+                    <option value="warning">{t('inventory.warning', 'Expires Soon')}</option>
+                    <option value="caution">{t('inventory.caution', 'Expires This Week')}</option>
+                    <option value="good">{t('inventory.good', 'Fresh')}</option>
                   </select>
 
                   <select
@@ -172,7 +205,7 @@ function InventoryContent() {
                     onChange={(e) => setFilterCategory(e.target.value)}
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <option value="all">All Categories</option>
+                    <option value="all">{t('inventory.allCategories', 'All Categories')}</option>
                     {categories.map(category => (
                       <option key={category} value={category}>{category}</option>
                     ))}
@@ -182,13 +215,13 @@ function InventoryContent() {
 
               <div className="flex gap-2">
                 <Button variant="outline" icon={<CameraIcon className="w-4 h-4" />} onClick={handleScan}>
-                  Scan Item
+                  {t('inventory.scanItem', 'Scan Item')}
                 </Button>
                 <Button variant="outline" icon={<QrCodeIcon className="w-4 h-4" />} onClick={handleQRCode}>
-                  QR Code
+                  {t('inventory.qrCode', 'QR Code')}
                 </Button>
                 <Button icon={<PlusIcon className="w-4 h-4" />} onClick={handleAddItem}>
-                  Add Item
+                  {t('inventory.addItem', 'Add Item')}
                 </Button>
               </div>
             </div>
@@ -199,7 +232,7 @@ function InventoryContent() {
                 variant="destructive"
                 className="w-full sm:w-auto btn-danger clickable"
                 onClick={() => {
-                  if (!confirm('Are you sure you want to clear your entire inventory? This cannot be undone.')) return;
+                  if (!confirm(t('inventory.confirmClear', 'Are you sure you want to clear your entire inventory? This cannot be undone.'))) return;
                   clearInventory();
                   const el = document.querySelector('.btn-danger');
                   if (el) {
@@ -208,7 +241,7 @@ function InventoryContent() {
                   }
                 }}
               >
-                Clear Inventory
+                {t('inventory.clearInventory', 'Clear Inventory')}
               </Button>
             </div>
 
@@ -222,15 +255,35 @@ function InventoryContent() {
                   <Card key={item.id} className="hover:shadow-lg transition-all duration-200">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">
-                            {item.name.charAt(0)}
-                          </span>
-                        </div>
+                        {item.photo ? (
+                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-150 dark:border-gray-800 shadow-sm flex-shrink-0">
+                            <img src={item.photo} alt={item.name || 'Product'} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-start gap-1.5">
+                            <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-bold text-lg">
+                                {(item.name || 'U').charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGenerateItemPhoto(item.id);
+                              }}
+                              disabled={generatingPhotoFor === item.id}
+                              className="inline-flex items-center gap-1 rounded-md border border-emerald-200 px-2 py-1 text-[10px] font-medium text-emerald-700 hover:bg-emerald-50 disabled:opacity-60 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
+                              title="Generate product photo with AI"
+                            >
+                              <SparklesIcon className="w-3 h-3" />
+                              {generatingPhotoFor === item.id ? 'Generating...' : 'AI photo'}
+                            </button>
+                          </div>
+                        )}
                         <div className="flex items-center gap-2">
                           {item.expiryDate && (
                             <span className={`px-2 py-1 text-xs font-medium rounded-full border ${config.color}`}>
-                              {config.label}
+                              {getStatusLabel(item.status || 'good')}
                             </span>
                           )}
                           <button
@@ -247,7 +300,7 @@ function InventoryContent() {
                             onClick={(e) => {
                               e.stopPropagation();
                               // simple confirm before deleting
-                              if (confirm(`Remove "${item.name}" from inventory?`)) {
+                              if (confirm(t('inventory.confirmDelete', `Remove "${item.name}" from inventory?`))) {
                                 deleteItem(item.id);
                                 // close modal if editing this item
                                 if (editing === item.id) setShowModal(false);
@@ -264,42 +317,50 @@ function InventoryContent() {
                     </CardHeader>
 
                     <CardContent className="pt-0">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.category}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.name || 'Unnamed Item'}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.category || 'Uncategorized'}</p>
 
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Quantity:</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t('inventory.quantity', 'Quantity')}:</span>
                           <span className="font-medium dark:text-gray-200">{item.quantity} {item.unit}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Price:</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t('inventory.price', 'Price')}:</span>
                           <span className="font-medium dark:text-gray-200">{item.price ? `₹${item.price}` : '-'}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Unit Cost:</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t('inventory.unitCost', 'Unit Cost')}:</span>
                           <span className="font-medium text-gray-500 dark:text-gray-400">
                             {item.price && item.quantity ? `₹${(item.price / item.quantity).toFixed(2)} / ${item.unit || 'unit'}` : '-'}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Expires:</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t('inventory.expires', 'Expires')}:</span>
                           <span className="font-medium dark:text-gray-200">{item.expiryDate || '-'}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Days left:</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t('inventory.daysLeft', 'Days left')}:</span>
                           <span className={`font-medium ${!item.expiryDate ? 'text-gray-500 dark:text-gray-400' : daysUntilExpiry < 0 ? 'text-gray-500 dark:text-gray-400' : daysUntilExpiry === 0 ? 'text-red-600 dark:text-red-400' : daysUntilExpiry <= 3 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}`}>
-                            {!item.expiryDate ? 'Enter expiry' : daysUntilExpiry < 0 ? 'Expired' : daysUntilExpiry === 0 ? 'Expires today' : daysUntilExpiry === 1 ? '1 day' : `${daysUntilExpiry} days`}
+                            {!item.expiryDate 
+                              ? t('inventory.enterExpiry', 'Enter expiry') 
+                              : daysUntilExpiry < 0 
+                              ? t('inventory.expired', 'Expired') 
+                              : daysUntilExpiry === 0 
+                              ? t('inventory.expiresToday', 'Expires today') 
+                              : daysUntilExpiry === 1 
+                              ? t('inventory.day', '1 day') 
+                              : `${daysUntilExpiry} ${t('inventory.days', 'days')}`}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" onClick={() => handleAddItemStock(item.id)}>
-                          Add
+                          {t('inventory.add', 'Add')}
                         </Button>
                         <Button size="sm" className="flex-1" onClick={() => handleUseNow(item.id)}>
-                          Use Now
+                          {t('inventory.useNow', 'Use Now')}
                         </Button>
                       </div>
                     </CardContent>
@@ -315,15 +376,15 @@ function InventoryContent() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No items found</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t('inventory.noItems', 'No items found')}</h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
-                      ? 'Try adjusting your search or filters'
-                      : 'Start by adding your first food item to track'
+                      ? t('inventory.noItemsDetailFilters', 'Try adjusting your search or filters')
+                      : t('inventory.noItemsDetailEmpty', 'Start by adding your first food item to track')
                     }
                   </p>
                   <Button icon={<PlusIcon className="w-4 h-4" />} onClick={handleAddItem}>
-                    Add Your First Item
+                    {t('inventory.addFirstItem', 'Add Your First Item')}
                   </Button>
                 </CardContent>
               </Card>

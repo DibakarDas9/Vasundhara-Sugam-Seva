@@ -20,6 +20,7 @@ import {
 import { useLocalInventory } from '@/lib/localInventory';
 import { calculateDaysUntilExpiry } from '@/lib/utils';
 import { fetchAiMealSuggestions, type AiMealSuggestion } from '@/lib/aiMeals';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // We'll load recipes from public/recipes.json at runtime so the meal-planning UI shows all recipes
 type Recipe = {
@@ -41,6 +42,7 @@ const mealTimes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 
 export default function MealPlanningPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { items } = useLocalInventory();
   // const [recipes, setRecipes] = useState<Recipe[]>([]); // Removed static recipes
   const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
@@ -116,8 +118,8 @@ export default function MealPlanningPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <Header
-          title="Meal Planning"
-          subtitle="Plan delicious meals using your expiring ingredients"
+          title={t('meals.title', 'Meal Planning')}
+          subtitle={t('meals.subtitle', 'Plan delicious meals using your expiring ingredients')}
         />
 
         {/* Main Content */}
@@ -133,7 +135,7 @@ export default function MealPlanningPage() {
                     onClick={() => setSelectedMealTime(mealTime)}
                     className="min-w-[100px]"
                   >
-                    {mealTime}
+                    {t(`meals.slot.${mealTime}`, mealTime)}
                   </Button>
                 ))}
               </div>
@@ -143,18 +145,18 @@ export default function MealPlanningPage() {
               <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle className="flex items-center gap-2 text-emerald-900 dark:text-emerald-400">
                   <SparklesIcon className="w-5 h-5 text-emerald-500" />
-                  AI Meal Blueprint
+                  {t('meals.aiBlueprint', 'AI Meal Blueprint')}
                 </CardTitle>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <span className="text-xs text-gray-500 flex-1">
                     {aiLoading
-                      ? 'AI is analyzing your expiring ingredients...'
+                      ? t('meals.aiAnalyzing', 'AI is analyzing your expiring ingredients...')
                       : aiMeals.length
-                        ? 'Personalized picks ready to schedule.'
-                        : 'Add expiring items to unlock AI guidance.'}
+                        ? t('meals.aiReady', 'Personalized picks ready to schedule.')
+                        : t('meals.aiUnlock', 'Add expiring items to unlock AI guidance.')}
                   </span>
                   <Button size="sm" variant="outline" onClick={refreshAiMeals} disabled={aiLoading}>
-                    {aiLoading ? 'Thinking...' : 'Refresh AI'}
+                    {aiLoading ? t('meals.thinking', 'Thinking...') : t('meals.refreshAi', 'Refresh AI')}
                   </Button>
                 </div>
               </CardHeader>
@@ -178,7 +180,7 @@ export default function MealPlanningPage() {
                           <h4 className="font-semibold text-gray-900 dark:text-white">{suggestion.name}</h4>
                           <p className="text-xs text-gray-500 dark:text-gray-400">{suggestion.prepTime} · {suggestion.difficulty}</p>
                         </div>
-                        <span className="text-xs font-semibold text-emerald-600">AI Pick</span>
+                        <span className="text-xs font-semibold text-emerald-600">{t('meals.aiPick', 'AI Pick')}</span>
                       </div>
                       {suggestion.summary && (
                         <p className="text-sm text-gray-600 mb-2 line-clamp-2">{suggestion.summary}</p>
@@ -192,10 +194,10 @@ export default function MealPlanningPage() {
                       </div>
                       <div className="flex gap-2">
                         <Button size="sm" className="flex-1" onClick={() => handlePlanFromAi(suggestion)}>
-                          Schedule Meal
+                          {t('meals.scheduleMeal', 'Schedule Meal')}
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => handlePlanFromAi(suggestion)}>
-                          View Plan
+                          {t('meals.viewPlan', 'View Plan')}
                         </Button>
                       </div>
                     </div>
@@ -205,7 +207,7 @@ export default function MealPlanningPage() {
                   <div className="text-center py-8">
                     <SparklesIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-600">
-                      Your meal plan is empty. Add items to your inventory to get AI-powered suggestions!
+                      {t('meals.emptyText', 'Your meal plan is empty. Add items to your inventory to get AI-powered suggestions!')}
                     </p>
                   </div>
                 )}

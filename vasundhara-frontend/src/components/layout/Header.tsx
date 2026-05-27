@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BellIcon, MagnifyingGlassIcon, UserCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { BellIcon, MagnifyingGlassIcon, UserCircleIcon, ArrowRightOnRectangleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useMobileNav } from '@/contexts/MobileNavContext';
 import { NotificationPanel } from '@/components/ui/NotificationPanel';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import LanguageSelector from '@/components/ui/LanguageSelector';
 import { useLocalInventory } from '@/lib/localInventory';
 
 interface HeaderProps {
@@ -60,10 +61,10 @@ export function Header({ title, subtitle, className }: HeaderProps) {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-1.5">
             {/* Search */}
             {!isAdminArea && (
-              <div className="hidden md:block">
+              <div className="hidden md:block mr-2">
                 <Input
                   placeholder="Search items, recipes..."
                   icon={<MagnifyingGlassIcon className="w-4 h-4 text-gray-400 dark:text-gray-500" />}
@@ -72,8 +73,34 @@ export function Header({ title, subtitle, className }: HeaderProps) {
               </div>
             )}
 
-            {/* Theme toggle available everywhere */}
-            <ThemeToggle className="inline-flex" />
+            {user && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="hidden md:inline-flex text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:text-emerald-200 dark:hover:bg-emerald-900/20 text-xs"
+                  onClick={() => window.dispatchEvent(new Event('vard-open'))}
+                >
+                  <SparklesIcon className="w-4 h-4 mr-2" />
+                  VARD
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:text-emerald-200 dark:hover:bg-emerald-900/20"
+                  onClick={() => window.dispatchEvent(new Event('vard-open'))}
+                  aria-label="Open VARD AI"
+                >
+                  <SparklesIcon className="w-5 h-5" />
+                </Button>
+              </>
+            )}
+
+            {/* Theme toggle */}
+            <ThemeToggle />
+
+            {/* Language Selector — minimal */}
+            <LanguageSelector />
 
             {/* Notifications */}
             <Button

@@ -19,119 +19,19 @@ import {
   ShieldCheckIcon,
   Bars3Icon,
   XMarkIcon,
-  UserPlusIcon
+  UserPlusIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSelector from '@/components/ui/LanguageSelector';
 import Footer from '@/components/layout/Footer';
+import VardOverlay from '@/components/ai/VardOverlay';
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
-
-const navLinks = [
-  { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Know the Founders', href: '/about' },
-  { label: 'Inventory', href: '#inventory' },
-  { label: 'Marketplace', href: '/marketplace' },
-  { label: 'Scan', href: '/scan' },
-  { label: 'Analytics', href: '#analytics' }
-];
-
-const heroStats = [
-  { label: 'Neighborhoods live', value: '42', detail: '+6 joined this month' },
-  { label: 'Food saved each week', value: '18.4 tons', detail: 'Shared instead of wasted' },
-  { label: 'Help response time', value: '2m 13s', detail: 'From alert to action' }
-];
-
-const featureHighlights: Array<{ title: string; description: string; icon: IconType; badge: string; accent: string }> = [
-  {
-    title: 'Quick barcode scan',
-    description: 'Point a camera or scan a code to add items and expiries in seconds.',
-    icon: CameraIcon,
-    badge: 'Scan fast',
-    accent: 'from-emerald-400/80 to-cyan-400/80'
-  },
-  {
-    title: 'Talk-to-add',
-    description: 'Say “add 10 kg rice for ward 3” and the form fills up for you.',
-    icon: MicrophoneIcon,
-    badge: 'Voice input',
-    accent: 'from-blue-400/80 to-indigo-400/80'
-  },
-  {
-    title: 'Smart planning',
-    description: 'We suggest what to cook, donate, or sell so nothing spoils.',
-    icon: CpuChipIcon,
-    badge: 'Plan smart',
-    accent: 'from-purple-400/80 to-fuchsia-400/80'
-  },
-  {
-    title: 'Impact reports',
-    description: 'Simple dashboards show meals served, money saved, and carbon reduced.',
-    icon: ChartBarIcon,
-    badge: 'See results',
-    accent: 'from-amber-400/80 to-orange-400/80'
-  }
-];
-
-const aboutPillars = [
-  {
-    title: 'Safe for public teams',
-    copy: 'Secure logins and audit trails protect citizen data.',
-    icon: ShieldCheckIcon
-  },
-  {
-    title: 'Made for everyone',
-    copy: 'Households, shops, NGOs, and city staff share one simple picture.',
-    icon: UserPlusIcon
-  },
-  {
-    title: 'Helpful automation',
-    copy: 'The system suggests next steps while you stay in control.',
-    icon: SparklesIcon
-  }
-];
-
-const journeySteps = [
-  {
-    title: 'Capture in seconds',
-    copy: 'Scan or speak to log stock. No spreadsheets or long forms.'
-  },
-  {
-    title: 'Organize automatically',
-    copy: 'Expiry dates, locations, and recipes link themselves up.'
-  },
-  {
-    title: 'Share or sell fast',
-    copy: 'Push items to donation drives, kitchens, or the marketplace with one tap.'
-  },
-  {
-    title: 'Celebrate impact',
-    copy: 'See live counts of meals served and waste avoided.'
-  }
-];
-
-const liveMoments = [
-  {
-    title: 'Pantry update',
-    detail: '17 items arriving today • 5 expiring soon',
-    highlight: 'Extra stock automatically sent to nearby NGOs',
-    accent: 'from-emerald-500/80 to-sky-500/80'
-  },
-  {
-    title: 'Marketplace spotlight',
-    detail: '138 local buyers online',
-    highlight: 'Prices adjust so farmers and SHGs earn fairly',
-    accent: 'from-orange-500/80 to-pink-500/80'
-  },
-  {
-    title: 'Community drives',
-    detail: '4 Sugam Seva drives live right now',
-    highlight: 'Volunteers get credits and UPI payouts on time',
-    accent: 'from-indigo-500/80 to-violet-500/80'
-  }
-];
 
 const motionFade = {
   hidden: { opacity: 0, y: 32 },
@@ -149,16 +49,122 @@ const motionFade = {
 export default function HomePage() {
   const router = useRouter();
   const { login, register, user, logout } = useAuth();
+  const { t, language } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [authLoading, setAuthLoading] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [vardOpen, setVardOpen] = useState(false);
   const sevaWords = useMemo(
     () => ['Seva', 'সেবা', 'सेवा', 'சேவை', 'సేవ', 'സേവ', 'سیوا', 'Seva'],
     []
   );
+
+  const navLinks = useMemo(() => [
+    { label: t('nav.dashboard', 'Dashboard'), href: '/dashboard' },
+    { label: t('nav.founders', 'Founders'), href: '/about' },
+    { label: t('nav.inventory', 'Inventory'), href: '#inventory' },
+    { label: t('nav.marketplace', 'Marketplace'), href: '/marketplace' },
+    { label: t('nav.scan', 'Scan'), href: '/scan' },
+    { label: t('nav.analytics', 'Analytics'), href: '#analytics' }
+  ], [t]);
+
+  const heroStats = useMemo(() => [
+    { label: t('stats.neighborhoods', 'Neighborhoods live'), value: '42', detail: t('stats.neighborhoods.detail', '+6 joined this month') },
+    { label: t('stats.foodSaved', 'Food saved each week'), value: '18.4 tons', detail: t('stats.foodSaved.detail', 'Shared instead of wasted') },
+    { label: t('stats.responseTime', 'Help response time'), value: '2m 13s', detail: t('stats.responseTime.detail', 'From alert to action') }
+  ], [t]);
+
+  const featureHighlights = useMemo(() => [
+    {
+      title: t('features.scan.title', 'Quick barcode scan'),
+      description: t('features.scan.copy', 'Point a camera or scan a code to add items and expiries in seconds.'),
+      icon: CameraIcon,
+      badge: t('features.scan.badge', 'Scan fast'),
+      accent: 'from-emerald-400/80 to-cyan-400/80'
+    },
+    {
+      title: t('features.voice.title', 'Talk-to-add'),
+      description: t('features.voice.copy', 'Say “add 10 kg rice for ward 3” and the form fills up for you.'),
+      icon: MicrophoneIcon,
+      badge: t('features.voice.badge', 'Voice input'),
+      accent: 'from-blue-400/80 to-indigo-400/80'
+    },
+    {
+      title: t('features.planning.title', 'Smart planning'),
+      description: t('features.planning.copy', 'We suggest what to cook, donate, or sell so nothing spoils.'),
+      icon: CpuChipIcon,
+      badge: t('features.planning.badge', 'Plan smart'),
+      accent: 'from-purple-400/80 to-fuchsia-400/80'
+    },
+    {
+      title: t('features.reports.title', 'Impact reports'),
+      description: t('features.reports.copy', 'Simple dashboards show meals served, money saved, and carbon reduced.'),
+      icon: ChartBarIcon,
+      badge: t('features.reports.badge', 'See results'),
+      accent: 'from-amber-400/80 to-orange-400/80'
+    }
+  ], [t]);
+
+  const aboutPillars = useMemo(() => [
+    {
+      title: t('pillar.safe.title', 'Safe for public teams'),
+      copy: t('pillar.safe.copy', 'Secure logins and audit trails protect citizen data.'),
+      icon: ShieldCheckIcon
+    },
+    {
+      title: t('pillar.everyone.title', 'Made for everyone'),
+      copy: t('pillar.everyone.copy', 'Households, shops, NGOs, and city staff share one simple picture.'),
+      icon: UserPlusIcon
+    },
+    {
+      title: t('pillar.automation.title', 'Helpful automation'),
+      copy: t('pillar.automation.copy', 'The system suggests next steps while you stay in control.'),
+      icon: SparklesIcon
+    }
+  ], [t]);
+
+  const journeySteps = useMemo(() => [
+    {
+      title: t('journey.step1.title', 'Capture in seconds'),
+      copy: t('journey.step1.copy', 'Scan or speak to log stock. No spreadsheets or long forms.')
+    },
+    {
+      title: t('journey.step2.title', 'Organize automatically'),
+      copy: t('journey.step2.copy', 'Expiry dates, locations, and recipes link themselves up.')
+    },
+    {
+      title: t('journey.step3.title', 'Share or sell fast'),
+      copy: t('journey.step3.copy', 'Push items to donation drives, kitchens, or the marketplace with one tap.')
+    },
+    {
+      title: t('journey.step4.title', 'Celebrate impact'),
+      copy: t('journey.step4.copy', 'See live counts of meals served and waste avoided.')
+    }
+  ], [t]);
+
+  const liveMoments = useMemo(() => [
+    {
+      title: t('live.pantryTitle', 'Pantry update'),
+      detail: t('live.pantryDetail', '17 items arriving today • 5 expiring soon'),
+      highlight: t('live.pantryHighlight', 'Extra stock automatically sent to nearby NGOs'),
+      accent: 'from-emerald-500/80 to-sky-500/80'
+    },
+    {
+      title: t('live.marketTitle', 'Marketplace spotlight'),
+      detail: t('live.marketDetail', '138 local buyers online'),
+      highlight: t('live.marketHighlight', 'Prices adjust so farmers and SHGs earn fairly'),
+      accent: 'from-orange-500/80 to-pink-500/80'
+    },
+    {
+      title: t('live.drivesTitle', 'Community drives'),
+      detail: t('live.drivesDetail', '4 Sugam Seva drives live right now'),
+      highlight: t('live.drivesHighlight', 'Volunteers get credits and UPI payouts on time'),
+      accent: 'from-indigo-500/80 to-violet-500/80'
+    }
+  ], [t]);
   const [sevaIndex, setSevaIndex] = useState(0);
   const [typedText, setTypedText] = useState('');
   const typingRef = useRef<NodeJS.Timeout | null>(null);
@@ -210,7 +216,7 @@ export default function HomePage() {
 
   const handleAuth = async () => {
     if (!form.email || !form.password || (authMode === 'signup' && !form.firstName)) {
-      setFeedback('Please complete all required fields.');
+      setFeedback('complete');
       return;
     }
 
@@ -229,14 +235,27 @@ export default function HomePage() {
           householdProfile: {},
         });
       }
-      setFeedback('Welcome aboard! Redirecting you to the dashboard.');
+      setFeedback('welcome');
       router.push('/dashboard');
     } catch (error) {
-      setFeedback('Authentication failed. Please double-check your details.');
+      setFeedback('failed');
     } finally {
       setAuthLoading(false);
     }
   };
+
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const userInitials = user
     ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.trim() || user.email?.[0] || 'U'
@@ -268,7 +287,7 @@ export default function HomePage() {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-8 text-sm font-medium text-white/80 lg:flex">
+          <div className="hidden items-center gap-4 xl:gap-5 text-xs xl:text-sm font-medium text-white/70 lg:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
@@ -289,31 +308,65 @@ export default function HomePage() {
 
           <div className="hidden items-center gap-3 lg:flex">
             <ThemeToggle />
+            <LanguageSelector />
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-emerald-200 hover:text-white hover:bg-emerald-500/20 text-xs"
+                onClick={() => setVardOpen(true)}
+              >
+                <SparklesIcon className="w-4 h-4 mr-2" />
+                VARD
+              </Button>
+            )}
             {user ? (
-              <div className="flex items-center gap-4 rounded-full border border-white/15 bg-white/5 px-4 py-2">
-                <div className="h-10 w-10 rounded-full border border-white/20 bg-white/10 overflow-hidden flex items-center justify-center text-base font-semibold text-white">
-                  {user.profileImage ? (
-                    <img src={user.profileImage} alt={user.firstName} className="h-full w-full object-cover" />
-                  ) : (
-                    <span>{userInitials}</span>
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  className="flex items-center gap-2 rounded-full border border-white/15 bg-white/5 p-1 pr-3 hover:bg-white/10 transition outline-none"
+                >
+                  <div className="h-8 w-8 rounded-full border border-white/20 bg-emerald-500/20 overflow-hidden flex items-center justify-center text-xs font-semibold text-white">
+                    {user.profileImage ? (
+                      <img src={user.profileImage} alt={user.firstName} className="h-full w-full object-cover" />
+                    ) : (
+                      <span>{userInitials}</span>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium text-white/90 hidden sm:inline-block max-w-[80px] truncate">{user.firstName}</span>
+                  <ChevronDownIcon className="w-3 h-3 text-white/50" />
+                </button>
+
+                <AnimatePresence>
+                  {profileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-2 w-48 rounded-2xl border p-1.5 shadow-xl z-50 backdrop-blur-xl bg-slate-950/90 border-white/10 text-white"
+                    >
+                      <div className="px-3 py-2 border-b border-white/10 mb-1.5">
+                        <p className="text-xs font-semibold truncate">{user.firstName} {user.lastName}</p>
+                        <p className="text-[10px] text-emerald-300 truncate capitalize">{user.role}</p>
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          onClick={() => { setProfileMenuOpen(false); router.push('/dashboard'); }}
+                          className="w-full flex items-center px-3 py-2 rounded-xl text-left text-xs font-medium hover:bg-white/5 transition"
+                        >
+                          {t('nav.dashboard', 'Dashboard')}
+                        </button>
+                        <button
+                          onClick={() => { setProfileMenuOpen(false); handleLogout(); }}
+                          className="w-full flex items-center px-3 py-2 rounded-xl text-left text-xs font-medium text-red-400 hover:bg-red-500/10 transition"
+                        >
+                          {t('nav.signout', 'Sign out')}
+                        </button>
+                      </div>
+                    </motion.div>
                   )}
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-semibold text-white">{user.firstName} {user.lastName}</p>
-                  <p className="text-xs text-emerald-200">Logged in</p>
-                </div>
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="rounded-full bg-emerald-400/90 px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-emerald-300"
-                >
-                  Open app
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-xs font-semibold text-white/70 hover:text-white"
-                >
-                  Sign out
-                </button>
+                </AnimatePresence>
               </div>
             ) : (
               <>
@@ -321,13 +374,13 @@ export default function HomePage() {
                   href="/auth"
                   className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Login
+                  {t('nav.login', 'Login')}
                 </Link>
                 <Link
                   href="/auth"
                   className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg shadow-emerald-500/40 transition hover:-translate-y-0.5"
                 >
-                  Sign up
+                  {t('nav.signup', 'Sign up')}
                 </Link>
               </>
             )}
@@ -370,7 +423,7 @@ export default function HomePage() {
                       </div>
                       <div>
                         <p className="text-base font-semibold text-white">{user.firstName} {user.lastName}</p>
-                        <p className="text-xs text-emerald-200">You are signed in</p>
+                        <p className="text-xs text-emerald-200">{t('nav.loggedIn', 'You are signed in')}</p>
                       </div>
                     </div>
                     <div className="mt-4 flex gap-3">
@@ -378,13 +431,13 @@ export default function HomePage() {
                         onClick={() => { setNavOpen(false); router.push('/dashboard'); }}
                         className="flex-1 rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900"
                       >
-                        Go to dashboard
+                        {t('nav.openApp', 'Go to dashboard')}
                       </button>
                       <button
                         onClick={() => { setNavOpen(false); handleLogout(); }}
                         className="flex-1 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white/80"
                       >
-                        Sign out
+                        {t('nav.signout', 'Sign out')}
                       </button>
                     </div>
                   </div>
@@ -395,49 +448,56 @@ export default function HomePage() {
                       className="flex-1 rounded-2xl border border-white/20 px-4 py-2 text-center"
                       onClick={() => setNavOpen(false)}
                     >
-                      Login
+                      {t('nav.login', 'Login')}
                     </Link>
                     <Link
                       href="/auth"
                       className="flex-1 rounded-2xl bg-emerald-400 px-4 py-2 text-center text-slate-900"
                       onClick={() => setNavOpen(false)}
                     >
-                      Sign up
+                      {t('nav.signup', 'Sign up')}
                     </Link>
                   </div>
                 )}
+                <div className="flex items-center justify-between border-t border-white/10 pt-4 px-2">
+                  <span className="text-xs font-semibold text-white/60">Language / ভাষা / भाषा</span>
+                  <LanguageSelector />
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.header>
+      {user && (
+        <VardOverlay open={vardOpen} onClose={() => setVardOpen(false)} />
+      )}
 
       <main className="relative z-10 mx-auto flex max-w-7xl flex-col gap-24 px-4 pb-32 pt-40 sm:px-8">
         <section id="hero" className="grid items-center gap-12 lg:grid-cols-2">
           <motion.div initial="hidden" animate="visible" variants={motionFade}>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em]">
               <SparklesIcon className="h-4 w-4 text-emerald-300" />
-              Sugam Seva Platform
+              {t('hero.platform', 'Sugam Seva Platform')}
             </div>
             <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-              Less waste, more meals for every ward.
+              {t('hero.title', 'Less waste, more meals for every ward.')}
             </h1>
             <p className="mt-6 max-w-xl text-lg text-slate-200">
-              Vasundhara helps community kitchens, volunteers, and city teams track food, move extra stock quickly, and show the impact in plain language.
+              {t('hero.subtitle', 'Vasundhara helps community kitchens, volunteers, and city teams track food, move extra stock quickly, and show the impact in plain language.')}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/dashboard"
                 className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-base font-semibold text-slate-900 shadow-xl shadow-emerald-500/40 transition hover:-translate-y-0.5 hover:bg-emerald-300"
               >
-                Enter Dashboard
+                {t('hero.enterDashboard', 'Enter Dashboard')}
                 <ArrowRightIcon className="h-5 w-5" />
               </Link>
               <Link
                 href="/scan"
                 className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-base font-semibold text-white transition hover:bg-white/10"
               >
-                Watch scan-to-sale
+                {t('hero.watchScan', 'Watch scan-to-sale')}
               </Link>
             </div>
             <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -456,7 +516,7 @@ export default function HomePage() {
               ))}
             </div>
           </motion.div>
-
+ 
           <div className="relative">
             <motion.div
               className="rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-800/40 p-6 shadow-[0_40px_120px_rgba(15,118,110,0.35)] backdrop-blur-xl"
@@ -465,8 +525,8 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: 'easeOut' }}
             >
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-300">Live signal</p>
-                <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-xs text-emerald-200">Realtime</span>
+                <p className="text-sm text-slate-300">{t('live.signal', 'Live signal')}</p>
+                <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-xs text-emerald-200">{t('live.realtime', 'Realtime')}</span>
               </div>
               <p className="mt-4 text-3xl font-semibold text-white">
                 Sugam{' '}
@@ -489,8 +549,8 @@ export default function HomePage() {
                   </motion.span>
                 </span>
               </p>
-              <p className="mt-2 text-sm text-slate-300">Vision + Voice + ML fused in one ribbon.</p>
-
+              <p className="mt-2 text-sm text-slate-300">{t('live.ribbon', 'Vision + Voice + ML fused in one ribbon.')}</p>
+ 
               <div className="mt-8 space-y-4">
                 {liveMoments.map((moment, index) => (
                   <motion.div
@@ -506,14 +566,14 @@ export default function HomePage() {
                   </motion.div>
                 ))}
               </div>
-
+ 
               <motion.div
                 className="mt-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200"
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 3, repeat: Infinity }}
               >
                 <BoltIcon className="h-5 w-5 text-amber-300" />
-                98.4% automation for repetitive inputs—humans just approve the magic.
+                {t('live.automation', '98.4% automation for repetitive inputs—humans just approve the magic.')}
               </motion.div>
             </motion.div>
           </div>
@@ -522,14 +582,14 @@ export default function HomePage() {
         <section id="about" className="rounded-[36px] border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">About us</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Built with cities and citizens together.</h2>
+              <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">{t('about.title', 'About us')}</p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">{t('about.heading', 'Built with cities and citizens together.')}</h2>
               <p className="mt-2 max-w-2xl text-base text-slate-200">
-                Vasundhara is a simple mission hub where households, volunteers, NGOs, and city offices work off the same facts and move faster for the community.
+                {t('about.description', 'Vasundhara is a simple mission hub where households, volunteers, NGOs, and city offices work off the same facts and move faster for the community.')}
               </p>
             </div>
             <Link href="/docs" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-200 hover:text-emerald-100">
-              Read our playbook
+              {t('about.playbook', 'Read our playbook')}
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
           </div>
@@ -556,14 +616,14 @@ export default function HomePage() {
         <section id="inventory">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">Inventory & workflows</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Everything in one simple place.</h2>
+              <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">{t('features.title', 'Inventory & workflows')}</p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">{t('features.heading', 'Everything in one simple place.')}</h2>
               <p className="mt-2 max-w-2xl text-base text-slate-200">
-                Scan stock, speak updates, plan meals, donate extras, and sell fresh produce without jumping across apps.
+                {t('features.description', 'Scan stock, speak updates, plan meals, donate extras, and sell fresh produce without jumping across apps.')}
               </p>
             </div>
             <Link href="/analytics" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200">
-              Preview analytics
+              {t('features.previewAnalytics', 'Preview analytics')}
               <ArrowRightIcon className="h-4 w-4" />
             </Link>
           </div>
@@ -596,13 +656,13 @@ export default function HomePage() {
         <section id="analytics" className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-xl">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">How it works</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Follow the journey at a glance.</h2>
-              <p className="mt-2 max-w-xl text-base text-slate-200">These four steps show how food moves from scan to table without waste.</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">{t('journey.title', 'How it works')}</p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">{t('journey.heading', 'Follow the journey at a glance.')}</h2>
+              <p className="mt-2 max-w-xl text-base text-slate-200">{t('journey.description', 'These four steps show how food moves from scan to table without waste.')}</p>
             </div>
             <span className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.4em] text-slate-300">
               <CloudArrowUpIcon className="h-4 w-4" />
-              synced across devices
+              {t('journey.synced', 'synced across devices')}
             </span>
           </div>
 
@@ -619,7 +679,7 @@ export default function HomePage() {
               >
                 <div className="flex items-center gap-3 text-sm text-emerald-200">
                   <CheckCircleIcon className="h-5 w-5" />
-                  Phase {index + 1}
+                  {t('journey.phase', 'Phase')} {index + 1}
                 </div>
                 <h3 className="mt-4 text-xl font-semibold text-white">{step.title}</h3>
                 <p className="mt-3 text-sm text-slate-200">{step.copy}</p>
@@ -631,16 +691,16 @@ export default function HomePage() {
         <section className="rounded-[36px] border border-white/15 bg-gradient-to-br from-emerald-500/20 via-slate-900/60 to-emerald-900/40 p-8 shadow-[0_40px_120px_rgba(16,185,129,0.25)]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.4em] text-white/70">Friendly experience</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Feels alive, not complicated.</h2>
+              <p className="text-sm uppercase tracking-[0.4em] text-white/70">{t('exp.title', 'Friendly experience')}</p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">{t('exp.heading', 'Feels alive, not complicated.')}</h2>
               <p className="mt-3 max-w-2xl text-base text-white/80">
-                Smooth animations guide your eye, show live changes, and make every action feel rewarding for citizens and staff alike.
+                {t('exp.description', 'Smooth animations guide your eye, show live changes, and make every action feel rewarding for citizens and staff alike.')}
               </p>
             </div>
             <div className="flex flex-wrap gap-3 text-sm font-semibold text-white/70">
-              <span className="rounded-full border border-white/40 px-4 py-2">Micro-interactions</span>
-              <span className="rounded-full border border-white/40 px-4 py-2">Lottie ready</span>
-              <span className="rounded-full border border-white/40 px-4 py-2">Framer Motion</span>
+              <span className="rounded-full border border-white/40 px-4 py-2">{t('exp.badge1', 'Micro-interactions')}</span>
+              <span className="rounded-full border border-white/40 px-4 py-2">{t('exp.badge2', 'Lottie ready')}</span>
+              <span className="rounded-full border border-white/40 px-4 py-2">{t('exp.badge3', 'Framer Motion')}</span>
             </div>
           </div>
 
@@ -655,7 +715,7 @@ export default function HomePage() {
               >
                 <p className="text-lg font-semibold">{item}</p>
                 <p className="mt-2 text-sm text-slate-700">
-                  Designed for continuous discovery—drag, tap, hover, and feel the platform respond.
+                  {t('exp.cardText', 'Designed for continuous discovery—drag, tap, hover, and feel the platform respond.')}
                 </p>
               </motion.div>
             ))}
@@ -663,15 +723,15 @@ export default function HomePage() {
 
           <div className="mt-10 flex flex-col gap-4 rounded-3xl border border-white/20 bg-white/5 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-lg font-semibold">Ready to launch Sugam Seva drives in your ward?</p>
-              <p className="text-sm text-white/80">Spin up the dashboard, invite volunteers, and broadcast impact in minutes.</p>
+              <p className="text-lg font-semibold">{t('exp.pilotTitle', 'Ready to launch Sugam Seva drives in your ward?')}</p>
+              <p className="text-sm text-white/80">{t('exp.pilotSubtitle', 'Spin up the dashboard, invite volunteers, and broadcast impact in minutes.')}</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link href="/auth" className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
-                Launch pilot
+                {t('exp.pilotLaunch', 'Launch pilot')}
               </Link>
               <Link href="/marketplace" className="rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
-                View marketplace
+                {t('exp.pilotMarketplace', 'View marketplace')}
               </Link>
             </div>
           </div>
@@ -680,15 +740,21 @@ export default function HomePage() {
         <section id="access" className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-xl">
           <div className="grid gap-10 lg:grid-cols-2">
             <div>
-              <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">Login & signup</p>
-              <h2 className="mt-2 text-3xl font-semibold text-white">Sign in or create an account.</h2>
+              <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">{t('nav.login', 'Login')} & {t('nav.signup', 'Sign up')}</p>
+              <h2 className="mt-2 text-3xl font-semibold text-white">{t('auth.heading', 'Sign in or create an account.')}</h2>
               <p className="mt-3 text-base text-slate-200">
-                You can use this quick form or open the full <Link href="/auth" className="text-emerald-300 underline">auth page</Link>. Either way you get access to the same tools.
+                {language === 'hi' ? (
+                  <>आप इस त्वरित फ़ॉर्म का उपयोग कर सकते हैं या पूर्ण <Link href="/auth" className="text-emerald-300 underline">प्रमाणीकरण पृष्ठ</Link> खोल सकते हैं। दोनों ही मामलों में आपको समान उपकरण प्राप्त होते हैं।</>
+                ) : language === 'bn' ? (
+                  <>আপনি এই দ্রুত ফর্মটি ব্যবহার করতে পারেন বা সম্পূর্ণ <Link href="/auth" className="text-emerald-300 underline">প্রমাণীকরণ পৃষ্ঠাটি</Link> খুলতে পারেন। উভয় ক্ষেত্রেই আপনি একই সরঞ্জামগুলিতে অ্যাক্সেস পাবেন।</>
+                ) : (
+                  <>You can use this quick form or open the full <Link href="/auth" className="text-emerald-300 underline">auth page</Link>. Either way you get access to the same tools.</>
+                )}
               </p>
               <ul className="mt-6 space-y-3 text-sm text-slate-200">
-                <li>• One login covers the dashboard, drives, and marketplace.</li>
-                <li>• Light or dark mode keeps your screen comfortable.</li>
-                <li>• Guests can still explore before signing up.</li>
+                <li>• {t('auth.benefit1', 'One login covers the dashboard, drives, and marketplace.')}</li>
+                <li>• {t('auth.benefit2', 'Light or dark mode keeps your screen comfortable.')}</li>
+                <li>• {t('auth.benefit3', 'Guests can still explore before signing up.')}</li>
               </ul>
             </div>
 
@@ -706,7 +772,7 @@ export default function HomePage() {
                     className={`flex-1 rounded-2xl px-4 py-2 transition ${authMode === mode ? 'bg-emerald-400 text-slate-900' : 'text-slate-200'
                       }`}
                   >
-                    {mode === 'login' ? 'Login' : 'Sign up'}
+                    {mode === 'login' ? t('nav.login', 'Login') : t('nav.signup', 'Sign up')}
                   </button>
                 ))}
               </div>
@@ -715,35 +781,45 @@ export default function HomePage() {
                 {authMode === 'signup' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Input
-                      placeholder="First name"
+                      placeholder={t('auth.placeholderFirstName', 'First name')}
                       value={form.firstName}
                       onChange={(e) => setForm((prev) => ({ ...prev, firstName: e.target.value }))}
                     />
                     <Input
-                      placeholder="Last name"
+                      placeholder={t('auth.placeholderLastName', 'Last name')}
                       value={form.lastName}
                       onChange={(e) => setForm((prev) => ({ ...prev, lastName: e.target.value }))}
                     />
                   </div>
                 )}
                 <Input
-                  placeholder="Email"
+                  placeholder={t('auth.placeholderEmail', 'Email')}
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
                 />
                 <Input
-                  placeholder="Password"
+                  placeholder={t('auth.placeholderPassword', 'Password')}
                   type="password"
                   value={form.password}
                   onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
                 />
                 <Button className="w-full" onClick={handleAuth} disabled={authLoading}>
-                  {authLoading ? 'Processing...' : authMode === 'login' ? 'Login and continue' : 'Create account'}
+                  {authLoading ? t('auth.processing', 'Processing...') : authMode === 'login' ? t('auth.buttonLogin', 'Login and continue') : t('auth.buttonSignup', 'Create account')}
                 </Button>
-                {feedback && <p className="text-sm text-emerald-200">{feedback}</p>}
+                {feedback && (
+                  <p className="text-sm text-emerald-200">
+                    {feedback === 'complete'
+                      ? t('auth.feedbackComplete', 'Please complete all required fields.')
+                      : feedback === 'welcome'
+                      ? t('auth.feedbackWelcome', 'Welcome aboard! Redirecting you to the dashboard.')
+                      : feedback === 'failed'
+                      ? t('auth.feedbackFailed', 'Authentication failed. Please double-check your details.')
+                      : feedback}
+                  </p>
+                )}
                 <div className="text-xs text-slate-400">
-                  By continuing you agree to the mission: reduce waste, feed more, and keep Sugam Seva thriving.
+                  {t('auth.missionText', 'By continuing you agree to the mission: reduce waste, feed more, and keep Sugam Seva thriving.')}
                 </div>
               </div>
             </motion.div>

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import VoiceAdd from '@/components/voice/VoiceAdd';
 import { useLocalInventory } from '@/lib/localInventory';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   CameraIcon,
   QrCodeIcon,
@@ -64,6 +65,7 @@ export default function ScanPage() {
 
 function ScanContent() {
   const router = require('next/navigation').useRouter();
+  const { t } = useLanguage();
   const [scanMode, setScanMode] = useState<'barcode' | 'qr' | 'camera' | 'manual'>('barcode');
   const [isScanning, setIsScanning] = useState(false);
   const [scanningError, setScanningError] = useState<string | null>(null);
@@ -323,8 +325,8 @@ function ScanContent() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <Header
-          title="Scan Items"
-          subtitle="Add items to your inventory using barcode scanning, QR codes, or camera"
+          title={t('scan.title', 'Scan Items')}
+          subtitle={t('scan.subtitle', 'Add items to your inventory using barcode scanning, QR codes, or camera')}
         />
 
         {/* Main Content */}
@@ -333,7 +335,7 @@ function ScanContent() {
             {/* Scan Options */}
             <Card>
               <CardHeader>
-                <CardTitle>Choose Scanning Method</CardTitle>
+                <CardTitle>{t('scan.chooseMethod', 'Choose Scanning Method')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -343,7 +345,7 @@ function ScanContent() {
                     className="h-20 flex-col gap-2"
                   >
                     <QrCodeIcon className="w-6 h-6" />
-                    <span>Barcode</span>
+                    <span>{t('scan.method.barcode', 'Barcode')}</span>
                   </Button>
 
                   <Button
@@ -352,7 +354,7 @@ function ScanContent() {
                     className="h-20 flex-col gap-2"
                   >
                     <QrCodeIcon className="w-6 h-6" />
-                    <span>QR Code</span>
+                    <span>{t('scan.method.qr', 'QR Code')}</span>
                   </Button>
 
                   <Button
@@ -361,7 +363,7 @@ function ScanContent() {
                     className="h-20 flex-col gap-2"
                   >
                     <CameraIcon className="w-6 h-6" />
-                    <span>Camera</span>
+                    <span>{t('scan.method.camera', 'Camera')}</span>
                   </Button>
 
                   <Button
@@ -370,7 +372,7 @@ function ScanContent() {
                     className="h-20 flex-col gap-2"
                   >
                     <DocumentTextIcon className="w-6 h-6" />
-                    <span>Manual</span>
+                    <span>{t('scan.method.manual', 'Manual')}</span>
                   </Button>
                 </div>
               </CardContent>
@@ -380,23 +382,23 @@ function ScanContent() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {scanMode === 'barcode' && 'Barcode Scanner'}
-                  {scanMode === 'qr' && 'QR Code Scanner'}
-                  {scanMode === 'camera' && 'Camera Scanner'}
-                  {scanMode === 'manual' && 'Manual Entry'}
+                  {scanMode === 'barcode' && t('scan.scanner.barcode', 'Barcode Scanner')}
+                  {scanMode === 'qr' && t('scan.scanner.qr', 'QR Code Scanner')}
+                  {scanMode === 'camera' && t('scan.scanner.camera', 'Camera Scanner')}
+                  {scanMode === 'manual' && t('scan.scanner.manual', 'Manual Entry')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {scanMode === 'manual' ? (
                   <div className="space-y-4">
                     <Input
-                      label="Item Name"
-                      placeholder="Enter item name..."
+                      label={t('scan.input.itemName', 'Item Name')}
+                      placeholder={t('scan.input.placeholder', 'Enter item name...')}
                       value={manualInput}
                       onChange={(e) => setManualInput(e.target.value)}
                     />
                     <Button onClick={handleManualAdd} disabled={!manualInput.trim()}>
-                      Add Item
+                      {t('scan.button.addItem', 'Add Item')}
                     </Button>
                     <VoiceAdd />
                   </div>
@@ -408,7 +410,7 @@ function ScanContent() {
                     </div>
 
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      {isScanning ? 'Scanning...' : 'Ready to Scan'}
+                      {isScanning ? t('scan.status.scanning', 'Scanning...') : t('scan.status.ready', 'Ready to Scan')}
                     </h3>
 
                     {scanningError && (
@@ -416,7 +418,7 @@ function ScanContent() {
                     )}
 
                     {lastScan && (
-                      <p className="text-sm text-green-700">Last scanned: {lastScan}</p>
+                      <p className="text-sm text-green-700">{t('scan.status.lastScanned', 'Last scanned')}: {lastScan}</p>
                     )}
 
                     {detectorAvailable !== null && (
@@ -426,17 +428,17 @@ function ScanContent() {
                     {/* Pending product confirmation when a product lookup returns */}
                     {pendingItem && (
                       <div className="mt-4 p-4 bg-white rounded-lg shadow-md max-w-md mx-auto text-left">
-                        <h4 className="font-semibold mb-2">Confirm scanned product</h4>
+                        <h4 className="font-semibold mb-2">{t('scan.confirm.title', 'Confirm scanned product')}</h4>
                         <div className="flex items-start gap-4">
                           <img src={pendingItem.image} alt="product" className="w-20 h-20 object-cover rounded" />
                           <div className="flex-1">
-                            <label className="block text-xs text-gray-600 dark:text-gray-400">Name</label>
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">{t('voice.floating.name', 'Name')}</label>
                             <input className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.name} onChange={(e) => setPendingItem({ ...pendingItem, name: e.target.value })} />
-                            <label className="block text-xs text-gray-600 dark:text-gray-400">Brand</label>
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">{t('scan.confirm.brand', 'Brand')}</label>
                             <input className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.brand} onChange={(e) => setPendingItem({ ...pendingItem, brand: e.target.value })} />
-                            <label className="block text-xs text-gray-600 dark:text-gray-400">Category</label>
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">{t('inventory.modal.category', 'Category')}</label>
                             <input className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.category} onChange={(e) => setPendingItem({ ...pendingItem, category: e.target.value })} />
-                            <label className="block text-xs text-gray-600 dark:text-gray-400">Expiry date (optional)</label>
+                            <label className="block text-xs text-gray-600 dark:text-gray-400">{t('scan.confirm.expiry', 'Expiry date (optional)')}</label>
                             <input type="date" className="w-full border px-2 py-1 rounded mb-2 dark:bg-gray-800 dark:border-gray-700 dark:text-white" value={pendingItem.expiryDate || ''} onChange={(e) => setPendingItem({ ...pendingItem, expiryDate: e.target.value || null })} />
                             <div className="flex gap-2 mt-2">
                               <Button size="sm" onClick={() => {
@@ -446,9 +448,9 @@ function ScanContent() {
                                 setPendingItem(null);
                                 setLastScan(null);
                                 setScanningError(null);
-                              }}>Add to Inventory</Button>
+                              }}>{t('scan.confirm.addInventory', 'Add to Inventory')}</Button>
                               <Button size="sm" variant="outline" onClick={() => { setPendingItem(null); setLastScan(null); setScanningError(null); }}>
-                                Cancel
+                                {t('inventory.modal.cancel', 'Cancel')}
                               </Button>
                             </div>
                           </div>
@@ -459,15 +461,15 @@ function ScanContent() {
                     <div className="flex items-center justify-center gap-4">
                       {!isScanning ? (
                         <Button size="lg" onClick={handleScan} icon={<CameraIcon className="w-5 h-5" />}>
-                          Start Scan
+                          {t('scan.button.startScan', 'Start Scan')}
                         </Button>
                       ) : (
                         <Button size="lg" variant="destructive" onClick={() => stopCamera()}>
-                          Stop
+                          {t('scan.button.stop', 'Stop')}
                         </Button>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Ensure camera permission is allowed. If scanning fails, try Manual entry.</p>
+                    <p className="text-xs text-gray-500 mt-2">{t('scan.hint.permission', 'Ensure camera permission is allowed. If scanning fails, try Manual entry.')}</p>
                   </div>
                 )}
               </CardContent>
@@ -476,7 +478,7 @@ function ScanContent() {
             {/* Scanned Items */}
             <Card>
               <CardHeader>
-                <CardTitle>Recently Scanned Items</CardTitle>
+                <CardTitle>{t('scan.recentTitle', 'Recently Scanned Items')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -484,7 +486,7 @@ function ScanContent() {
                     <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                       <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold text-lg">
-                          {item.name.charAt(0)}
+                          {(item.name || 'U').charAt(0).toUpperCase()}
                         </span>
                       </div>
 
@@ -497,21 +499,21 @@ function ScanContent() {
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">{item.brand}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-500">
-                          Barcode: {item.barcode} • Confidence: {Math.round(item.confidence * 100)}%
+                          {t('scan.method.barcode', 'Barcode')}: {item.barcode} • {t('scan.recent.confidence', 'Confidence')}: {Math.round(item.confidence * 100)}%
                         </p>
                         {item.expiryDate && (
                           <p className="text-xs text-gray-500">
-                            Expires: {item.expiryDate}
+                            {t('inventory.expires', 'Expires')}: {item.expiryDate}
                           </p>
                         )}
                       </div>
 
                       <div className="flex space-x-2">
                         <Button size="sm" variant="outline" onClick={() => router.push(`/scan/${item.id}/edit`)}>
-                          Edit
+                          {t('scan.recent.edit', 'Edit')}
                         </Button>
-                        <Button size="sm" onClick={() => { addItem({ name: item.name, category: item.category, expiryDate: item.expiryDate }); alert('Added to inventory'); }}>
-                          Add to Inventory
+                        <Button size="sm" onClick={() => { addItem({ name: item.name, category: item.category, expiryDate: item.expiryDate }); alert(t('scan.recent.added', 'Added to inventory')); }}>
+                          {t('scan.confirm.addInventory', 'Add to Inventory')}
                         </Button>
                       </div>
                     </div>

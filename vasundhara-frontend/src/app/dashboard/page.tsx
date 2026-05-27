@@ -14,6 +14,7 @@ import { calculateMoneySaved, calculateWasteReduction } from '@/lib/analytics';
 import type { LocalItem } from '@/lib/localInventory';
 import { useLocalInventory } from '@/lib/localInventory';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import {
   ShoppingCartIcon,
@@ -29,6 +30,7 @@ function DashboardContent() {
   const router = useRouter();
   const { items, usageLog, clearInventory } = useLocalInventory();
   const { pendingApproval, user } = useAuth();
+  const { t } = useLanguage();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const total = items.length;
@@ -39,7 +41,7 @@ function DashboardContent() {
   const wasteReduced = calculateWasteReduction(usageLog);
 
   const isApprovalRestricted = Boolean(pendingApproval && user?.role !== 'admin');
-  const approvalMessage = 'Your account is pending admin approval. You can explore data but can\'t make changes yet.';
+  const approvalMessage = t('dashboard.restrictedMessage', "Your account is pending admin approval. You can explore data but can't make changes yet.");
 
   function ensureApproved(action: () => void) {
     if (isApprovalRestricted) {
@@ -68,8 +70,8 @@ function DashboardContent() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header
-          title="Dashboard"
-          subtitle="Welcome back! Here's what's happening with your food waste management."
+          title={t('dashboard.title', 'Dashboard')}
+          subtitle={t('dashboard.welcome', "Welcome back! Here's what's happening with your food waste management.")}
         />
         <main className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
@@ -79,7 +81,7 @@ function DashboardContent() {
                   <ShieldCheckIcon className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-base font-semibold">Awaiting admin approval</p>
+                  <p className="text-base font-semibold">{t('dashboard.restricted', 'Awaiting admin approval')}</p>
                   <p className="text-sm text-amber-800">
                     {approvalMessage} We'll notify you as soon as an administrator reviews your application.
                   </p>
@@ -88,28 +90,28 @@ function DashboardContent() {
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
-                title="Total Items"
+                title={t('dashboard.stats.total', 'Total Items')}
                 value={total}
                 change={{ value: 12, type: 'increase' }}
                 icon={<ShoppingCartIcon className="w-6 h-6" />}
                 color="blue"
               />
               <StatsCard
-                title="Expiring Soon"
+                title={t('dashboard.stats.expiring', 'Expiring Soon')}
                 value={expiringSoon}
                 change={{ value: 25, type: 'decrease' }}
                 icon={<ExclamationTriangleIcon className="w-6 h-6" />}
                 color="yellow"
               />
               <StatsCard
-                title="Money Saved"
+                title={t('dashboard.stats.money', 'Money Saved')}
                 value={formatCurrency(moneySaved)}
                 change={{ value: 18, type: 'increase' }}
                 icon={<CurrencyDollarIcon className="w-6 h-6" />}
                 color="green"
               />
               <StatsCard
-                title="Waste Reduced"
+                title={t('dashboard.stats.waste', 'Waste Reduced')}
                 value={`${wasteReduced}%`}
                 change={{ value: 8, type: 'increase' }}
                 icon={<ArrowDownIcon className="w-6 h-6" />}
@@ -126,7 +128,7 @@ function DashboardContent() {
               <div className="space-y-6">
                 <WasteAnalytics />
                 <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.quickActions', 'Quick Actions')}</h3>
                   <div className="space-y-3">
                     <button
                       onClick={() => handleProtectedNavigation('/inventory/new')}
@@ -137,7 +139,7 @@ function DashboardContent() {
                         <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
                           <ShoppingCartIcon className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-sm font-medium text-gray-900">Add New Item</span>
+                        <span className="text-sm font-medium text-gray-900">{t('dashboard.action.add', 'Add New Item')}</span>
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>
@@ -151,7 +153,7 @@ function DashboardContent() {
                         <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                           <ChartBarIcon className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-sm font-medium text-gray-900">Scan Barcode</span>
+                        <span className="text-sm font-medium text-gray-900">{t('dashboard.action.scan', 'Scan Barcode')}</span>
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>
@@ -165,7 +167,7 @@ function DashboardContent() {
                         <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
                           <ClockIcon className="w-4 h-4 text-white" />
                         </div>
-                        <span className="text-sm font-medium text-gray-900">Plan Meals</span>
+                        <span className="text-sm font-medium text-gray-900">{t('dashboard.action.plan', 'Plan Meals')}</span>
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>
@@ -180,8 +182,8 @@ function DashboardContent() {
                           <ExclamationTriangleIcon className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <span className="text-sm font-medium text-red-800 dark:text-red-300 block">Clear Inventory</span>
-                          <span className="text-xs text-red-600 dark:text-red-400">Deletes all items permanently</span>
+                          <span className="text-sm font-medium text-red-800 dark:text-red-300 block">{t('dashboard.action.clear', 'Clear Inventory')}</span>
+                          <span className="text-xs text-red-600 dark:text-red-400">{t('dashboard.action.clearDesc', 'Deletes all items permanently')}</span>
                         </div>
                       </div>
                       <span className="text-xs text-red-600 font-semibold">⚠</span>
@@ -200,8 +202,8 @@ function DashboardContent() {
                     <ExclamationTriangleIcon className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Clear inventory?</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">This permanently deletes every inventory item. This action cannot be undone.</p>
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.clearConfirm.title', 'Clear inventory?')}</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{t('dashboard.clearConfirm.desc', 'This permanently deletes every inventory item. This action cannot be undone.')}</p>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3">
@@ -209,13 +211,13 @@ function DashboardContent() {
                     onClick={() => setShowClearConfirm(false)}
                     className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    Cancel
+                    {t('dashboard.clearConfirm.cancel', 'Cancel')}
                   </button>
                   <button
                     onClick={handleConfirmClear}
                     className="px-4 py-2 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-500"
                   >
-                    OK
+                    {t('dashboard.clearConfirm.ok', 'OK')}
                   </button>
                 </div>
               </div>

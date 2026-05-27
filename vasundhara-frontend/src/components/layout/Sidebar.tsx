@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMobileNav } from '@/contexts/MobileNavContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   HomeIcon,
   ChartBarIcon,
@@ -23,7 +24,7 @@ import {
   ChevronRightIcon,
   Squares2X2Icon,
   ShieldCheckIcon,
-
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 
 const baseNav = [
@@ -32,6 +33,7 @@ const baseNav = [
   { name: 'Inventory', href: '/inventory', icon: ShoppingCartIcon },
   { name: 'Meal Planning', href: '/meal-planning', icon: ClockIcon },
   { name: 'Scan Items', href: '/scan', icon: CameraIcon },
+  { name: 'AI Scanner', href: '/ai-scan', icon: SparklesIcon },
   { name: 'Marketplace', href: '/marketplace', icon: MapIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
 ];
@@ -73,6 +75,28 @@ export function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const { role, guestMode, guestName, guestEmail, user } = useAuth();
+  const { t } = useLanguage();
+
+  const getTranslatedName = (name: string) => {
+    switch (name) {
+      case 'Home': return t('nav.home', 'Home');
+      case 'Dashboard': return t('nav.dashboard', 'Dashboard');
+      case 'Inventory': return t('nav.inventory', 'Inventory');
+      case 'Meal Planning': return t('nav.mealPlanning', 'Meal Planning');
+      case 'Scan Items': return t('nav.scan', 'Scan Items');
+      case 'AI Scanner': return t('nav.aiScanner', 'AI Scanner');
+      case 'Marketplace': return t('nav.marketplace', 'Marketplace');
+      case 'Analytics': return t('nav.analytics', 'Analytics');
+      case 'Rewards': return t('nav.rewards', 'Rewards');
+      case 'Notifications': return t('nav.notifications', 'Notifications');
+      case 'Settings': return t('nav.settings', 'Settings');
+      case 'Orders': return t('nav.orders', 'Orders');
+      case 'Inventory (Shop)': return t('nav.inventoryShop', 'Inventory (Shop)');
+      case 'Overview': return t('nav.overview', 'Overview');
+      case 'Users & Shops': return t('nav.usersShops', 'Users & Shops');
+      default: return name;
+    }
+  };
 
   // Check if we're in the admin area by URL path
   const isAdminArea = pathname?.startsWith('/admin');
@@ -106,7 +130,7 @@ export function Sidebar({ className }: SidebarProps) {
       )}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-app">
-          <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
             <div className="w-9 h-9 relative">
               <Logo className="w-full h-full text-emerald-600" />
             </div>
@@ -116,7 +140,7 @@ export function Sidebar({ className }: SidebarProps) {
                 <span className="text-xs uppercase tracking-[0.4em] text-emerald-600">Sugam Seva</span>
               </div>
             )}
-          </div>
+          </Link>
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="p-1.5 rounded-lg hover-soft transition-colors"
@@ -146,7 +170,7 @@ export function Sidebar({ className }: SidebarProps) {
                 )}
               >
                 <item.icon className={cn('w-5 h-5', collapsed && 'mx-auto')} />
-                {!collapsed && <span className="text-app">{item.name}</span>}
+                {!collapsed && <span className="text-app">{getTranslatedName(item.name)}</span>}
               </Link>
             );
           })}
@@ -192,7 +216,7 @@ export function Sidebar({ className }: SidebarProps) {
             <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
             <div className="absolute left-0 top-0 bottom-0 w-64 bg-app border-app p-2">
               <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <div className="flex items-center space-x-2">
+                <Link href="/" onClick={() => setOpen(false)} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                   <div className="w-8 h-8 relative">
                     <Logo className="w-full h-full text-emerald-600" />
                   </div>
@@ -200,7 +224,7 @@ export function Sidebar({ className }: SidebarProps) {
                     <span className="text-lg font-bold text-app block leading-tight">Vasundhara</span>
                     <span className="text-[10px] uppercase tracking-[0.4em] text-emerald-600">Sugam Seva</span>
                   </div>
-                </div>
+                </Link>
                 <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100"><ChevronLeftIcon className="w-5 h-5 text-gray-600" /></button>
               </div>
               <nav className="p-4 space-y-2">
@@ -213,7 +237,7 @@ export function Sidebar({ className }: SidebarProps) {
                       isActive ? 'active-nav' : 'text-muted hover-soft'
                     )}>
                       <item.icon className="w-5 h-5" />
-                      <span>{item.name}</span>
+                      <span>{getTranslatedName(item.name)}</span>
                     </Link>
                   );
                 })}
