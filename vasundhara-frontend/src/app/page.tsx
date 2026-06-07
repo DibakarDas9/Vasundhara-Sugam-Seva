@@ -471,57 +471,57 @@ export default function HomePage() {
         <VardOverlay open={vardOpen} onClose={() => setVardOpen(false)} />
       )}
 
-      <main className="relative z-10 mx-auto flex max-w-7xl flex-col gap-24 px-4 pb-32 pt-40 sm:px-8">
-        <section id="hero" className="grid items-center gap-12 lg:grid-cols-2">
-          <motion.div initial="hidden" animate="visible" variants={motionFade}>
+      <main className="relative z-10 mx-auto flex max-w-7xl flex-col gap-14 px-4 pb-20 pt-24 sm:px-8 lg:gap-16 lg:pt-28">
+        <section id="hero" className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-10">
+          <motion.div className="flex h-full flex-col" initial="hidden" animate="visible" variants={motionFade}>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em]">
               <SparklesIcon className="h-4 w-4 text-emerald-300" />
               {t('hero.platform', 'Sugam Seva Platform')}
             </div>
-            <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-[10.5ch] text-3xl font-semibold leading-[0.95] text-white sm:max-w-[11ch] sm:text-4xl lg:max-w-[12ch] lg:text-5xl">
               {t('hero.title', 'Less waste, more meals for every ward.')}
             </h1>
-            <p className="mt-6 max-w-xl text-lg text-slate-200">
+            <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-200 sm:text-lg">
               {t('hero.subtitle', 'Vasundhara helps community kitchens, volunteers, and city teams track food, move extra stock quickly, and show the impact in plain language.')}
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-6 flex flex-wrap gap-4">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-base font-semibold text-slate-900 shadow-xl shadow-emerald-500/40 transition hover:-translate-y-0.5 hover:bg-emerald-300"
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-900 shadow-xl shadow-emerald-500/40 transition hover:-translate-y-0.5 hover:bg-emerald-300 sm:px-6 sm:text-base"
               >
                 {t('hero.enterDashboard', 'Enter Dashboard')}
                 <ArrowRightIcon className="h-5 w-5" />
               </Link>
             </div>
-            <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
               {heroStats.map((stat) => (
                 <motion.div
                   key={stat.label}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4"
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <div className="text-xs uppercase tracking-[0.3em] text-slate-300">{stat.label}</div>
-                  <div className="mt-3 text-2xl font-semibold text-white">{stat.value}</div>
-                  <div className="mt-1 text-sm text-emerald-200">{stat.detail}</div>
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-slate-300 sm:text-xs sm:tracking-[0.3em]">{stat.label}</div>
+                  <div className="mt-2 text-xl font-semibold text-white sm:mt-3 sm:text-2xl">{stat.value}</div>
+                  <div className="mt-1 text-xs text-emerald-200 sm:text-sm">{stat.detail}</div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
  
-          <div className="relative">
+          <div className="relative h-full">
             <motion.div
-              className="rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-800/40 p-6 shadow-[0_40px_120px_rgba(15,118,110,0.35)] backdrop-blur-xl"
+              className="flex h-full flex-col rounded-[32px] border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-800/40 p-4 shadow-[0_40px_120px_rgba(15,118,110,0.35)] backdrop-blur-xl sm:p-5"
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
             >
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-300">{t('live.signal', 'Live signal')}</p>
+                <p className="text-sm text-slate-300">{t('live.signal', 'Vasundhara')}</p>
                 <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-xs text-emerald-200">{t('live.realtime', 'Realtime')}</span>
               </div>
-              <p className="mt-4 text-3xl font-semibold text-white">
+              <p className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
                 Sugam{' '}
                 <span className="relative inline-flex min-w-[120px] justify-start">
                   <motion.span
@@ -542,37 +542,29 @@ export default function HomePage() {
                   </motion.span>
                 </span>
               </p>
-              <p className="mt-2 text-sm text-slate-300">{t('live.ribbon', 'Vision + Voice + ML fused in one ribbon.')}</p>
+              <p className="mt-1.5 text-sm text-slate-300">{t('live.ribbon', 'Vision + Voice + ML fused in one ribbon.')}</p>
  
-              <div className="mt-8 space-y-4">
-                {liveMoments.map((moment, index) => (
-                  <motion.div
-                    key={moment.title}
-                    className={`rounded-2xl border border-white/10 bg-gradient-to-br ${moment.accent} p-4 text-slate-900 shadow-lg backdrop-blur-lg`}
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 * index, duration: 0.6 }}
-                  >
-                    <div className="text-sm font-semibold">{moment.title}</div>
-                    <p className="text-xs text-slate-900/80">{moment.detail}</p>
-                    <p className="mt-1 text-sm font-semibold">{moment.highlight}</p>
-                  </motion.div>
-                ))}
+              <div className="mt-6 flex flex-1 flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/40 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-xs uppercase tracking-[0.25em] text-slate-300">
+                  <span>{t('live.demo', 'Homepage explainer')}</span>
+                  <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-[11px] tracking-normal text-emerald-200">অন্ন যদি হয় সঞ্চয়, বসুন্ধরার হবে জয়</span>
+                </div>
+                <video
+                  className="h-full min-h-[320px] w-full flex-1 object-cover"
+                  src="/Create_a_homepage_explainer_vi.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label="Homepage explainer video for Vasundhara"
+                />
               </div>
- 
-              <motion.div
-                className="mt-6 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200"
-                animate={{ opacity: [0.7, 1, 0.7] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                <BoltIcon className="h-5 w-5 text-amber-300" />
-                {t('live.automation', '98.4% automation for repetitive inputs—humans just approve the magic.')}
-              </motion.div>
             </motion.div>
           </div>
         </section>
 
-        <section id="about" className="rounded-[36px] border border-white/10 bg-white/5 p-8 backdrop-blur-xl">
+        <section id="about" className="rounded-[36px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">{t('about.title', 'About us')}</p>
@@ -587,7 +579,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <div className="mt-6 grid gap-5 md:grid-cols-3 lg:mt-8">
             {aboutPillars.map((pillar, index) => (
               <motion.div
                 key={pillar.title}
@@ -621,7 +613,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
+          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:mt-10">
             {featureHighlights.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -646,7 +638,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="analytics" className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-xl">
+        <section id="analytics" className="rounded-[40px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8 lg:p-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">{t('journey.title', 'How it works')}</p>
@@ -659,7 +651,7 @@ export default function HomePage() {
             </span>
           </div>
 
-          <div className="mt-10 grid gap-8 lg:grid-cols-4">
+          <div className="mt-8 grid gap-6 lg:grid-cols-4 lg:mt-10">
             {journeySteps.map((step, index) => (
               <motion.div
                 key={step.title}
@@ -681,7 +673,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-[36px] border border-white/15 bg-gradient-to-br from-emerald-500/20 via-slate-900/60 to-emerald-900/40 p-8 shadow-[0_40px_120px_rgba(16,185,129,0.25)]">
+        <section className="rounded-[36px] border border-white/15 bg-gradient-to-br from-emerald-500/20 via-slate-900/60 to-emerald-900/40 p-6 shadow-[0_40px_120px_rgba(16,185,129,0.25)] sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.4em] text-white/70">{t('exp.title', 'Friendly experience')}</p>
@@ -697,7 +689,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <div className="mt-8 grid gap-5 md:grid-cols-3 lg:mt-10">
             {['Tap-friendly cards', 'Floating action rails', 'Holographic stats'].map((item, index) => (
               <motion.div
                 key={item}
@@ -714,7 +706,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-10 flex flex-col gap-4 rounded-3xl border border-white/20 bg-white/5 p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-4 rounded-3xl border border-white/20 bg-white/5 p-5 text-white sm:flex-row sm:items-center sm:justify-between lg:mt-10">
             <div>
               <p className="text-lg font-semibold">{t('exp.pilotTitle', 'Ready to launch Sugam Seva drives in your ward?')}</p>
               <p className="text-sm text-white/80">{t('exp.pilotSubtitle', 'Spin up the dashboard, invite volunteers, and broadcast impact in minutes.')}</p>
@@ -730,7 +722,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="access" className="rounded-[40px] border border-white/10 bg-white/5 p-10 backdrop-blur-xl">
+        <section id="access" className="rounded-[40px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-8 lg:p-10">
           <div className="grid gap-10 lg:grid-cols-2">
             <div>
               <p className="text-sm uppercase tracking-[0.4em] text-emerald-200">{t('nav.login', 'Login')} & {t('nav.signup', 'Sign up')}</p>
