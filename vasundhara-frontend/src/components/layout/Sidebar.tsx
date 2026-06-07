@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Logo } from '@/components/ui/Logo';
@@ -14,7 +14,6 @@ import {
   ChartBarIcon,
   ShoppingCartIcon,
   ClockIcon,
-  CameraIcon,
   MapIcon,
   CogIcon,
   UserIcon,
@@ -26,13 +25,13 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline';
+import { isSystemAdminAccount } from '@/lib/localAuth';
 
 const baseNav = [
   { name: 'Home', href: '/', icon: HomeIcon },
   { name: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon },
   { name: 'Inventory', href: '/inventory', icon: ShoppingCartIcon },
   { name: 'Meal Planning', href: '/meal-planning', icon: ClockIcon },
-  { name: 'Scan Items', href: '/scan', icon: CameraIcon },
   { name: 'AI Scanner', href: '/ai-scan', icon: SparklesIcon },
   { name: 'Marketplace', href: '/marketplace', icon: MapIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
@@ -83,7 +82,6 @@ export function Sidebar({ className }: SidebarProps) {
       case 'Dashboard': return t('nav.dashboard', 'Dashboard');
       case 'Inventory': return t('nav.inventory', 'Inventory');
       case 'Meal Planning': return t('nav.mealPlanning', 'Meal Planning');
-      case 'Scan Items': return t('nav.scan', 'Scan Items');
       case 'AI Scanner': return t('nav.aiScanner', 'AI Scanner');
       case 'Marketplace': return t('nav.marketplace', 'Marketplace');
       case 'Analytics': return t('nav.analytics', 'Analytics');
@@ -117,8 +115,25 @@ export function Sidebar({ className }: SidebarProps) {
   const profileEmail = guestMode
     ? (guestEmail || '')
     : user?.email || '';
-  const profileImage = !guestMode ? user?.profileImage : undefined;
-  const showProfileDetails = Boolean(profileName || profileEmail || profileImage);
+  const normalizedEmail = profileEmail.trim().toLowerCase();
+  const normalizedName = profileName.trim().toLowerCase();
+  const isDibakarAccount = Boolean(
+    normalizedEmail.includes('dibakar') ||
+    normalizedName.includes('dibakar') ||
+    normalizedEmail.includes('dibakardas612@gmail.com')
+  );
+  const avatarSrc = user?.profileImage?.trim()
+    || (isSystemAdminAccount(user || {}) || isDibakarAccount ? '/team/dibakar.jpg' : undefined);
+  const hasAvatar = Boolean(avatarSrc);
+  const showProfileDetails = Boolean(profileName || profileEmail || hasAvatar);
+  const previousPathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    if (open && previousPathnameRef.current !== pathname) {
+      setOpen(false);
+    }
+    previousPathnameRef.current = pathname;
+  }, [pathname, open, setOpen]);
 
   return (
     <>
@@ -184,8 +199,8 @@ export function Sidebar({ className }: SidebarProps) {
               collapsed && 'justify-center'
             )}>
               <div className="w-9 h-9 rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                {profileImage ? (
-                  <img src={profileImage} alt={profileName || 'Profile'} className="w-full h-full object-cover" />
+                {avatarSrc ? (
+                  <img src={avatarSrc} alt={profileName || 'Profile'} className="w-full h-full object-cover" loading="eager" />
                 ) : (
                   <UserIcon className="w-5 h-5 text-gray-600" />
                 )}
@@ -213,27 +228,29 @@ export function Sidebar({ className }: SidebarProps) {
       <div className="md:hidden">
         {open && (
           <div className="fixed inset-0 z-40">
-            <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-            <div className="absolute left-0 top-0 bottom-0 w-64 bg-app border-app p-2">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <Link href="/" onClick={() => setOpen(false)} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-                  <div className="w-8 h-8 relative">
-                    <Logo className="w-full h-full text-emerald-600" />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
+            <div className="absolute inset-y-0 left-0 flex w-[86vw] max-w-xs flex-col overflow-y-auto rounded-r-3xl border-r border-app bg-app p-3 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-app pb-4 pt-1">
+                <Link href="/" onClick={() => setOpen(false)} className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                  <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-emerald-50 ring-1 ring-emerald-100 dark:bg-emerald-500/10 dark:ring-emerald-500/20">
+                    <img src="/logo.svg" alt="Vasundhara logo" className="h-8 w-8 object-contain" />
                   </div>
-                  <div>
-                    <span className="text-lg font-bold text-app block leading-tight">Vasundhara</span>
-                    <span className="text-[10px] uppercase tracking-[0.4em] text-emerald-600">Sugam Seva</span>
+                  <div className="min-w-0">
+                    <span className="text-lg font-bold leading-tight text-app block">Vasundhara</span>
+                    <span className="block text-[10px] uppercase tracking-[0.4em] text-emerald-600">Sugam Seva</span>
                   </div>
                 </Link>
-                <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100"><ChevronLeftIcon className="w-5 h-5 text-gray-600" /></button>
+                <button onClick={() => setOpen(false)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10" aria-label="Close navigation menu">
+                  <ChevronLeftIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </button>
               </div>
-              <nav className="p-4 space-y-2">
+              <nav className="flex-1 py-4 space-y-2">
                 {navItems.map((item) => {
                   if (guestMode && ['/notifications', '/rewards', '/orders'].includes(item.href)) return null;
                   const isActive = pathname === item.href;
                   return (
                     <Link key={item.name} href={item.href} onClick={() => setOpen(false)} className={cn(
-                      'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                      'flex items-center space-x-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200',
                       isActive ? 'active-nav' : 'text-muted hover-soft'
                     )}>
                       <item.icon className="w-5 h-5" />
@@ -242,6 +259,27 @@ export function Sidebar({ className }: SidebarProps) {
                   );
                 })}
               </nav>
+              {showProfileDetails && (
+                <div className="border-t border-app pt-4 pb-2">
+                  <div className="flex items-center space-x-3 rounded-2xl border border-app bg-white/60 p-3 dark:bg-white/5">
+                    <div className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
+                      {avatarSrc ? (
+                        <img src={avatarSrc} alt={profileName || 'Profile'} className="w-full h-full object-cover" loading="eager" />
+                      ) : (
+                        <UserIcon className="w-5 h-5 text-gray-600" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      {profileName && (
+                        <p className="truncate text-sm font-medium text-app">{profileName}</p>
+                      )}
+                      {profileEmail && (
+                        <p className="truncate text-xs text-muted">{profileEmail}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

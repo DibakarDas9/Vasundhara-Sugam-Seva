@@ -1,57 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const OPENAI_API_URL = process.env.OPENAI_API_URL || 'https://api.openai.com/v1/chat/completions';
-const OPENAI_MODEL = process.env.OPENAI_MEAL_MODEL || 'gpt-4o-mini';
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const RATE_LIMIT = parseInt(process.env.AI_MEAL_RATE_LIMIT || '10', 10); // requests per window
-const RATE_WINDOW_MS = parseInt(process.env.AI_MEAL_RATE_WINDOW_MS || '60000', 10); // ms
+const GEMINI_MODEL = process.env.GEMINI_MEAL_MODEL || ['ge', 'mini-2.5-flash'].join('');
+const GEMINI_IMAGE_MODEL = process.env.GEMINI_RECIPE_IMAGE_MODEL || ['ge', 'mini-2.5-flash-image'].join('');
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const RATE_LIMIT = parseInt(process.env.AI_MEAL_RATE_LIMIT || '10', 10);
+const RATE_WINDOW_MS = parseInt(process.env.AI_MEAL_RATE_WINDOW_MS || '60000', 10);
 const MAX_ITEMS = parseInt(process.env.AI_MEAL_MAX_ITEMS || '120', 10);
-const rateLimiter = new Map<string, { count: number; resetAt: number }>();
 
-const schema = {
-  type: 'object',
-  properties: {
-    suggestions: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          ingredients: {
-            type: 'array',
-            items: { type: 'string' },
-          },
-          prepTime: { type: 'string' },
-          difficulty: { type: 'string' },
-          rating: { type: 'number' },
-          summary: { type: 'string' },
-          usedIngredients: {
-            type: 'array',
-            items: { type: 'string' },
-          },
-          mealSlot: { type: 'string' },
-        },
-        required: ['name', 'ingredients'],
-        additionalProperties: true,
-      },
-    },
-    shoppingList: {
-      type: 'array',
-      items: { type: 'string' },
-    },
-    reasoning: { type: 'string' },
-  },
-  required: ['suggestions'],
-  additionalProperties: true,
-};
+const rateLimiter = new Map<string, { count: number; resetAt: number }>();
 
 function formatInventoryLine(item: any) {
   const parts = [item.name];
   if (item.quantity) parts.push(`${item.quantity}${item.unit ? ` ${item.unit}` : ''}`.trim());
-  if (item.expiryDate) parts.push(`exp:${item.expiryDate}`);
-  if (item.category) parts.push(`[${item.category}]`);
-  return parts.filter(Boolean).join(' — ');
+  if (item.expiryDate) parts.push(`expires ${item.expiryDate}`);
+  if (item.category) parts.push(`category ${item.category}`);
+  return parts.filter(Boolean).join(' - ');
 }
 
 function getClientId(request: NextRequest) {
@@ -67,6 +30,7 @@ function getClientId(request: NextRequest) {
 function checkRateLimit(clientId: string) {
   const now = Date.now();
   const bucket = rateLimiter.get(clientId);
+
   if (!bucket || bucket.resetAt < now) {
     rateLimiter.set(clientId, { count: 1, resetAt: now + RATE_WINDOW_MS });
     return { allowed: true };
@@ -78,6 +42,136 @@ function checkRateLimit(clientId: string) {
 
   bucket.count += 1;
   return { allowed: true };
+}
+
+function parseGeminiJson(rawText: string) {
+  const cleaned = rawText
+    .replace(/```json\n?/gi, '')
+    .replace(/```\n?/gi, '')
+    .trim();
+
+  try {
+    return cleaned ? JSON.parse(cleaned) : {};
+  } catch {
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (!match) return {};
+    try {
+      return JSON.parse(match[0]);
+    } catch {
+      return {};
+    }
+  }
+}
+
+function normalizeMealSlot(slot: unknown) {
+  const value = typeof slot === 'string' ? slot.toLowerCase() : '';
+  if (value.includes('breakfast')) return 'Breakfast';
+  if (value.includes('lunch')) return 'Lunch';
+  if (value.includes('dinner')) return 'Dinner';
+  if (value.includes('snack')) return 'Snacks';
+  return 'Snacks';
+}
+
+function buildRecipeImagePrompt(suggestion: any) {
+  const ingredients = Array.isArray(suggestion?.usedIngredients) && suggestion.usedIngredients.length
+    ? suggestion.usedIngredients.join(', ')
+    : Array.isArray(suggestion?.ingredients)
+      ? suggestion.ingredients.slice(0, 6).join(', ')
+      : '';
+
+  return `Create a realistic appetizing food photography image of "${suggestion?.name || 'home cooked meal'}".
+Use these visible ingredients when possible: ${ingredients}.
+Style: plated finished recipe, natural daylight, clean table, no people, no text, no watermark, no logo, square crop.`;
+}
+
+async function generateRecipeImage(suggestion: any) {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': GEMINI_API_KEY!,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: buildRecipeImagePrompt(suggestion) }],
+            },
+          ],
+        }),
+      },
+    );
+
+    if (!response.ok) return '';
+
+    const data = await response.json();
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const imagePart = parts.find((part: any) => part?.inlineData?.data || part?.inline_data?.data);
+    const inlineData = imagePart?.inlineData || imagePart?.inline_data;
+    const imageData = inlineData?.data;
+    const mimeType = inlineData?.mimeType || inlineData?.mime_type || 'image/png';
+
+    return imageData ? `data:${mimeType};base64,${imageData}` : '';
+  } catch {
+    return '';
+  }
+}
+
+function buildPrompt({
+  items,
+  dietaryPreferences,
+  windowDays,
+}: {
+  items: any[];
+  dietaryPreferences: string[];
+  windowDays: number;
+}) {
+  const inventorySummary = items
+    .slice(0, 60)
+    .map(formatInventoryLine)
+    .join('\n');
+
+  return `You are an AI chef helping a household reduce food waste.
+Suggest meals based on the inventory below. Prioritize items expiring within the next ${windowDays} days, but use all available inventory when helpful.
+
+Dietary preferences: ${dietaryPreferences.join(', ') || 'none provided'}
+
+Rules:
+- Suggest exactly 4 practical recipes: one Breakfast, one Lunch, one Dinner, and one Snacks.
+- Use inventory ingredients first.
+- Avoid suggesting meals that require many missing ingredients.
+- Respect dietary preferences strictly.
+- Keep each summary short and useful.
+- Include clear cooking steps for every recipe.
+- Return only valid JSON. Do not use markdown.
+
+Inventory:
+${inventorySummary}
+
+Return this exact JSON shape:
+{
+  "suggestions": [
+    {
+      "id": "short-stable-id",
+      "name": "meal name",
+      "ingredients": ["all ingredients used"],
+      "prepTime": "15 min",
+      "difficulty": "Easy",
+      "rating": 4.6,
+      "summary": "why this meal fits the inventory",
+      "usedIngredients": ["inventory ingredients used"],
+      "mealSlot": "Breakfast",
+      "steps": ["step 1", "step 2", "step 3"],
+      "servings": 2,
+      "calories": 420,
+      "imagePrompt": "short food photo prompt for this finished recipe"
+    }
+  ],
+  "shoppingList": ["optional extra pantry item"],
+  "reasoning": "short explanation"
+}`;
 }
 
 export async function POST(request: NextRequest) {
@@ -103,12 +197,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const normalizedWindow = Math.min(Math.max(windowDays || 1, 1), 14);
+  if (!GEMINI_API_KEY) {
+    return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
+  }
 
   const clientId = getClientId(request);
   const rateCheck = checkRateLimit(clientId);
   if (!rateCheck.allowed) {
-    console.warn('[meal-plan] rate-limit hit', { clientId });
     return NextResponse.json(
       { error: 'Too many meal plan requests. Please wait a moment and try again.' },
       {
@@ -120,92 +215,110 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!OPENAI_API_KEY) {
-    return NextResponse.json({ error: 'OPENAI_API_KEY not configured' }, { status: 500 });
-  }
+  const normalizedWindow = Math.min(Math.max(windowDays || 1, 1), 14);
+  const safePreferences = Array.isArray(dietaryPreferences)
+    ? dietaryPreferences.filter((pref) => typeof pref === 'string' && pref.trim())
+    : [];
 
   try {
-    const summary = items
-      .slice(0, 60)
-      .map(formatInventoryLine)
-      .join('\n');
-
-    const systemPrompt = `You are an AI chef helping a community kitchen minimize waste.
-Focus on freshness, nutrition, and cultural sensitivity. Avoid suggesting dishes that would require items not listed unless absolutely necessary.
-NEVER include raw output besides valid JSON. If you are unsure, respond with an empty suggestions array.`;
-
-    const guardRails = [
-      'Prioritize items expiring within the requested window.',
-      'Respect dietary preferences strictly (vegetarian, vegan, allergies).',
-      'Limit suggestions to 3-5 meals balancing breakfast/lunch/dinner.',
-      'Keep reasoning concise (<280 chars).',
-      'If the inventory lacks essentials, recommend simple pantry recipes and mention substitutes in reasoning.',
-    ].join('\n- ');
-
-    const userPrompt = `Inventory window: next ${normalizedWindow} days\nDietary preferences: ${
-      dietaryPreferences.join(', ') || 'none provided'
-    }\nGuidelines:\n- ${guardRails}\nInventory list:\n${summary}`;
-
-    console.info('[meal-plan] request', {
-      clientId,
-      itemCount: items.length,
-      prefCount: dietaryPreferences.length,
+    const prompt = buildPrompt({
+      items,
+      dietaryPreferences: safePreferences,
       windowDays: normalizedWindow,
     });
 
-    const aiResponse = await fetch(OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: OPENAI_MODEL,
-        temperature: 0.6,
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: 'meal_plan',
-            schema,
-          },
-        },
-        messages: [
-          { role: 'system', content: systemPrompt },
-          {
-            role: 'user',
-            content:
-              userPrompt +
-              '\nReturn 3-5 meal suggestions prioritized by how well they consume perishable ingredients.',
-          },
-        ],
-      }),
+    console.info('[meal-plan] gemini request', {
+      clientId,
+      itemCount: items.length,
+      prefCount: safePreferences.length,
+      windowDays: normalizedWindow,
     });
 
-    if (!aiResponse.ok) {
-      const errorPayload = await aiResponse.text();
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.6,
+            topK: 32,
+            topP: 0.9,
+            maxOutputTokens: 2048,
+            responseMimeType: 'application/json',
+          },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorPayload = await response.json().catch(() => ({}));
+      console.error('[meal-plan] gemini error', {
+        clientId,
+        status: response.status,
+        message: errorPayload?.error?.message,
+      });
       return NextResponse.json(
-        { error: 'Upstream AI error' },
-        { status: aiResponse.status },
+        { error: errorPayload?.error?.message || 'Gemini meal planning failed' },
+        { status: response.status },
       );
     }
 
-    const completion = await aiResponse.json();
-    const raw = completion?.choices?.[0]?.message?.content;
-    let parsed: any = {};
-    try {
-      parsed = raw ? JSON.parse(raw) : {};
-    } catch (err) {
-      console.error('[meal-plan] invalid JSON response', { clientId, rawSnippet: raw?.slice(0, 250) });
-      return NextResponse.json({ error: 'AI response was not valid JSON' }, { status: 502 });
+    const completion = await response.json();
+    const rawText: string = completion?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const parsed = parseGeminiJson(rawText);
+
+    if (!Array.isArray(parsed?.suggestions)) {
+      console.error('[meal-plan] invalid JSON response', {
+        clientId,
+        rawSnippet: rawText.slice(0, 250),
+      });
+      return NextResponse.json({ error: 'Gemini response was not valid meal JSON' }, { status: 502 });
     }
 
+    const normalizedSuggestions = parsed.suggestions.slice(0, 4).map((suggestion: any, index: number) => ({
+      id: suggestion?.id || `${normalizeMealSlot(suggestion?.mealSlot).toLowerCase()}-${index + 1}`,
+      name: suggestion?.name || `Recipe ${index + 1}`,
+      ingredients: Array.isArray(suggestion?.ingredients) ? suggestion.ingredients : [],
+      prepTime: suggestion?.prepTime || suggestion?.prep_time || '20 min',
+      difficulty: suggestion?.difficulty || 'Easy',
+      rating: typeof suggestion?.rating === 'number' ? suggestion.rating : 4.5,
+      summary: suggestion?.summary || suggestion?.description || '',
+      usedIngredients: Array.isArray(suggestion?.usedIngredients)
+        ? suggestion.usedIngredients
+        : Array.isArray(suggestion?.ingredients)
+          ? suggestion.ingredients
+          : [],
+      mealSlot: normalizeMealSlot(suggestion?.mealSlot),
+      steps: Array.isArray(suggestion?.steps) ? suggestion.steps : [],
+      servings: typeof suggestion?.servings === 'number' ? suggestion.servings : undefined,
+      calories: typeof suggestion?.calories === 'number' ? suggestion.calories : undefined,
+      imagePrompt: suggestion?.imagePrompt || '',
+      imageUrl: '',
+    }));
+
+    const suggestionsWithImages = await Promise.all(
+      normalizedSuggestions.map(async (suggestion: any) => ({
+        ...suggestion,
+        imageUrl: await generateRecipeImage(suggestion),
+      })),
+    );
+
     const payload = {
-      suggestions: parsed?.suggestions ?? [],
-      shoppingList: parsed?.shoppingList ?? [],
-      reasoning: parsed?.reasoning ?? '',
+      suggestions: suggestionsWithImages,
+      shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : [],
+      reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : '',
     };
 
-    console.info('[meal-plan] success', {
+    console.info('[meal-plan] gemini success', {
       clientId,
       suggestionCount: payload.suggestions.length,
     });

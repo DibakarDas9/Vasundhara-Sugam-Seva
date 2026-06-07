@@ -12,7 +12,7 @@ export function useChatBot() {
     "What's expiring soon?",
     'Show my inventory',
     'Add a new item',
-    'Scan page',
+    'AI scan',
     'What can I cook now?'
   ];
 
@@ -35,7 +35,7 @@ export function useChatBot() {
 
     if (q.includes('inventory') || q.includes('show my inventory') || q.includes('list items')) {
       if (items.length === 0) {
-        answers.push({ text: 'Your inventory is empty. Add items from the Add Item button or use the Scan page.' });
+        answers.push({ text: 'Your inventory is empty. Add items from the Add Item button or use AI Scan.' });
         answers.push({ text: 'Try: "Add a banana"' });
       } else {
         answers.push({ text: `You have ${items.length} items. Top items: ${items.slice(0,5).map(i => i.name).join(', ')}.` });
@@ -59,20 +59,20 @@ export function useChatBot() {
     }
 
     if (q.includes('scan') || q.includes('qr')) {
-      answers.push({ text: 'Opening the Scan page will let you add items by barcode or QR.', nav: '/scan' });
-      answers.push({ text: 'You can also scan via the Scan menu.' });
+      answers.push({ text: 'Opening AI Scan will let you add items from a food photo.', nav: '/ai-scan' });
+      answers.push({ text: 'You can also add items manually from Inventory.', nav: '/inventory' });
       return answers;
     }
 
     if (q.includes('add') && q.includes('item')) {
       answers.push({ text: 'To add an item, open the Inventory and click Add Item.', nav: '/inventory' });
-      answers.push({ text: 'You can also scan the item from the Scan page.', nav: '/scan' });
+      answers.push({ text: 'You can also use AI Scan to detect items from a photo.', nav: '/ai-scan' });
       return answers;
     }
 
     // fallback responses
-    answers.push({ text: 'I can help with inventory, recipes, scanning, and navigation. Try: "What\'s expiring soon?"' });
-    answers.push({ text: 'You can ask to open pages: Inventory, Scan, Meal Planning.' });
+    answers.push({ text: 'I can help with inventory, recipes, AI scan, and navigation. Try: "What\'s expiring soon?"' });
+    answers.push({ text: 'You can ask to open pages: Inventory, AI Scan, Meal Planning.' });
     return answers;
   }
 

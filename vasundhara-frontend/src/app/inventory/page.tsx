@@ -6,7 +6,6 @@ import InventoryModal from '@/components/inventory/InventoryModal';
 import UseItemModal from '@/components/inventory/UseItemModal';
 import { useLocalInventory } from '@/lib/localInventory';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
@@ -15,8 +14,6 @@ import { Input } from '@/components/ui/Input';
 import {
   PlusIcon,
   MagnifyingGlassIcon,
-  CameraIcon,
-  QrCodeIcon,
   XMarkIcon,
   PencilIcon,
   ExclamationTriangleIcon,
@@ -61,7 +58,6 @@ export default function InventoryPage() {
 }
 
 function InventoryContent() {
-  const router = useRouter();
   const { t } = useLanguage();
 
   const getStatusLabel = (status: string) => {
@@ -82,14 +78,6 @@ function InventoryContent() {
   const [addingItem, setAddingItem] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [generatingPhotoFor, setGeneratingPhotoFor] = useState<number | null>(null);
-
-  function handleScan() {
-    router.push('/scan');
-  }
-
-  function handleQRCode() {
-    router.push('/scan');
-  }
 
   function handleAddItem() {
     setEditing(null);
@@ -214,12 +202,6 @@ function InventoryContent() {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" icon={<CameraIcon className="w-4 h-4" />} onClick={handleScan}>
-                  {t('inventory.scanItem', 'Scan Item')}
-                </Button>
-                <Button variant="outline" icon={<QrCodeIcon className="w-4 h-4" />} onClick={handleQRCode}>
-                  {t('inventory.qrCode', 'QR Code')}
-                </Button>
                 <Button icon={<PlusIcon className="w-4 h-4" />} onClick={handleAddItem}>
                   {t('inventory.addItem', 'Add Item')}
                 </Button>

@@ -78,7 +78,7 @@ export function getAllUsers(): StoredUser[] {
                 isActive: true,
                 approvalStatus: 'approved',
                 createdAt: new Date().toISOString(),
-                profileImage: '/admin-avatar.png' // Placeholder or leave empty
+                profileImage: '/team/dibakar.jpg'
             };
             users.push(defaultAdmin);
             saveUsers(users);

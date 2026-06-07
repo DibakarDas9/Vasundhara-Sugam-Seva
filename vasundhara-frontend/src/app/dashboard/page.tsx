@@ -18,7 +18,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import {
   ShoppingCartIcon,
-  ChartBarIcon,
   ClockIcon,
   CurrencyDollarIcon,
   ArrowDownIcon,
@@ -140,20 +139,6 @@ function DashboardContent() {
                           <ShoppingCartIcon className="w-4 h-4 text-white" />
                         </div>
                         <span className="text-sm font-medium text-gray-900">{t('dashboard.action.add', 'Add New Item')}</span>
-                      </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleProtectedNavigation('/scan')}
-                      disabled={isApprovalRestricted}
-                      className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gray-400 rounded-lg flex items-center justify-center">
-                          <ChartBarIcon className="w-4 h-4 text-white" />
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">{t('dashboard.action.scan', 'Scan Barcode')}</span>
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400">→</span>
                     </button>

@@ -6,7 +6,6 @@ const footerLinks = {
         { label: 'Dashboard', href: '/dashboard' },
         { label: 'Inventory', href: '/inventory' },
         { label: 'Marketplace', href: '/marketplace' },
-        { label: 'Scan', href: '/scan' },
         { label: 'Analytics', href: '/analytics' },
     ],
     company: [

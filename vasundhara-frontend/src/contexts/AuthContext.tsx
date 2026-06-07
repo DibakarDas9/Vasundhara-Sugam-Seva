@@ -79,6 +79,26 @@ interface RegisterData {
   profileImage?: string;
 }
 
+function resolveProfileImage(userLike: {
+  profileImage?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+}): string | undefined {
+  if (userLike.profileImage) {
+    return userLike.profileImage;
+  }
+
+  const fullName = `${userLike.firstName || ''} ${userLike.lastName || ''}`.trim().toLowerCase();
+  const email = userLike.email?.toLowerCase() || '';
+
+  if (email === 'dibakardas612@gmail.com' || fullName === 'dibakar das' || email === 'dibakar') {
+    return '/team/dibakar.jpg';
+  }
+
+  return undefined;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const REMOTE_AUTH_ENABLED = process.env.NEXT_PUBLIC_ENABLE_REMOTE_AUTH === 'true';
 const DEFAULT_TIMEZONE = typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
@@ -111,7 +131,7 @@ function mapStoredUserToUser(localUser: StoredUser): User {
     role: localUser.role,
     isActive: localUser.isActive,
     approvalStatus: localUser.approvalStatus,
-    profileImage: localUser.profileImage,
+    profileImage: resolveProfileImage(localUser),
     preferences: buildPreferences(),
     householdProfile: localUser.householdProfile,
     shopkeeperProfile: localUser.shopkeeperProfile,
@@ -127,7 +147,7 @@ function mapRemoteUserToUser(remoteUser: any): User {
     role: remoteUser.role,
     isActive: remoteUser.isActive ?? true,
     approvalStatus: remoteUser.approvalStatus || 'pending',
-    profileImage: remoteUser.profileImage,
+    profileImage: resolveProfileImage(remoteUser),
     preferences: buildPreferences(remoteUser.preferences),
     householdProfile: remoteUser.householdProfile,
     shopkeeperProfile: remoteUser.shopkeeperProfile,

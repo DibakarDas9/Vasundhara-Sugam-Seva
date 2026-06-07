@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -9,63 +8,29 @@ import { Button } from '@/components/ui/Button';
 import {
   ClockIcon,
   FireIcon,
+  SparklesIcon,
   StarIcon,
-  HeartIcon,
-  PlusIcon,
-  CalendarIcon,
-  ShoppingCartIcon,
-  ExclamationTriangleIcon,
-  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { useLocalInventory } from '@/lib/localInventory';
-import { calculateDaysUntilExpiry } from '@/lib/utils';
 import { fetchAiMealSuggestions, type AiMealSuggestion } from '@/lib/aiMeals';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// We'll load recipes from public/recipes.json at runtime so the meal-planning UI shows all recipes
-type Recipe = {
-  id: number;
-  name: string;
-  prepTime?: number | null;
-  difficulty?: string | null;
-  rating?: number | null;
-  servings?: number | null;
-  calories?: number | null;
-  ingredients: { name: string; amount?: string; available?: boolean; expiring?: boolean }[];
-  instructions?: string[];
-  image?: string;
-  priority?: string;
-  tags?: string[];
-};
-
-const mealTimes = ['Breakfast', 'Lunch', 'Dinner', 'Snacks'];
+function slotForMeal(meal: AiMealSuggestion) {
+  const raw = (meal.mealSlot || meal.suggestedMeal || '').toLowerCase();
+  if (raw.includes('breakfast')) return 'Breakfast';
+  if (raw.includes('lunch')) return 'Lunch';
+  if (raw.includes('dinner')) return 'Dinner';
+  if (raw.includes('snack')) return 'Snacks';
+  return 'Snacks';
+}
 
 export default function MealPlanningPage() {
-  const router = useRouter();
   const { t } = useLanguage();
   const { items } = useLocalInventory();
-  // const [recipes, setRecipes] = useState<Recipe[]>([]); // Removed static recipes
-  const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedMealTime, setSelectedMealTime] = useState('Breakfast');
-  // const [favorites, setFavorites] = useState<number[]>([]); // Removed favorites
   const [aiMeals, setAiMeals] = useState<AiMealSuggestion[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiRefreshTick, setAiRefreshTick] = useState(0);
-
-  /* Removed static recipe loading
-  const toggleFavorite = (recipeId: number) => {
-    setFavorites(prev => 
-      prev.includes(recipeId) 
-        ? prev.filter(id => id !== recipeId)
-        : [...prev, recipeId]
-    );
-  };
-
-  useEffect(() => {
-    // ... fetch recipes.json logic removed
-  }, []);
-  */
 
   useEffect(() => {
     const controller = new AbortController();
@@ -77,6 +42,7 @@ export default function MealPlanningPage() {
         setAiLoading(false);
         return;
       }
+
       setAiLoading(true);
       try {
         const data = await fetchAiMealSuggestions({ items, signal: controller.signal });
@@ -101,108 +67,143 @@ export default function MealPlanningPage() {
     setAiRefreshTick((tick) => tick + 1);
   }
 
-  /* Removed importAllRecipeIngredients */
-
-  function handlePlanFromAi(suggestion: AiMealSuggestion) {
-    router.push(`/meal-planning/add?aiMeal=${encodeURIComponent(suggestion.name)}`);
-  }
-
-  /* Removed getAvailableRecipes and getPriorityRecipes */
-
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-black">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
         <Header
           title={t('meals.title', 'Meal Planning')}
-          subtitle={t('meals.subtitle', 'Plan delicious meals using your expiring ingredients')}
+          subtitle={t('meals.subtitle', 'Gemini recipes from your current inventory')}
         />
 
-        {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
-            {/* Meal Time Selector */}
-            <div className="flex items-center justify-between">
-              <div className="flex flex-wrap gap-2">
-                {mealTimes.map((mealTime) => (
-                  <Button
-                    key={mealTime}
-                    variant={selectedMealTime === mealTime ? 'primary' : 'outline'}
-                    onClick={() => setSelectedMealTime(mealTime)}
-                    className="min-w-[100px]"
-                  >
-                    {t(`meals.slot.${mealTime}`, mealTime)}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
             <Card>
               <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <CardTitle className="flex items-center gap-2 text-emerald-900 dark:text-emerald-400">
                   <SparklesIcon className="w-5 h-5 text-emerald-500" />
-                  {t('meals.aiBlueprint', 'AI Meal Blueprint')}
+                  {t('meals.aiBlueprint', 'Vard Meal Suggestion')}
                 </CardTitle>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <span className="text-xs text-gray-500 flex-1">
                     {aiLoading
-                      ? t('meals.aiAnalyzing', 'AI is analyzing your expiring ingredients...')
+                      ? t('meals.aiAnalyzing', 'Gemini is building recipes and images from your inventory...')
                       : aiMeals.length
-                        ? t('meals.aiReady', 'Personalized picks ready to schedule.')
-                        : t('meals.aiUnlock', 'Add expiring items to unlock AI guidance.')}
+                        ? t('meals.aiReady', 'Recipe suggestions are ready with meal timing beside each one.')
+                        : t('meals.aiUnlock', 'Add inventory items to unlock Gemini recipes.')}
                   </span>
                   <Button size="sm" variant="outline" onClick={refreshAiMeals} disabled={aiLoading}>
-                    {aiLoading ? t('meals.thinking', 'Thinking...') : t('meals.refreshAi', 'Refresh AI')}
+                    {aiLoading ? t('meals.thinking', 'Thinking...') : t('meals.refreshAi', 'Refresh Gemini')}
                   </Button>
                 </div>
               </CardHeader>
+
               <CardContent>
                 {aiError && (
                   <div className="text-sm text-red-600 mb-4">
                     {aiError}
                   </div>
                 )}
+
                 {aiLoading && (
                   <div className="animate-pulse space-y-3 mb-4">
                     <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded" />
                     <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-5/6" />
                   </div>
                 )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {aiMeals.slice(0, 4).map((suggestion) => (
-                    <div key={suggestion.id} className="border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-4 bg-emerald-50/50 dark:bg-emerald-900/10">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-white">{suggestion.name}</h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">{suggestion.prepTime} · {suggestion.difficulty}</p>
-                        </div>
-                        <span className="text-xs font-semibold text-emerald-600">{t('meals.aiPick', 'AI Pick')}</span>
-                      </div>
-                      {suggestion.summary && (
-                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{suggestion.summary}</p>
-                      )}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {(suggestion.usedIngredients || suggestion.ingredients.slice(0, 3)).map((ingredient) => (
-                          <span key={ingredient} className="px-2 py-1 text-xs bg-white border border-emerald-200 rounded-full text-emerald-700">
-                            {ingredient}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" className="flex-1" onClick={() => handlePlanFromAi(suggestion)}>
-                          {t('meals.scheduleMeal', 'Schedule Meal')}
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => handlePlanFromAi(suggestion)}>
-                          {t('meals.viewPlan', 'View Plan')}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+
+                <div className="space-y-5">
+                  {aiMeals.map((meal) => {
+                    const mealSlot = slotForMeal(meal);
+
+                    return (
+                      <section
+                        key={meal.id}
+                        className="rounded-xl border border-gray-200 bg-white p-4 transition dark:border-gray-800 dark:bg-neutral-950"
+                      >
+                        <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
+                            {meal.imageUrl ? (
+                              <img
+                                src={meal.imageUrl}
+                                alt={meal.name}
+                                className="h-56 w-full rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-56 w-full items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-amber-100 px-4 text-center text-sm font-semibold text-emerald-900">
+                                {meal.name}
+                              </div>
+                            )}
+
+                            <div className="space-y-4">
+                              <div>
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{meal.name}</h4>
+                                  <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
+                                    {t(`meals.slot.${mealSlot}`, mealSlot)}
+                                  </span>
+                                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
+                                    {t('meals.aiPick', 'AI Pick')}
+                                  </span>
+                                </div>
+                                {meal.summary && (
+                                  <p className="text-sm text-gray-600 dark:text-gray-300">{meal.summary}</p>
+                                )}
+                              </div>
+
+                              <div className="flex flex-wrap gap-3 text-xs text-gray-600 dark:text-gray-300">
+                                <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-2.5 py-1">
+                                  <ClockIcon className="h-4 w-4" />
+                                  {meal.prepTime || '20 min'}
+                                </span>
+                                <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-2.5 py-1">
+                                  <StarIcon className="h-4 w-4" />
+                                  {meal.difficulty || 'Easy'}
+                                </span>
+                                {meal.calories && (
+                                  <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-2.5 py-1">
+                                    <FireIcon className="h-4 w-4" />
+                                    {meal.calories} cal
+                                  </span>
+                                )}
+                                {meal.servings && (
+                                  <span className="rounded-full border border-gray-200 px-2.5 py-1">
+                                    {meal.servings} servings
+                                  </span>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Inventory used</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {(meal.usedIngredients?.length ? meal.usedIngredients : meal.ingredients).slice(0, 8).map((ingredient) => (
+                                    <span key={ingredient} className="rounded-full border border-emerald-200 bg-white px-2 py-1 text-xs text-emerald-700">
+                                      {ingredient}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Recipe steps</p>
+                                <ol className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
+                                  {(meal.steps?.length ? meal.steps : ['Prepare the ingredients.', 'Cook everything until done.', 'Serve warm.']).map((step, index) => (
+                                    <li key={`${meal.id}-step-${index}`} className="flex gap-2">
+                                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[11px] font-semibold text-white">
+                                        {index + 1}
+                                      </span>
+                                      <span>{step}</span>
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            </div>
+                          </div>
+                      </section>
+                    );
+                  })}
                 </div>
+
                 {!aiLoading && !aiError && aiMeals.length === 0 && (
                   <div className="text-center py-8">
                     <SparklesIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />

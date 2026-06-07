@@ -11,6 +11,12 @@ export type AiMealSuggestion = {
   summary?: string;
   usedIngredients?: string[];
   suggestedMeal?: string;
+  mealSlot?: string;
+  steps?: string[];
+  servings?: number;
+  calories?: number;
+  imageUrl?: string;
+  imagePrompt?: string;
 };
 
 const DEFAULT_ML_URL = 'http://localhost:8000';
@@ -85,6 +91,12 @@ async function callServerAiEndpoint({
         ? suggestion.ingredients
         : [],
     suggestedMeal: suggestion.mealSlot ?? suggestion.mealTime ?? suggestion.suggestedMeal ?? 'Any',
+    mealSlot: suggestion.mealSlot ?? suggestion.mealTime ?? suggestion.suggestedMeal ?? 'Snacks',
+    steps: Array.isArray(suggestion.steps) ? suggestion.steps : [],
+    servings: typeof suggestion.servings === 'number' ? suggestion.servings : undefined,
+    calories: typeof suggestion.calories === 'number' ? suggestion.calories : undefined,
+    imageUrl: typeof suggestion.imageUrl === 'string' ? suggestion.imageUrl : '',
+    imagePrompt: typeof suggestion.imagePrompt === 'string' ? suggestion.imagePrompt : '',
   }));
 }
 
@@ -132,5 +144,11 @@ async function callMlFallback({
         )
       : [],
     suggestedMeal: suggestion.meal_slot ?? suggestion.mealTime ?? 'Any',
+    mealSlot: suggestion.meal_slot ?? suggestion.mealTime ?? 'Snacks',
+    steps: Array.isArray(suggestion.steps) ? suggestion.steps : [],
+    servings: typeof suggestion.servings === 'number' ? suggestion.servings : undefined,
+    calories: typeof suggestion.calories === 'number' ? suggestion.calories : undefined,
+    imageUrl: typeof suggestion.imageUrl === 'string' ? suggestion.imageUrl : '',
+    imagePrompt: typeof suggestion.imagePrompt === 'string' ? suggestion.imagePrompt : '',
   }));
 }

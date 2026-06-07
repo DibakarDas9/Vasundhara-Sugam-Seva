@@ -67,7 +67,6 @@ export default function HomePage() {
     { label: t('nav.founders', 'Founders'), href: '/about' },
     { label: t('nav.inventory', 'Inventory'), href: '#inventory' },
     { label: t('nav.marketplace', 'Marketplace'), href: '/marketplace' },
-    { label: t('nav.scan', 'Scan'), href: '/scan' },
     { label: t('nav.analytics', 'Analytics'), href: '#analytics' }
   ], [t]);
 
@@ -492,12 +491,6 @@ export default function HomePage() {
               >
                 {t('hero.enterDashboard', 'Enter Dashboard')}
                 <ArrowRightIcon className="h-5 w-5" />
-              </Link>
-              <Link
-                href="/scan"
-                className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-base font-semibold text-white transition hover:bg-white/10"
-              >
-                {t('hero.watchScan', 'Watch scan-to-sale')}
               </Link>
             </div>
             <div className="mt-10 grid gap-6 sm:grid-cols-3">

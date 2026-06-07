@@ -24,7 +24,6 @@ const ROUTE_MAP: Array<{ label: string; keywords: string[]; path: string }> = [
   { label: 'Dashboard', keywords: ['dashboard', 'home'], path: '/dashboard' },
   { label: 'Inventory', keywords: ['inventory', 'items', 'stock'], path: '/inventory' },
   { label: 'Meal Planning', keywords: ['meal', 'planning', 'recipes'], path: '/meal-planning' },
-  { label: 'Scan', keywords: ['scan', 'camera'], path: '/scan' },
   { label: 'AI Scan', keywords: ['ai scan', 'ai scanner', 'vard', 'photo'], path: '/ai-scan' },
   { label: 'Analytics', keywords: ['analytics', 'stats', 'report'], path: '/analytics' },
   { label: 'Marketplace', keywords: ['marketplace', 'market'], path: '/marketplace' },

@@ -45,23 +45,98 @@ export function Header({ title, subtitle, className }: HeaderProps) {
 
   return (
     <>
-      <header className={`app-header px-6 py-4 ${className}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="md:hidden">
-              <Button variant="ghost" size="sm" onClick={() => toggle()}>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 110-2zm0 4h14a1 1 0 010 2H3a1 1 0 110-2zm0 4h14a1 1 0 010 2H3a1 1 0 110-2z" clipRule="evenodd" /></svg>
+      <header className={`app-header px-4 py-3 sm:px-6 sm:py-4 ${className}`}>
+        <div className="md:hidden space-y-3">
+          <div className="flex items-center justify-between gap-2">
+            <Button variant="ghost" size="icon" onClick={() => toggle()} aria-label="Open navigation menu">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 110-2zm0 4h14a1 1 0 010 2H3a1 1 0 110-2zm0 4h14a1 1 0 010 2H3a1 1 0 110-2z" clipRule="evenodd" /></svg>
+            </Button>
+
+            <div className="flex items-center gap-1.5">
+              {user && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:text-emerald-200 dark:hover:bg-emerald-900/20"
+                  onClick={() => window.dispatchEvent(new Event('vard-open'))}
+                  aria-label="Open VARD AI"
+                >
+                  <SparklesIcon className="w-5 h-5" />
+                </Button>
+              )}
+
+              <ThemeToggle />
+
+              <LanguageSelector />
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="relative"
+                aria-label="Open notifications"
+                onClick={() => setNotificationsOpen(true)}
+              >
+                <BellIcon className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </Button>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-app">{title}</h1>
-              {subtitle && (
-                <p className="text-sm text-muted mt-1">{subtitle}</p>
+
+              {isAdminArea ? (
+                <Button variant="ghost" size="sm" onClick={handleLogout} title="Logout" aria-label="Logout">
+                  <ArrowRightOnRectangleIcon className="w-6 h-6" />
+                </Button>
+              ) : !user ? (
+                <Button variant="ghost" size="icon" onClick={() => router.push('/auth')} aria-label="Login or sign up">
+                  <UserCircleIcon className="w-7 h-7 text-gray-400" />
+                </Button>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  {user.profileImage ? (
+                    <button
+                      type="button"
+                      className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700"
+                      aria-label={`${user.firstName} ${user.lastName}`.trim() || 'Profile'}
+                    >
+                      <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                    </button>
+                  ) : (
+                    <UserCircleIcon className="w-8 h-8 text-gray-400" />
+                  )}
+                  <Button variant="ghost" size="sm" onClick={handleLogout} title="Logout" aria-label="Logout">
+                    <ArrowRightOnRectangleIcon className="w-5 h-5 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400" />
+                  </Button>
+                </div>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="min-w-0">
+            <h1 className="text-lg font-bold leading-tight text-app">{title}</h1>
+            {subtitle && (
+              <p className="hidden">{subtitle}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="hidden sm:flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="md:hidden shrink-0">
+              <Button variant="ghost" size="icon" onClick={() => toggle()} aria-label="Open navigation menu">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 5h14a1 1 0 010 2H3a1 1 0 110-2zm0 4h14a1 1 0 010 2H3a1 1 0 110-2zm0 4h14a1 1 0 010 2H3a1 1 0 110-2z" clipRule="evenodd" /></svg>
+              </Button>
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold leading-tight text-app sm:text-2xl">{title}</h1>
+              {subtitle && (
+                <p className="mt-0.5 line-clamp-2 text-xs text-muted sm:mt-1 sm:text-sm">{subtitle}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-1.5">
             {/* Search */}
             {!isAdminArea && (
               <div className="hidden md:block mr-2">
@@ -100,7 +175,9 @@ export function Header({ title, subtitle, className }: HeaderProps) {
             <ThemeToggle />
 
             {/* Language Selector — minimal */}
-            <LanguageSelector />
+            <div className="hidden sm:block">
+              <LanguageSelector />
+            </div>
 
             {/* Notifications */}
             <Button
@@ -120,18 +197,18 @@ export function Header({ title, subtitle, className }: HeaderProps) {
 
             {/* Auth / Profile - Admin or Regular */}
             {isAdminArea ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted">Admin</span>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="hidden text-sm text-muted sm:inline">Admin</span>
                 <Button variant="ghost" size="sm" onClick={handleLogout} title="Logout">
                   <ArrowRightOnRectangleIcon className="w-6 h-6" />
                 </Button>
               </div>
             ) : !user ? (
-              <Button variant="primary" size="sm" onClick={() => router.push('/auth')}>Login / Sign up</Button>
+              <Button variant="primary" size="sm" className="whitespace-nowrap" onClick={() => router.push('/auth')}>Login / Sign up</Button>
             ) : (
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{user.firstName} {user.lastName}</span>
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="hidden text-sm font-medium text-gray-700 dark:text-gray-200 sm:block">{user.firstName} {user.lastName}</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   {user.profileImage ? (
                     <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
                       <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />
