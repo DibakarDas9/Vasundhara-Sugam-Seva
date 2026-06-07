@@ -518,8 +518,11 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: 'easeOut' }}
             >
               <div className="flex items-center justify-between">
-                <p className="text-sm text-slate-300">{t('live.signal', 'Vasundhara')}</p>
-                <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-xs text-emerald-200">{t('live.realtime', 'Realtime')}</span>
+                <p className="text-sm text-slate-300">Vasundhara</p>
+                <div className="flex items-center">
+                  <span className="h-3 w-3 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="sr-only">{t('live.realtime', 'Realtime')}</span>
+                </div>
               </div>
               <p className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
                 Sugam{' '}
