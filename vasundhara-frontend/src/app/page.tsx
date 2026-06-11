@@ -86,7 +86,7 @@ export default function HomePage() {
     },
     {
       title: t('features.voice.title', 'Talk-to-add'),
-      description: t('features.voice.copy', 'Say “add 10 kg rice for ward 3” and the form fills up for you.'),
+      description: t('features.voice.copy', 'Say "add 10 kg rice for house 3" and the form fills up for you.'),
       icon: MicrophoneIcon,
       badge: t('features.voice.badge', 'Voice input'),
       accent: 'from-blue-400/80 to-indigo-400/80'
@@ -479,7 +479,7 @@ export default function HomePage() {
               {t('hero.platform', 'Sugam Seva Platform')}
             </div>
             <h1 className="max-w-[10.5ch] text-3xl font-semibold leading-[0.95] text-white sm:max-w-[11ch] sm:text-4xl lg:max-w-[12ch] lg:text-5xl">
-              {t('hero.title', 'Less waste, more meals for every ward.')}
+              {t('hero.title', 'Less waste, more meals for every house.')}
             </h1>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-200 sm:text-lg">
               {t('hero.subtitle', 'Vasundhara helps community kitchens, volunteers, and city teams track food, move extra stock quickly, and show the impact in plain language.')}
@@ -554,7 +554,7 @@ export default function HomePage() {
                 </div>
                 <video
                   className="h-full min-h-[320px] w-full flex-1 object-cover"
-                  src="/Create_a_homepage_explainer_vi.mp4"
+                  src="/Modify_the_prompt_just_to_add.mp4"
                   autoPlay
                   muted
                   loop
@@ -711,7 +711,7 @@ export default function HomePage() {
 
           <div className="mt-8 flex flex-col gap-4 rounded-3xl border border-white/20 bg-white/5 p-5 text-white sm:flex-row sm:items-center sm:justify-between lg:mt-10">
             <div>
-              <p className="text-lg font-semibold">{t('exp.pilotTitle', 'Ready to launch Sugam Seva drives in your ward?')}</p>
+              <p className="text-lg font-semibold">{t('exp.pilotTitle', 'Ready to launch Sugam Seva drives in your house?')}</p>
               <p className="text-sm text-white/80">{t('exp.pilotSubtitle', 'Spin up the dashboard, invite volunteers, and broadcast impact in minutes.')}</p>
             </div>
             <div className="flex flex-wrap gap-3">

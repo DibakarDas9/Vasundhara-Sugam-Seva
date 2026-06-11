@@ -71,9 +71,9 @@ export const translations: TranslationDictionary = {
     bn: 'সুগম সেবা প্ল্যাটফর্ম',
   },
   'hero.title': {
-    en: 'Less waste, more meals for every ward.',
-    hi: 'कम बर्बादी, हर वार्ड के लिए अधिक भोजन।',
-    bn: 'কম অপচয়, প্রতিটি ওয়ার্ডের জন্য আরও খাবার।',
+    en: 'Less waste, more meals for every house.',
+    hi: 'कम बर्बादी, हर घर के लिए अधिक भोजन।',
+    bn: 'কম অপচয়, প্রতিটি বাড়ির জন্য আরও খাবার।',
   },
   'hero.subtitle': {
     en: 'Vasundhara helps community kitchens, volunteers, and city teams track food, move extra stock quickly, and show the impact in plain language.',
@@ -286,7 +286,7 @@ export const translations: TranslationDictionary = {
     bn: 'টপ-টু-অ্যাড (মুখে বলে যুক্ত করা)',
   },
   'features.voice.copy': {
-    en: 'Say “add 10 kg rice for ward 3” and the form fills up for you.',
+    en: 'Say “add 10 kg rice for house 3” and the form fills up for you.',
     hi: 'कहें "वार्ड 3 के लिए 10 किलो चावल जोड़ें" और फॉर्म आपके लिए भर जाएगा।',
     bn: 'বলুন “ওয়ার্ড ৩ এর জন্য ১০ কেজি চাল যোগ করুন” এবং ফর্মটি আপনার জন্য পূরণ হয়ে যাবে।',
   },
@@ -405,7 +405,7 @@ export const translations: TranslationDictionary = {
     bn: 'জীবন্ত মনে হয়, জটিল নয়।',
   },
   'exp.description': {
-    en: 'Smooth animations guide your eye, show live changes, and make every action feel rewarding for citizens and staff alike.',
+    en: 'Smooth animations guide your eye, show live changes, and make every action feel rehouseing for citizens and staff alike.',
     hi: 'सहज एनिमेशन आपकी आंखों का मार्गदर्शन करते हैं, लाइव बदलाव दिखाते हैं, और नागरिकों और कर्मचारियों दोनों के लिए हर क्रिया को सुखद बनाते हैं।',
     bn: 'মসৃণ অ্যানিমেশনগুলি আপনার চোখকে নির্দেশিত করে, লাইভ পরিবর্তন দেখায় এবং নাগরিক ও কর্মীদের জন্য প্রতিটি কাজকে ফলপ্রসূ করে তোলে।',
   },
@@ -425,9 +425,9 @@ export const translations: TranslationDictionary = {
     bn: 'ফ্রেমার মোশন',
   },
   'exp.pilotTitle': {
-    en: 'Ready to launch Sugam Seva drives in your ward?',
-    hi: 'क्या आप अपने वार्ड में सुगम सेवा अभियान शुरू करने के लिए तैयार हैं?',
-    bn: 'আপনার ওয়ার্ডে কি সুগম সেবা ড্রাইভ চালু করতে প্রস্তুত?',
+    en: 'Ready to launch Sugam Seva drives in your house?',
+    hi: 'क्या आप अपने घर में सुगम सेवा अभियान शुरू करने के लिए तैयार हैं?',
+    bn: 'আপনার বাড়িতে কি সুগম সেবা ড্রাইভ চালু করতে প্রস্তুত?',
   },
   'exp.pilotSubtitle': {
     en: 'Spin up the dashboard, invite volunteers, and broadcast impact in minutes.',
@@ -634,8 +634,8 @@ export const translations: TranslationDictionary = {
     hi: 'भोजन योजना',
     bn: 'খাবার পরিকল্পনা',
   },
-  'nav.rewards': {
-    en: 'Rewards',
+  'nav.rehouses': {
+    en: 'Rehouses',
     hi: 'पुरस्कार',
     bn: 'পুরস্কার',
   },
@@ -941,8 +941,8 @@ export const translations: TranslationDictionary = {
     hi: 'पता',
     bn: 'ঠিকানা',
   },
-  'auth.wardPlaceholder': {
-    en: 'Ward / Block',
+  'auth.housePlaceholder': {
+    en: 'house / Block',
     hi: 'वार्ड / ब्लॉक',
     bn: 'ওয়ার্ড / ব্লক',
   },
@@ -1817,5 +1817,6 @@ export const translations: TranslationDictionary = {
     bn: 'ভয়েসের মাধ্যমে আইটেম যোগ করা হয়েছে:',
   },
 };
+
 
 
