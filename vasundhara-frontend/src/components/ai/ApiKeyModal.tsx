@@ -120,7 +120,7 @@ export default function ApiKeyModal({ open, onClose }: ApiKeyModalProps) {
             <button
               onClick={handleSave}
               disabled={!draft.trim()}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-violet-500/20 transition-all"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-600 hover:via-blue-500 hover:to-sky-500 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-500/20 transition-all"
             >
               {saved ? (
                 <><CheckCircleIcon className="w-4 h-4" /> Saved!</>

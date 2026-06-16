@@ -167,7 +167,7 @@ export default function ChatBot() {
               onPointerDown={onPointerDown}
               onDoubleClick={() => { /* reset to default */ persistPos({ left: window.innerWidth - 80 - 24, top: window.innerHeight - 80 - 24 }); setPos({ left: window.innerWidth - 80 - 24, top: window.innerHeight - 80 - 24 }); }}
               onKeyDown={(e) => { if (e.key === 'Enter') setOpen(true); }}
-              className={`w-14 h-14 rounded-full ${dragging ? 'opacity-80' : ''} bg-gradient-to-br from-green-500 to-blue-500 text-white shadow-lg flex items-center justify-center cursor-grab`}
+              className={`w-14 h-14 rounded-full ${dragging ? 'opacity-80' : ''} bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25 flex items-center justify-center cursor-grab`}
             >
               <button onClick={() => setOpen(true)} className="w-full h-full rounded-full flex items-center justify-center text-white" aria-label="Open assistant">🤖</button>
             </div>

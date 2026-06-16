@@ -268,7 +268,7 @@ function AiScanContent() {
               <Button
                 onClick={detect}
                 disabled={detecting}
-                className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-base shadow-lg shadow-emerald-500/30"
+                className="w-full h-12 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-600 hover:via-blue-500 hover:to-sky-500 text-white font-semibold text-base shadow-lg shadow-blue-500/30"
                 icon={detecting ? <ArrowPathIcon className="w-5 h-5 animate-spin" /> : <SparklesIcon className="w-5 h-5" />}
               >
                 {detecting ? 'Analyzing with VARD...' : 'Detect Food Items & Expiry Dates'}
@@ -461,7 +461,7 @@ function AiScanContent() {
                 <Button
                   onClick={addSelected}
                   disabled={selected.size === 0}
-                  className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-base shadow-lg shadow-emerald-500/30"
+                  className="w-full h-12 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-600 hover:via-blue-500 hover:to-sky-500 text-white font-semibold text-base shadow-lg shadow-blue-500/30"
                   icon={<CheckIcon className="w-5 h-5" />}
                 >
                   Add {selected.size} Selected Item{selected.size !== 1 ? 's' : ''} to Inventory

@@ -1,0 +1,8 @@
+- [ ] Update Home page logo link to show hover role-radio panel (Home only)
+- [ ] Wire radio selection to AuthContext setRole + navigate to:
+  - Homeowner -> /dashboard
+  - Shopkeeper -> /dashboard
+  - Admin panel -> /admin
+- [ ] If user is not logged in, redirect to /auth after setting role
+- [ ] Keep UI hidden when not hovering and ensure it doesn’t break existing header layout
+- [ ] Quick manual check: home logo hover shows radios; clicking navigates (and triggers login flow if logged out)

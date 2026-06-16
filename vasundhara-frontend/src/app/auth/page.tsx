@@ -335,7 +335,7 @@ export default function AuthLanding() {
 
                           <Button
                             onClick={handleLogin}
-                            className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-900/40 transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="w-full h-12 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-600 hover:via-blue-500 hover:to-sky-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/40 transition-all duration-200 transform hover:-translate-y-0.5"
                           >
                             <span className="flex items-center justify-center gap-2">
                               {t('auth.signIn', 'Sign in')}
@@ -466,7 +466,7 @@ export default function AuthLanding() {
 
                           <Button
                             onClick={handleRegister}
-                            className="w-full h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 dark:shadow-emerald-900/40 transition-all duration-200 transform hover:-translate-y-0.5"
+                            className="w-full h-12 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-600 hover:via-blue-500 hover:to-sky-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 dark:shadow-blue-900/40 transition-all duration-200 transform hover:-translate-y-0.5"
                           >
                             <span className="flex items-center justify-center gap-2">
                               {t('auth.createAccountButton', 'Create Account')}
@@ -514,7 +514,7 @@ export default function AuthLanding() {
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Button
                           onClick={() => router.push('/')}
-                          className="flex-1 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-xl"
+                          className="flex-1 h-12 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 hover:from-blue-600 hover:via-blue-500 hover:to-sky-500 text-white font-semibold rounded-xl"
                         >
                           {t('hero.enterDashboard', 'Go to Dashboard')}
                         </Button>

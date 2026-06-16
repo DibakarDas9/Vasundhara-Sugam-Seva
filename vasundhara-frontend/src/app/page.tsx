@@ -48,7 +48,7 @@ const motionFade = {
 
 export default function HomePage() {
   const router = useRouter();
-  const { login, register, user, logout } = useAuth();
+  const { login, register, user, logout, setRole } = useAuth();
   const { t, language } = useLanguage();
   const [scrolled, setScrolled] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -265,6 +265,33 @@ export default function HomePage() {
     router.push('/');
   };
 
+  const [showRoleHover, setShowRoleHover] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'household' | 'shopkeeper' | 'admin'>('household');
+
+  const roleToLabel: Record<'household' | 'shopkeeper' | 'admin', string> = {
+    household: 'Homeowner',
+    shopkeeper: 'Shopkeeper',
+    admin: 'Admin panel',
+  };
+
+  const roleToRoute: Record<'household' | 'shopkeeper' | 'admin', string> = {
+    household: '/dashboard',
+    shopkeeper: '/dashboard',
+    admin: '/admin',
+  };
+
+  const handleRolePick = (role: 'household' | 'shopkeeper' | 'admin') => {
+    setSelectedRole(role);
+    setRole(role);
+
+    const next = roleToRoute[role];
+    if (!user) {
+      router.push('/auth');
+      return;
+    }
+    router.push(next);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950 text-white">
       <motion.div
@@ -278,13 +305,53 @@ export default function HomePage() {
           }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8">
-          <Link href="/" className="flex items-center gap-3 text-white">
-            <Logo className="h-10 w-10 text-emerald-400" />
-            <div>
-              <p className="font-semibold tracking-wide">Vasundhara</p>
-              <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Sugam Seva</p>
-            </div>
-          </Link>
+          <div
+            className="relative"
+            onMouseEnter={() => setShowRoleHover(true)}
+            onMouseLeave={() => setShowRoleHover(false)}
+          >
+            <Link href="/" className="flex items-center gap-3 text-white">
+              <Logo className="h-10 w-10 text-emerald-400" />
+              <div>
+                <p className="font-semibold tracking-wide">Vasundhara</p>
+                <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">Sugam Seva</p>
+              </div>
+            </Link>
+
+            {showRoleHover && (
+              <div className="absolute left-0 top-full z-30 mt-1 w-56 rounded-2xl border border-white/10 bg-slate-950/90 p-2.5 shadow-xl backdrop-blur-xl">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/60">
+                  Choose account
+                </p>
+
+                <div className="mt-2 flex flex-col gap-2">
+                  {(['household', 'shopkeeper', 'admin'] as const).map((role) => (
+                    <label
+                      key={role}
+                      className={`flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 transition ${
+                        selectedRole === role ? 'bg-emerald-400/15' : 'hover:bg-white/5'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="home-role"
+                        checked={selectedRole === role}
+                        onChange={() => handleRolePick(role)}
+                        className="h-4 w-4 accent-emerald-400"
+                      />
+                      <span className="text-sm text-white">{roleToLabel[role]}</span>
+                    </label>
+                  ))}
+                </div>
+
+                {!user && (
+                  <p className="mt-2 text-[12px] text-emerald-200/80">
+                    You’ll be asked to login if you’re not signed in.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="hidden items-center gap-4 xl:gap-5 text-xs xl:text-sm font-medium text-white/70 lg:flex">
             {navLinks.map((link) => (
