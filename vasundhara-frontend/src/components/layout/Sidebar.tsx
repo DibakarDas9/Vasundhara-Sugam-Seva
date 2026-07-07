@@ -32,14 +32,13 @@ const baseNav = [
   { name: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon },
   { name: 'Inventory', href: '/inventory', icon: ShoppingCartIcon },
   { name: 'Meal Planning', href: '/meal-planning', icon: ClockIcon },
-  { name: 'AI Scanner', href: '/ai-scan', icon: SparklesIcon },
+  { name: 'Vard Food Scanner', href: '/ai-scan', icon: SparklesIcon },
   { name: 'Marketplace', href: '/marketplace', icon: MapIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
 ];
 
 const homeownerNav = [
   ...baseNav,
-  { name: 'Rewards', href: '/rewards', icon: GiftIcon },
   { name: 'Notifications', href: '/notifications', icon: BellIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
@@ -82,7 +81,7 @@ export function Sidebar({ className }: SidebarProps) {
       case 'Dashboard': return t('nav.dashboard', 'Dashboard');
       case 'Inventory': return t('nav.inventory', 'Inventory');
       case 'Meal Planning': return t('nav.mealPlanning', 'Meal Planning');
-      case 'AI Scanner': return t('nav.aiScanner', 'AI Scanner');
+      case 'Vard Food Scanner': return t('nav.vardFoodScanner', 'Vard Food Scanner');
       case 'Marketplace': return t('nav.marketplace', 'Marketplace');
       case 'Analytics': return t('nav.analytics', 'Analytics');
       case 'Rewards': return t('nav.rewards', 'Rewards');
@@ -173,7 +172,7 @@ export function Sidebar({ className }: SidebarProps) {
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             // hide some pages for guest mode
-            if (guestMode && ['/notifications', '/rewards', '/orders'].includes(item.href)) return null;
+            if (guestMode && ['/notifications', '/orders'].includes(item.href)) return null;
             return (
               <Link
                 key={item.name}
@@ -246,7 +245,7 @@ export function Sidebar({ className }: SidebarProps) {
               </div>
               <nav className="flex-1 py-4 space-y-2">
                 {navItems.map((item) => {
-                  if (guestMode && ['/notifications', '/rewards', '/orders'].includes(item.href)) return null;
+                  if (guestMode && ['/notifications', '/orders'].includes(item.href)) return null;
                   const isActive = pathname === item.href;
                   return (
                     <Link key={item.name} href={item.href} onClick={() => setOpen(false)} className={cn(
