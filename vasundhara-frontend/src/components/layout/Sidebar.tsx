@@ -24,6 +24,7 @@ import {
   Squares2X2Icon,
   ShieldCheckIcon,
   SparklesIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 import { isSystemAdminAccount } from '@/lib/localAuth';
 
@@ -40,16 +41,6 @@ const baseNav = [
 const homeownerNav = [
   ...baseNav,
   { name: 'Notifications', href: '/notifications', icon: BellIcon },
-  { name: 'Settings', href: '/settings', icon: CogIcon },
-];
-
-const shopNav = [
-  { name: 'Home', href: '/', icon: HomeIcon },
-  { name: 'Dashboard', href: '/dashboard', icon: Squares2X2Icon },
-  { name: 'Marketplace', href: '/marketplace', icon: MapIcon },
-  { name: 'Orders', href: '/orders', icon: ShoppingCartIcon },
-  { name: 'Inventory (Shop)', href: '/inventory', icon: ShoppingCartIcon },
-  { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 
@@ -72,7 +63,7 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const { role, guestMode, guestName, guestEmail, user } = useAuth();
+  const { role, guestMode, guestName, guestEmail, user, logout } = useAuth();
   const { t } = useLanguage();
 
   const getTranslatedName = (name: string) => {
@@ -99,13 +90,11 @@ export function Sidebar({ className }: SidebarProps) {
   const isAdminArea = pathname?.startsWith('/admin');
 
   // Determine navigation items based on context
-  const persona = isAdminArea
+  const persona = isAdminArea || role === 'admin' || user?.role === 'admin'
     ? 'admin'
-    : (user?.role && ['household', 'shopkeeper'].includes(user.role)
-      ? (user.role as 'household' | 'shopkeeper')
-      : (role || 'household'));
+    : 'household';
 
-  const navItems = persona === 'shopkeeper' ? shopNav : persona === 'admin' ? adminNav : homeownerNav;
+  const navItems = persona === 'admin' ? adminNav : homeownerNav;
   const { open, setOpen } = useMobileNav();
   const userFullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '';
   const profileName = guestMode
@@ -218,6 +207,16 @@ export function Sidebar({ className }: SidebarProps) {
                   )}
                 </div>
               )}
+              {!collapsed && (
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="ml-auto inline-flex items-center gap-2 rounded-lg border border-app px-3 py-2 text-xs font-medium text-app transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+                >
+                  <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                  {guestMode ? 'Exit guest mode' : 'Sign out'}
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -277,6 +276,17 @@ export function Sidebar({ className }: SidebarProps) {
                       )}
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      logout();
+                    }}
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-app px-4 py-3 text-sm font-semibold text-app transition hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+                  >
+                    <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                    {guestMode ? 'Exit guest mode' : 'Sign out'}
+                  </button>
                 </div>
               )}
             </div>

@@ -57,10 +57,24 @@ export default function HomePage() {
   const [feedback, setFeedback] = useState('');
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
   const [vardOpen, setVardOpen] = useState(false);
+  const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
+  const heroVideoRef = useRef<HTMLVideoElement | null>(null);
   const sevaWords = useMemo(
     () => ['Seva', 'সেবা', 'सेवा', 'சேவை', 'సేవ', 'സേവ', 'سیوا', 'Seva'],
     []
   );
+
+  const handlePlayHeroVideo = async () => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+
+    try {
+      await video.play();
+      setIsHeroVideoPlaying(true);
+    } catch {
+      setIsHeroVideoPlaying(false);
+    }
+  };
 
   const navLinks = useMemo(() => [
     { label: t('nav.dashboard', 'Dashboard'), href: '/dashboard' },
@@ -266,21 +280,19 @@ export default function HomePage() {
   };
 
   const [showRoleHover, setShowRoleHover] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'household' | 'shopkeeper' | 'admin'>('household');
+  const [selectedRole, setSelectedRole] = useState<'household' | 'admin'>('household');
 
-  const roleToLabel: Record<'household' | 'shopkeeper' | 'admin', string> = {
+  const roleToLabel: Record<'household' | 'admin', string> = {
     household: 'Homeowner',
-    shopkeeper: 'Shopkeeper',
     admin: 'Admin panel',
   };
 
-  const roleToRoute: Record<'household' | 'shopkeeper' | 'admin', string> = {
+  const roleToRoute: Record<'household' | 'admin', string> = {
     household: '/dashboard',
-    shopkeeper: '/dashboard',
     admin: '/admin',
   };
 
-  const handleRolePick = (role: 'household' | 'shopkeeper' | 'admin') => {
+  const handleRolePick = (role: 'household' | 'admin') => {
     setSelectedRole(role);
     setRole(role);
 
@@ -325,7 +337,7 @@ export default function HomePage() {
                 </p>
 
                 <div className="mt-2 flex flex-col gap-2">
-                  {(['household', 'shopkeeper', 'admin'] as const).map((role) => (
+                  {(['household', 'admin'] as const).map((role) => (
                     <label
                       key={role}
                       className={`flex cursor-pointer items-center gap-2 rounded-xl px-2 py-2 transition ${
@@ -414,7 +426,9 @@ export default function HomePage() {
                     >
                       <div className="px-3 py-2 border-b border-white/10 mb-1.5">
                         <p className="text-xs font-semibold truncate">{user.firstName} {user.lastName}</p>
-                        <p className="text-[10px] text-emerald-300 truncate capitalize">{user.role}</p>
+                        <p className="text-[10px] text-emerald-300 truncate capitalize">
+                          {user.role === 'admin' ? 'Admin' : 'Household'}
+                        </p>
                       </div>
                       <div className="flex flex-col gap-0.5">
                         <button
@@ -612,23 +626,43 @@ export default function HomePage() {
                   </motion.span>
                 </span>
               </p>
-              <p className="mt-1.5 text-sm text-slate-300">{t('live.ribbon', 'Vision + Voice + ML fused in one ribbon.')}</p>
+              <p className="mt-1.5 text-sm text-slate-300">{t('live.ribbon', 'Vision + Voice')}</p>
  
               <div className="mt-6 flex flex-1 flex-col overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/40 shadow-2xl">
                 <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-xs uppercase tracking-[0.25em] text-slate-300">
                   <span>{t('live.demo', 'Homepage explainer')}</span>
                   <span className="rounded-full bg-emerald-400/20 px-3 py-1 text-[11px] tracking-normal text-emerald-200">অন্ন যদি হয় সঞ্চয়, বসুন্ধরার হবে জয়</span>
                 </div>
-                <video
-                  className="h-full min-h-[320px] w-full flex-1 object-cover"
-                  src="/Modify_the_prompt_just_to_add.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  aria-label="Homepage explainer video for Vasundhara"
-                />
+                <div className="relative h-full min-h-[320px] w-full flex-1">
+                  <video
+                    ref={heroVideoRef}
+                    className="h-full w-full object-cover"
+                    src="/Modify_the_prompt_just_to_add.mp4"
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    aria-label="Homepage explainer video for Vasundhara"
+                    onPlay={() => setIsHeroVideoPlaying(true)}
+                    onPause={() => setIsHeroVideoPlaying(false)}
+                  />
+                  {!isHeroVideoPlaying && (
+                    <button
+                      type="button"
+                      onClick={handlePlayHeroVideo}
+                      aria-label="Play homepage explainer video using logo"
+                      className="absolute inset-0 z-10 block overflow-hidden bg-slate-950/20 transition-colors hover:bg-slate-950/30"
+                    >
+                      <Image
+                        src="/IMG LOGO.png"
+                        alt="Play video"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>

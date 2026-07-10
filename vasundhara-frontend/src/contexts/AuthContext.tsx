@@ -52,6 +52,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
@@ -59,8 +60,8 @@ interface AuthContextType {
   // guest mode & role selection
   guestMode: boolean;
   setGuestMode: (v: boolean) => void;
-  role?: 'household' | 'shopkeeper' | 'admin' | null;
-  setRole: (r: 'household' | 'shopkeeper' | 'admin' | null) => void;
+  role?: 'household' | 'admin' | null;
+  setRole: (r: 'household' | 'admin' | null) => void;
   guestName?: string | null;
   guestEmail?: string | null;
   setGuestInfo: (name: string, email: string) => void;
@@ -198,10 +199,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [guestMode, setGuestModeState] = useState<boolean>(() => {
     try { return localStorage.getItem('guestMode') === '1'; } catch { return false; }
   });
-  const [role, setRoleState] = useState<'household' | 'shopkeeper' | 'admin' | null>(() => {
+  const [role, setRoleState] = useState<'household' | 'admin' | null>(() => {
     try {
       const v = localStorage.getItem('vasundhara_role');
-      return (v === 'household' || v === 'shopkeeper' || v === 'admin') ? v : null;
+      return v === 'admin' ? 'admin' : 'household';
     } catch {
       return null;
     }
@@ -217,9 +218,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const hydrateLocalUser = useCallback((localUser: StoredUser) => {
     const normalized = mapStoredUserToUser(localUser);
     setUser(normalized);
-    const validRole = ['household', 'shopkeeper', 'admin'].includes(normalized.role)
-      ? normalized.role as 'household' | 'shopkeeper' | 'admin'
-      : 'household';
+    const validRole = normalized.role === 'admin' ? 'admin' : 'household';
     setRoleState(validRole);
     setPendingApproval(false);
   }, []);
@@ -235,9 +234,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     setUser(normalized);
     setPendingApproval(Boolean(payload.pendingApproval));
-    const validRole = ['household', 'shopkeeper', 'admin'].includes(normalized.role)
-      ? normalized.role as 'household' | 'shopkeeper' | 'admin'
-      : 'household';
+    const validRole = normalized.role === 'admin' ? 'admin' : 'household';
     setRoleState(validRole);
   }, []);
 
@@ -270,9 +267,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const normalized = mapRemoteUserToUser(data.user);
       setUser(normalized);
       setPendingApproval(false);
-      const validRole = ['household', 'shopkeeper', 'admin'].includes(normalized.role)
-        ? normalized.role as 'household' | 'shopkeeper' | 'admin'
-        : 'household';
+      const validRole = normalized.role === 'admin' ? 'admin' : 'household';
       setRoleState(validRole);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
@@ -293,6 +288,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
       router.push('/dashboard');
     }
   }, [persistRemoteSession, router]);
+
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    if (!API_URL) {
+      throw new Error('API URL is not configured');
+    }
+    // token-only flow: backend verifies ID token and returns tokens/user
+    const response = await fetch(`${API_URL}/api/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = data?.message || data?.error || 'Google authentication failed';
+      throw new Error(message);
+    }
+
+    const payload = data as RemoteAuthResponse;
+    persistRemoteSession(payload);
+    toast.success('Signed in with Google!');
+    if ((payload.user?.role || 'household') === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/dashboard');
+    }
+  }, [API_URL, persistRemoteSession, router]);
 
   const handleRemoteRegister = useCallback(async (userData: RegisterData) => {
     const payload = await remoteAuthRequest('register', userData);
@@ -349,9 +371,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     setCurrentUser(localUser.id);
     setUser(normalized);
-    const validRole = ['household', 'shopkeeper', 'admin'].includes(normalized.role)
-      ? (normalized.role as 'household' | 'shopkeeper' | 'admin')
-      : 'household';
+    const validRole = normalized.role === 'admin' ? 'admin' : 'household';
     setRoleState(validRole);
     setPendingApproval(false);
 
@@ -397,9 +417,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setCurrentUser(storedUser.id);
       setUser(normalized);
-      const validRole = ['household', 'shopkeeper', 'admin'].includes(normalized.role)
-        ? (normalized.role as 'household' | 'shopkeeper' | 'admin')
-        : 'household';
+      const validRole = normalized.role === 'admin' ? 'admin' : 'household';
       setRoleState(validRole);
       setPendingApproval(false);
 
@@ -425,12 +443,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setUser(null);
     setRoleState(null);
     setPendingApproval(false);
+    setGuestModeState(false);
+    setGuestName(null);
+    setGuestEmail(null);
     try {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('vasundhara_auth_mode');
       localStorage.removeItem('vasundhara_admin_gate_token');
       localStorage.removeItem('vasundhara_admin_session_time');
+      localStorage.removeItem('guestMode');
+      localStorage.removeItem('guest_name');
+      localStorage.removeItem('guest_email');
+      localStorage.removeItem('vasundhara_role');
     } catch { }
     toast.success('Logged out successfully');
     router.push('/');
@@ -441,7 +466,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setGuestModeState(v);
   }
 
-  function setRole(r: 'household' | 'shopkeeper' | 'admin' | null) {
+  function setRole(r: 'household' | 'admin' | null) {
     try {
       if (r) localStorage.setItem('vasundhara_role', r);
       else localStorage.removeItem('vasundhara_role');
@@ -534,6 +559,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     login,
     register,
+    loginWithGoogle,
     logout,
     updateProfile,
     changePassword,
