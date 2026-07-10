@@ -1,9 +1,17 @@
 'use client';
 
 import { useEffect } from 'react';
-
-const STORAGE_KEY = 'vasundhara_theme_v1';
+import { useTheme } from 'next-themes';
 
 export function ThemeController() {
-    return null;
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    if (theme === 'system') {
+      setTheme('light');
+    }
+  }, [theme, setTheme]);
+
+  return null;
 }
+

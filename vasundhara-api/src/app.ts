@@ -29,6 +29,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       health: '/health',
       auth: '/api/auth',
+      googleAuth: '/api/auth/google',
       inventory: '/api/inventory',
       recipes: '/api/recipes',
       alerts: '/api/alerts',
@@ -36,6 +37,11 @@ app.get('/api', (req, res) => {
     }
   });
 });
+
+// API route mounting
+import apiRoutes from './routes';
+app.use('/api', apiRoutes);
+
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

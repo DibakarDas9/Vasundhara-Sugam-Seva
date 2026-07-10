@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -13,18 +13,24 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSelector from '@/components/ui/LanguageSelector';
 import {
   HomeIcon,
-  BuildingStorefrontIcon,
   ShieldCheckIcon,
   SparklesIcon,
   ArrowRightIcon,
   UserCircleIcon,
   EyeIcon,
-  EyeSlashIcon
+  EyeSlashIcon,
+  PlayIcon,
 } from '@heroicons/react/24/outline';
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
 
 export default function AuthLanding() {
   const router = useRouter();
-  const { login, register, guestMode, setGuestMode, role, setRole, user, logout, guestName, guestEmail, setGuestInfo } = useAuth();
+  const { login, loginWithGoogle, register, guestMode, setGuestMode, role, setRole, user, logout, guestName, guestEmail, setGuestInfo } = useAuth();
   const { t, language } = useLanguage();
   const [showSplash, setShowSplash] = useState(true);
   const [isLogin, setIsLogin] = useState(true);
@@ -36,15 +42,67 @@ export default function AuthLanding() {
   const [householdFamilySize, setHouseholdFamilySize] = useState('');
   const [householdAddress, setHouseholdAddress] = useState('');
   const [householdWard, setHouseholdWard] = useState('');
-  const [businessName, setBusinessName] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
-  const [shopAddress, setShopAddress] = useState('');
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [isIntroPlaying, setIsIntroPlaying] = useState(false);
+  const introVideoRef = useRef<HTMLVideoElement | null>(null);
 
-  const effectiveRole = useMemo<'household' | 'shopkeeper' | 'admin'>(() => {
-    if (role === 'shopkeeper' || role === 'admin' || role === 'household') return role;
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+  useEffect(() => {
+    if (!googleClientId) return;
+
+    const existing = document.getElementById('google-identity-service');
+    if (existing) return;
+
+    const script = document.createElement('script');
+    script.id = 'google-identity-service';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => {
+      // no-op
+    };
+  }, [googleClientId]);
+
+  useEffect(() => {
+    if (!googleClientId) return;
+    if (!window.google?.accounts?.id) return;
+
+    try {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async (response: any) => {
+          const idToken = response?.credential;
+          if (!idToken) {
+            return;
+          }
+          try {
+            setGoogleLoading(true);
+            await loginWithGoogle(idToken);
+          } finally {
+            setGoogleLoading(false);
+          }
+        },
+      });
+
+      if (document.getElementById('google-signin-button')) {
+        window.google.accounts.id.renderButton(
+          document.getElementById('google-signin-button'),
+          { theme: 'outline', size: 'large', width: 240 }
+        );
+      }
+    } catch {
+      // ignore init errors
+    }
+  }, [googleClientId, loginWithGoogle, user]);
+
+  const effectiveRole = useMemo<'household' | 'admin'>(() => {
+    if (role === 'admin' || role === 'household') return role;
     return 'household';
   }, [role]);
 
@@ -76,11 +134,6 @@ export default function AuthLanding() {
           address: householdAddress,
           ward: householdWard,
         } : undefined,
-        shopkeeperProfile: effectiveRole === 'shopkeeper' ? {
-          businessName,
-          licenseNumber,
-          address: shopAddress,
-        } : undefined,
       });
     } catch (e) { }
   }
@@ -104,12 +157,6 @@ export default function AuthLanding() {
       description: t('role.householdDesc', 'Manage your home inventory'),
       gradient: 'from-emerald-500 to-teal-600'
     },
-    shopkeeper: {
-      icon: BuildingStorefrontIcon,
-      label: t('role.shopkeeper', 'Shopkeeper'),
-      description: t('role.shopkeeperDesc', 'Manage your shop & orders'),
-      gradient: 'from-amber-500 to-orange-600'
-    },
     admin: {
       icon: ShieldCheckIcon,
       label: t('role.admin', 'Admin'),
@@ -118,13 +165,28 @@ export default function AuthLanding() {
     }
   };
 
-  const handleRoleSelect = (targetRole: 'household' | 'shopkeeper' | 'admin') => {
+  const handleRoleSelect = (targetRole: 'household' | 'admin') => {
     if (targetRole === 'admin') {
       router.push('/admin/access');
       return;
     }
     setRole(targetRole);
   };
+
+  const handlePlayIntro = async () => {
+    setIsIntroPlaying(true);
+  };
+
+  useEffect(() => {
+    if (!isIntroPlaying) return;
+    const video = introVideoRef.current;
+    if (!video) return;
+
+    video.currentTime = 0;
+    video.play().catch(() => {
+      setIsIntroPlaying(false);
+    });
+  }, [isIntroPlaying]);
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gray-50 dark:bg-black transition-colors duration-300">
@@ -198,8 +260,49 @@ export default function AuthLanding() {
                     {t('auth.tagline3', 'Modern Living')}
                   </h2>
                   <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-lg">
-                    {t('auth.subheading', 'Join thousands of households and shopkeepers streamlining their inventory with AI-powered insights.')}
+                    {t('auth.subheading', 'Join thousands of households streamlining their inventory with AI-powered insights.')}
                   </p>
+                </div>
+
+                {/* Intro video */}
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/50 dark:border-slate-800/70 bg-white/60 dark:bg-slate-900/40 shadow-2xl shadow-emerald-900/10 backdrop-blur-xl">
+                  {!isIntroPlaying ? (
+                    <button
+                      type="button"
+                      onClick={handlePlayIntro}
+                      aria-label="Play intro video"
+                      className="group relative block h-[260px] w-full overflow-hidden"
+                    >
+                      <Image
+                        src="/auth-intro-poster.svg"
+                        alt="Vasundhara intro video poster"
+                        fill
+                        priority
+                        className="object-cover"
+                      />
+                      <span className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_45%),linear-gradient(135deg,rgba(15,23,42,0.16),rgba(6,182,212,0.12))] transition-colors group-hover:bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.24),transparent_45%),linear-gradient(135deg,rgba(15,23,42,0.22),rgba(6,182,212,0.18))]" />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-20 w-20 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white shadow-2xl shadow-black/20 backdrop-blur-md transition-transform duration-200 group-hover:scale-105">
+                          <PlayIcon className="ml-1 h-9 w-9" />
+                        </span>
+                      </span>
+                    </button>
+                  ) : (
+                    <video
+                      ref={introVideoRef}
+                      className="block h-[260px] w-full object-cover"
+                      src="/Create_a_homepage_explainer_vi.mp4"
+                      preload="metadata"
+                      playsInline
+                      muted
+                      loop
+                      controls={false}
+                      aria-label="Vasundhara intro video"
+                      onPlay={() => setIsIntroPlaying(true)}
+                      onPause={() => setIsIntroPlaying(false)}
+                      onEnded={() => setIsIntroPlaying(false)}
+                    />
+                  )}
                 </div>
 
                 {/* Feature highlights */}
@@ -259,14 +362,14 @@ export default function AuthLanding() {
                       {/* Role selector */}
                       <div className="mb-8">
                         <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 px-1">{t('auth.continueAs', 'Continue as:')}</p>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                           {Object.entries(roleConfig).map(([key, config]) => {
                             const Icon = config.icon;
                             const isActive = effectiveRole === key;
                             return (
                               <button
                                 key={key}
-                                onClick={() => handleRoleSelect(key as 'household' | 'shopkeeper' | 'admin')}
+                                onClick={() => handleRoleSelect(key as 'household' | 'admin')}
                                 className={`relative p-3 rounded-2xl border-2 transition-all duration-200 group ${isActive
                                   ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/20'
                                   : 'border-gray-200 dark:border-gray-800 hover:border-emerald-200 dark:hover:border-emerald-800/50 bg-transparent'
@@ -350,6 +453,21 @@ export default function AuthLanding() {
                             <div className="relative flex justify-center text-sm">
                               <span className="px-4 bg-white dark:bg-black text-gray-500 dark:text-gray-400 font-medium">{t('auth.orContinueWith', 'or continue with')}</span>
                             </div>
+                          </div>
+
+                          {/* Google Sign-In */}
+                          <div className="mb-4 flex justify-center">
+                            {!googleClientId ? (
+                              <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
+                                Google sign-in not configured
+                              </p>
+                            ) : (
+                              <div
+                                id="google-signin-button"
+                                aria-label="Sign in with Google"
+                                style={{ opacity: googleLoading ? 0.7 : 1, pointerEvents: googleLoading ? 'none' : 'auto' }}
+                              />
+                            )}
                           </div>
 
                           <Button
@@ -449,18 +567,6 @@ export default function AuthLanding() {
                               <Input placeholder={t('auth.familySizePlaceholder', 'Family size (e.g., 4)')} value={householdFamilySize} onChange={e => setHouseholdFamilySize(e.target.value)} type="number" min={1} />
                               <Input placeholder={t('auth.addressPlaceholder', 'Address')} value={householdAddress} onChange={e => setHouseholdAddress(e.target.value)} />
                               <Input placeholder={t('auth.wardPlaceholder', 'Ward / Block')} value={householdWard} onChange={e => setHouseholdWard(e.target.value)} />
-                            </div>
-                          )}
-
-                          {effectiveRole === 'shopkeeper' && (
-                            <div className="space-y-3 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-100 rounded-xl p-4">
-                              <p className="text-amber-900 font-bold text-sm flex items-center gap-2">
-                                <BuildingStorefrontIcon className="w-4 h-4" />
-                                {t('auth.shopkeeperDetails', 'Shopkeeper details')}
-                              </p>
-                              <Input placeholder={t('auth.businessNamePlaceholder', 'Business name')} value={businessName} onChange={e => setBusinessName(e.target.value)} />
-                              <Input placeholder={t('auth.licensePlaceholder', 'License / GST number')} value={licenseNumber} onChange={e => setLicenseNumber(e.target.value)} />
-                              <Input placeholder={t('auth.shopAddressPlaceholder', 'Shop address')} value={shopAddress} onChange={e => setShopAddress(e.target.value)} />
                             </div>
                           )}
 

@@ -1,0 +1,47 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="70" x2="1170" y2="660" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.52" stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 220) rotate(45) scale(540 420)">
+      <stop stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="30" />
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" rx="40" fill="url(#bg)"/>
+  <circle cx="260" cy="170" r="180" fill="#ffffff" fill-opacity="0.18" filter="url(#blur)"/>
+  <circle cx="1040" cy="560" r="220" fill="#ffffff" fill-opacity="0.12" filter="url(#blur)"/>
+  <circle cx="680" cy="260" r="260" fill="url(#glow)"/>
+
+  <g opacity="0.18">
+    <path d="M0 540C160 500 220 470 360 470C500 470 560 520 700 520C840 520 940 420 1080 420C1160 420 1220 435 1280 450V720H0V540Z" fill="#ffffff"/>
+    <path d="M0 590C150 550 260 535 390 535C540 535 610 595 745 595C880 595 980 505 1120 505C1185 505 1240 515 1280 525V720H0V590Z" fill="#ffffff"/>
+  </g>
+
+  <g transform="translate(90 90)">
+    <rect x="0" y="0" width="620" height="540" rx="34" fill="#0f172a" fill-opacity="0.35" stroke="#ffffff" stroke-opacity="0.15"/>
+    <rect x="36" y="38" width="148" height="148" rx="30" fill="#ffffff" fill-opacity="0.12"/>
+    <path d="M110 76L150 116L110 156L70 116L110 76Z" fill="#ffffff" fill-opacity="0.9"/>
+    <path d="M110 90L136 116L110 142L84 116L110 90Z" fill="#14b8a6"/>
+
+    <text x="36" y="262" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700">Vasundhara</text>
+    <text x="36" y="314" fill="#ccfbf1" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="6">SUGAM SEVA</text>
+    <text x="36" y="376" fill="#e2e8f0" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400">Click to watch the intro video</text>
+
+    <g opacity="0.9" transform="translate(36 420)">
+      <rect width="170" height="22" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+      <rect y="42" width="240" height="22" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+      <rect y="84" width="200" height="22" rx="11" fill="#ffffff" fill-opacity="0.16"/>
+    </g>
+  </g>
+
+  <circle cx="900" cy="360" r="110" fill="#ffffff" fill-opacity="0.18"/>
+  <circle cx="900" cy="360" r="74" fill="#ffffff" fill-opacity="0.22"/>
+  <path d="M874 327L940 360L874 393V327Z" fill="#ffffff"/>
+</svg>

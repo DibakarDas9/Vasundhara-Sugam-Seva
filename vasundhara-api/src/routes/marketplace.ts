@@ -2,31 +2,65 @@
  * Marketplace routes
  */
 
-import { Router } from 'express';
-import { authenticate, AuthRequest } from '@/middleware/auth';
+import { Request, Response, Router } from 'express';
 import { asyncHandler } from '@/middleware/errorHandler';
 
+type MarketplaceListing = {
+  id: string;
+  title: string;
+  expiryDate: string;
+  location: string;
+  postedBy: string;
+  postedTime: string;
+  createdAt: number;
+};
+
 const router = Router();
+const listings: MarketplaceListing[] = [];
 
-// Placeholder routes - to be implemented
-router.get('/', authenticate, asyncHandler(async (req: AuthRequest, res) => {
-  res.json({ message: 'Get marketplace listings - to be implemented' });
+function normalizeLocation(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+router.get('/', asyncHandler(async (req: Request, res: Response) => {
+  const location = typeof req.query.location === 'string' ? req.query.location : '';
+  const normalizedLocation = normalizeLocation(location);
+
+  const visibleListings = normalizedLocation
+    ? listings.filter(listing => normalizeLocation(listing.location) === normalizedLocation)
+    : listings;
+
+  res.json({
+    listings: visibleListings.sort((left, right) => right.createdAt - left.createdAt),
+  });
 }));
 
-router.post('/', authenticate, asyncHandler(async (req: AuthRequest, res) => {
-  res.json({ message: 'Create marketplace listing - to be implemented' });
-}));
+router.post('/', asyncHandler(async (req: Request, res: Response) => {
+  const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
+  const expiryDate = typeof req.body.expiryDate === 'string' ? req.body.expiryDate.trim() : '';
+  const location = typeof req.body.location === 'string' ? req.body.location.trim() : '';
+  const postedBy = typeof req.body.postedBy === 'string' && req.body.postedBy.trim()
+    ? req.body.postedBy.trim()
+    : 'Marketplace user';
 
-router.get('/:id', authenticate, asyncHandler(async (req: AuthRequest, res) => {
-  res.json({ message: 'Get marketplace listing by ID - to be implemented' });
-}));
+  if (!title || !expiryDate || !location) {
+    res.status(400).json({ error: 'Item name, expiry date, and location are required.' });
+    return;
+  }
 
-router.put('/:id', authenticate, asyncHandler(async (req: AuthRequest, res) => {
-  res.json({ message: 'Update marketplace listing - to be implemented' });
-}));
+  const listing: MarketplaceListing = {
+    id: `market_${Date.now()}`,
+    title,
+    expiryDate,
+    location,
+    postedBy,
+    postedTime: 'Just now',
+    createdAt: Date.now(),
+  };
 
-router.delete('/:id', authenticate, asyncHandler(async (req: AuthRequest, res) => {
-  res.json({ message: 'Delete marketplace listing - to be implemented' });
+  listings.unshift(listing);
+
+  res.status(201).json({ listing });
 }));
 
 export default router;

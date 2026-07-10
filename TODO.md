@@ -1,8 +1,16 @@
-- [ ] Update Home page logo link to show hover role-radio panel (Home only)
-- [ ] Wire radio selection to AuthContext setRole + navigate to:
-  - Homeowner -> /dashboard
-  - Shopkeeper -> /dashboard
-  - Admin panel -> /admin
-- [ ] If user is not logged in, redirect to /auth after setting role
-- [ ] Keep UI hidden when not hovering and ensure it doesn’t break existing header layout
-- [ ] Quick manual check: home logo hover shows radios; clicking navigates (and triggers login flow if logged out)
+# TODO
+
+## Dark mode toggle: “Same mode as device” on double-click
+
+- [ ] Edit `vasundhara-frontend/src/components/ui/ThemeToggle.tsx`
+  - [x] Add double-click handler that opens a small popover
+  - [x] Add checkbox “Same mode as device” (default ON)
+  - [x] Persist setting in `localStorage`
+  - [x] Ensure single-click toggles theme as usual
+- [x] Edit `vasundhara-frontend/src/components/ThemeController.tsx` to apply persisted setting on load (system vs manual)
+
+
+
+- [x] Run `npm run build` (in `vasundhara-frontend`) and verify no TS errors
+- [ ] Manual test: default ON + checkbox flow + persistence
+
