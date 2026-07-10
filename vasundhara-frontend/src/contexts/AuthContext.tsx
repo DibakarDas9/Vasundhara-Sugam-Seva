@@ -346,13 +346,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     if (REMOTE_AUTH_ENABLED && API_URL) {
-      try {
-        await handleRemoteLogin(email, password);
-        return;
-      } catch (error) {
-        console.warn('Remote login failed, attempting local auth', error);
-      }
+      // In remote mode, the backend is the source of truth.
+      // Do NOT fall back to localAuth, otherwise users created on one device
+      // won't exist on another device.
+      await handleRemoteLogin(email, password);
+      return;
     }
+
 
     try {
       localStorage.removeItem('accessToken');
@@ -386,13 +386,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (userData: RegisterData) => {
     if (REMOTE_AUTH_ENABLED && API_URL) {
-      try {
-        await handleRemoteRegister(userData);
-        return;
-      } catch (error) {
-        console.warn('Remote registration failed, attempting local fallback', error);
-      }
+      // In remote mode, the backend is the source of truth.
+      // Do NOT fall back to localAuth, otherwise users created on one device
+      // won't exist on another device.
+      await handleRemoteRegister(userData);
+      return;
     }
+
 
     try {
       localStorage.removeItem('accessToken');
