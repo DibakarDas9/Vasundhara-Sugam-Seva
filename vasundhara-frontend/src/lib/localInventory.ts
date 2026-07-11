@@ -102,39 +102,16 @@ export function useLocalInventory() {
         return;
       }
 
-      // Try backend sync first if logged in
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-
-      if (API_BASE && token && user) {
-        try {
-          const response = await fetch(`${API_BASE}/api/inventory`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.items) {
-              setItems(data.items.map(sanitizeItem).filter(Boolean) as LocalItem[]);
-              setIsLoaded(true);
-              return;
-            }
-          }
-        } catch (err) {
-          console.warn('Failed to load remote inventory, falling back to local storage', err);
-        }
-      }
-
-      // Local storage fallback
+      // 1. Load from local cache instantly
+      let localParsed: LocalItem[] = [];
       try {
         const rawItems = localStorage.getItem(storageKey);
         if (rawItems) {
           const parsed: any[] = JSON.parse(rawItems);
-          const sanitized = Array.isArray(parsed)
+          localParsed = Array.isArray(parsed)
             ? (parsed.map(sanitizeItem).filter(Boolean) as LocalItem[])
             : [];
-          setItems(sanitized);
+          setItems(localParsed);
         } else {
           setItems([]);
         }
@@ -152,14 +129,38 @@ export function useLocalInventory() {
         } else {
           setNotifications([]);
         }
-
       } catch (err) {
-        console.error('Failed to read inventory data', err);
-        setItems([]);
-        setUsageLog([]);
-        setNotifications([]);
+        console.error('Failed to read local inventory cache', err);
       } finally {
         setIsLoaded(true);
+      }
+
+      // 2. Fetch and revalidate from remote backend in background
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+      if (API_BASE && token && user) {
+        try {
+          const response = await fetch(`${API_BASE}/api/inventory`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.items) {
+              const remoteItems = data.items.map(sanitizeItem).filter(Boolean) as LocalItem[];
+              
+              // Only update state & cache if remote items are actually different
+              if (JSON.stringify(remoteItems) !== JSON.stringify(localParsed)) {
+                setItems(remoteItems);
+                localStorage.setItem(storageKey, JSON.stringify(remoteItems));
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to revalidate remote inventory', err);
+        }
       }
     };
 
