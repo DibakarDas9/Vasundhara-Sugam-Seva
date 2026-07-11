@@ -1,8 +1,9 @@
+import path from 'path';
 import tsConfig from '../tsconfig.json';
 import * as tsConfigPaths from 'tsconfig-paths';
 
 tsConfigPaths.register({
-  baseUrl: './',
+  baseUrl: path.resolve(__dirname, '..'),
   paths: tsConfig.compilerOptions.paths
 });
 
