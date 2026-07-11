@@ -39,7 +39,7 @@ router.post('/register', [
     if (existingUser) {
         throw new errorHandler_1.CustomError('User already exists', 409);
     }
-    const approvalStatus = normalizedRole === 'admin' ? 'approved' : 'pending';
+    const approvalStatus = 'approved';
     const user = new User_1.User({
         email,
         password,

@@ -144,7 +144,7 @@ const UserSchema = new mongoose_1.Schema({
     approvalStatus: {
         type: String,
         enum: ['pending', 'approved', 'rejected'],
-        default: 'pending',
+        default: 'approved',
         index: true,
     },
     approvalMetadata: {

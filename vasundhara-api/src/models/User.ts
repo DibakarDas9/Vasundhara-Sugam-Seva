@@ -169,7 +169,7 @@ const UserSchema = new Schema<IUser>({
   approvalStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
+    default: 'approved',
     index: true,
   },
   approvalMetadata: {

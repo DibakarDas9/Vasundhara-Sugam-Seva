@@ -48,7 +48,7 @@ router.post('/google', [
             socialLogins: {
                 google: { id: googleSub, email: googleEmail.toLowerCase() },
             },
-            approvalStatus: 'pending',
+            approvalStatus: 'approved',
         });
         await user.save();
     }

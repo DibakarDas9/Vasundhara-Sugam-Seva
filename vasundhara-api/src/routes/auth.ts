@@ -97,7 +97,7 @@ router.post('/register', [
   }
 
   // Create new user
-  const approvalStatus = normalizedRole === 'admin' ? 'approved' : 'pending';
+  const approvalStatus = 'approved';
 
   const user = new User({
     email,
