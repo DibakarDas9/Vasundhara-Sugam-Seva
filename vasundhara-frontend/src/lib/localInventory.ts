@@ -92,7 +92,8 @@ export function useLocalInventory() {
 
   // Load from storage when user changes or event triggers
   useEffect(() => {
-    const loadItems = () => {
+    setIsLoaded(false);
+    const loadItems = async () => {
       if (!storageKey) {
         setItems([]);
         setUsageLog([]);
@@ -100,6 +101,32 @@ export function useLocalInventory() {
         setIsLoaded(true);
         return;
       }
+
+      // Try backend sync first if logged in
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
+      if (API_BASE && token && user) {
+        try {
+          const response = await fetch(`${API_BASE}/api/inventory`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.items) {
+              setItems(data.items.map(sanitizeItem).filter(Boolean) as LocalItem[]);
+              setIsLoaded(true);
+              return;
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to load remote inventory, falling back to local storage', err);
+        }
+      }
+
+      // Local storage fallback
       try {
         const rawItems = localStorage.getItem(storageKey);
         if (rawItems) {
@@ -153,7 +180,7 @@ export function useLocalInventory() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('local-inventory-update', handleLocalUpdate);
     };
-  }, [storageKey, usageLogKey, notificationsKey]);
+  }, [storageKey, usageLogKey, notificationsKey, user]);
 
   // Save to storage whenever items change
   useEffect(() => {
@@ -166,11 +193,25 @@ export function useLocalInventory() {
       if (currentStored !== newString) {
         localStorage.setItem(storageKey, newString);
         window.dispatchEvent(new Event('local-inventory-update'));
+
+        // Push update to backend in the background if logged in
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+        if (API_BASE && token && user) {
+          fetch(`${API_BASE}/api/inventory/sync`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ items })
+          }).catch(err => console.warn('Background inventory sync failed', err));
+        }
       }
     } catch (err) {
       console.error('Failed to write inventory', err);
     }
-  }, [items, isLoaded, storageKey]);
+  }, [items, isLoaded, storageKey, user]);
 
   // Save usage log
   useEffect(() => {
