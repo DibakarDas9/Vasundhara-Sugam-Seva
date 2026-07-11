@@ -3,7 +3,20 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { config } from './config/config';
 
+import { connectDatabase } from './config/database';
+
 const app = express();
+
+// Database Connection Middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDatabase();
+    next();
+  } catch (error) {
+    console.error('Database connection middleware error:', error);
+    next(error);
+  }
+});
 
 // Middleware
 app.use(helmet());
