@@ -69,6 +69,19 @@ function normalizeLocation(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function isLocationMatch(loc1: string, loc2: string): boolean {
+  if (!loc1 || !loc2) return false;
+  const clean1 = loc1.toLowerCase();
+  const clean2 = loc2.toLowerCase();
+  if (clean1.includes(clean2) || clean2.includes(clean1)) return true;
+
+  const ignoreWords = new Set(['india', 'and', 'the', 'near', 'east', 'west', 'north', 'south']);
+  const words1 = clean1.split(/[,\s]+/).map(w => w.trim()).filter(w => w.length > 2 && !ignoreWords.has(w));
+  const words2 = clean2.split(/[,\s]+/).map(w => w.trim()).filter(w => w.length > 2 && !ignoreWords.has(w));
+
+  return words1.some(w => words2.includes(w));
+}
+
 function formatDate(value: string) {
   if (!value) return 'Not provided';
 
@@ -216,7 +229,7 @@ function MarketplaceContent() {
         // If nearby listings: show others' listings matching location that are available
         const matchesFeed = activeFeedTab === 'my'
           ? (listing.ownerId === userId || listing.ownerId === 'local-user')
-          : (normalizeLocation(listing.location) === activeLocation &&
+          : (isLocationMatch(listing.location, currentLocation) &&
              listing.ownerId !== userId &&
              listing.ownerId !== 'local-user' &&
              listing.status === 'available');

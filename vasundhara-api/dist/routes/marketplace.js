@@ -12,9 +12,14 @@ router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const location = typeof req.query.location === 'string' ? req.query.location.trim() : '';
     let query = {};
     if (location) {
-        const escaped = location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const normalized = escaped.replace(/\s+/g, ' ');
-        query.location = { $regex: new RegExp('^' + normalized + '$', 'i') };
+        const cleanLoc = location.toLowerCase();
+        const ignoreWords = new Set(['india', 'and', 'the', 'near', 'east', 'west', 'north', 'south']);
+        const keywords = cleanLoc.split(/[,\s]+/).map(w => w.trim()).filter(w => w.length > 2 && !ignoreWords.has(w));
+        if (keywords.length > 0) {
+            const escapedKeywords = keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            const regexPatterns = escapedKeywords.map(k => new RegExp(k, 'i'));
+            query.$or = regexPatterns.map(pattern => ({ location: { $regex: pattern } }));
+        }
     }
     const list = await MarketplaceListing_1.MarketplaceListing.find(query).sort({ createdAt: -1 });
     const mappedListings = list.map(l => ({
