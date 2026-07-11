@@ -23,6 +23,16 @@ import {
   PlusIcon,
 } from '@heroicons/react/24/outline';
 
+function getSessionGuestId(): string {
+  if (typeof window === 'undefined') return 'local-user';
+  let guestId = localStorage.getItem('vasundhara_guest_session_id');
+  if (!guestId) {
+    guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('vasundhara_guest_session_id', guestId);
+  }
+  return guestId;
+}
+
 type MarketplaceFormState = {
   itemName: string;
   expiryDate: string;
@@ -221,17 +231,16 @@ function MarketplaceContent() {
 
   const visibleListings = useMemo(() => {
     const activeLocation = normalizeLocation(currentLocation);
-    const userId = user?.id || 'local-user';
+    const userId = user?.id || getSessionGuestId();
 
     return listings
       .filter(listing => {
         // If my listings: show user's own listings regardless of location
         // If nearby listings: show others' listings matching location that are available
         const matchesFeed = activeFeedTab === 'my'
-          ? (listing.ownerId === userId || listing.ownerId === 'local-user')
+          ? (listing.ownerId === userId)
           : (isLocationMatch(listing.location, currentLocation) &&
              listing.ownerId !== userId &&
-             listing.ownerId !== 'local-user' &&
              listing.status === 'available');
 
         const matchesCategory = filterCategory === 'All' || listing.category === filterCategory;
@@ -369,7 +378,7 @@ function MarketplaceContent() {
         price: priceNum,
         isFree: isFree,
         image: formData.image || undefined,
-        ownerId: user?.id || 'local-user',
+        ownerId: user?.id || getSessionGuestId(),
         phone: formData.phone.trim() || user?.phoneNumber || '',
       };
 
@@ -389,7 +398,7 @@ function MarketplaceContent() {
         isFree: isFree,
         rating: 5,
         pickupTime: formData.expiryDate,
-        ownerId: user?.id || 'local-user',
+        ownerId: user?.id || getSessionGuestId(),
         ownerRole: (user?.role || 'household') as MarketplaceRole,
         coordinates: { lat: 0, lng: 0 },
         radiusKm: 0,

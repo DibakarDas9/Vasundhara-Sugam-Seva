@@ -33,6 +33,16 @@ import { generateProductImage } from '@/lib/productImages';
 import { toast } from 'react-hot-toast';
 import { loadMarketplaceListings, saveMarketplaceListings } from '@/lib/marketplaceStore';
 
+function getSessionGuestId(): string {
+  if (typeof window === 'undefined') return 'local-user';
+  let guestId = localStorage.getItem('vasundhara_guest_session_id');
+  if (!guestId) {
+    guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('vasundhara_guest_session_id', guestId);
+  }
+  return guestId;
+}
+
 const statusConfig = {
   critical: {
     icon: ExclamationTriangleIcon,
@@ -673,7 +683,7 @@ function MarketplaceShareVerificationModal({ item, onClose }: MarketplaceShareVe
         price: priceNum,
         isFree: finalFree,
         image: image || undefined,
-        ownerId: user?.id || 'local-user',
+        ownerId: user?.id || getSessionGuestId(),
         phone: phone.trim() || user?.phoneNumber || '',
       };
 
@@ -698,7 +708,7 @@ function MarketplaceShareVerificationModal({ item, onClose }: MarketplaceShareVe
         isFree: finalFree,
         rating: 5,
         pickupTime: expiryDate,
-        ownerId: user?.id || 'local-user',
+        ownerId: user?.id || getSessionGuestId(),
         ownerRole: (user?.role || 'household') as any,
         coordinates: { lat: 0, lng: 0 },
         radiusKm: 0,
