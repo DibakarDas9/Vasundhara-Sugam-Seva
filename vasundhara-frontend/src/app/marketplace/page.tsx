@@ -193,6 +193,7 @@ function MarketplaceContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isListingFormOpen, setIsListingFormOpen] = useState(false);
 
   // Filters
   const [filterCategory, setFilterCategory] = useState('All');
@@ -441,6 +442,7 @@ function MarketplaceContent() {
           : 'Item listed. Users searching from the same location can now see it.',
       );
       setFormData({ ...initialFormState, location: listingPayload.location });
+      setIsListingFormOpen(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -466,24 +468,44 @@ function MarketplaceContent() {
 
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-5xl space-y-6">
-            <Card>
-              <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <CardTitle className="text-xl">List item</CardTitle>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Add an item name, expiry date, and location. Items appear only for users using the same location.
-                  </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/50 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
+                  <MapPinIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    Location: {currentLocation || 'Not set'}
+                  </h2>
+                  <p className="text-xs text-gray-500">Showing surplus food listed in this area</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setIsListingFormOpen(!isListingFormOpen)}
+                  icon={<PlusIcon className="h-4 w-4" />}
+                >
+                  {isListingFormOpen ? 'Hide Listing Form' : 'List Item'}
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  icon={<MapPinIcon className="h-4 w-4" />}
                   onClick={() => setLocationDialogOpen(true)}
                 >
                   Change location
                 </Button>
-              </CardHeader>
-              <CardContent>
+              </div>
+            </div>
+
+            {isListingFormOpen && (
+              <Card className="transition-all duration-300 ease-in-out">
+                <CardHeader>
+                  <CardTitle className="text-xl">List item</CardTitle>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Add an item name, expiry date, and location. Items appear only for users using the same location.
+                  </p>
+                </CardHeader>
+                <CardContent>
                  <form className="space-y-5" onSubmit={handleListingSubmit}>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Input
@@ -661,6 +683,7 @@ function MarketplaceContent() {
                 </form>
               </CardContent>
             </Card>
+            )}
 
             <section className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
