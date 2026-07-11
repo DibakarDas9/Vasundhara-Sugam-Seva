@@ -40,8 +40,8 @@ const transports = [
   }),
 ];
 
-// Add file transport in production
-if (config.app.env === 'production') {
+// Add file transport in production (only if not running on Vercel/serverless)
+if (config.app.env === 'production' && !process.env.VERCEL) {
   transports.push(
     new winston.transports.File({
       filename: 'logs/error.log',

@@ -26,7 +26,7 @@ const transports = [
         format: winston_1.default.format.combine(winston_1.default.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }), winston_1.default.format.colorize({ all: true }), winston_1.default.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)),
     }),
 ];
-if (config_1.config.app.env === 'production') {
+if (config_1.config.app.env === 'production' && !process.env.VERCEL) {
     transports.push(new winston_1.default.transports.File({
         filename: 'logs/error.log',
         level: 'error',
