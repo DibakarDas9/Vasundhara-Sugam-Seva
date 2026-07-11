@@ -36,6 +36,7 @@ interface User {
   isActive: boolean;
   profileImage?: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
+  phoneNumber?: string;
   preferences: {
     notifications: boolean;
     alerts: boolean;

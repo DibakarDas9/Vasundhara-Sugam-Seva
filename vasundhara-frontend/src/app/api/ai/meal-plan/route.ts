@@ -84,7 +84,7 @@ Use these visible ingredients when possible: ${ingredients}.
 Style: plated finished recipe, natural daylight, clean table, no people, no text, no watermark, no logo, square crop.`;
 }
 
-async function generateRecipeImage(suggestion: any) {
+async function generateRecipeImage(suggestion: any, apiKey: string) {
   try {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent`,
@@ -92,7 +92,7 @@ async function generateRecipeImage(suggestion: any) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY!,
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
           contents: [
@@ -123,28 +123,63 @@ function buildPrompt({
   items,
   dietaryPreferences,
   windowDays,
+  weight,
+  height,
+  bmi,
 }: {
   items: any[];
   dietaryPreferences: string[];
   windowDays: number;
+  weight?: number;
+  height?: number;
+  bmi?: number;
 }) {
   const inventorySummary = items
     .slice(0, 60)
     .map(formatInventoryLine)
     .join('\n');
 
+  let dietDetails = '';
+  if (dietaryPreferences.length > 0 && bmi) {
+    let dietCategory = 'Healthy/Normal';
+    let recommendations = 'Suggest standard, well-balanced recipes that help maintain weight and overall vitality.';
+    if (bmi < 18.5) {
+      dietCategory = 'Underweight';
+      recommendations = 'Focus strictly on nutrient-dense, calorie-dense, and high-protein recipes suitable for healthy weight gain.';
+    } else if (bmi < 25) {
+      dietCategory = 'Healthy/Normal';
+      recommendations = 'Focus on balanced recipes with moderate portions to maintain a healthy weight.';
+    } else if (bmi < 30) {
+      dietCategory = 'Overweight';
+      recommendations = 'Focus on low-calorie, high-fiber, low-carb, and high-protein recipes suitable for weight management and moderate weight loss.';
+    } else {
+      dietCategory = 'Obese';
+      recommendations = 'Focus on portion-controlled, high-fiber, low-calorie, and high-protein recipes suitable for weight loss.';
+    }
+
+    dietDetails = `\n
+DIETARY REQUIREMENT:
+The user has enabled Dietary Mode. Here are their biometrics:
+- Weight: ${weight} kg
+- Height: ${height} cm
+- BMI: ${bmi.toFixed(1)} (${dietCategory})
+Please strictly tailor the recipe suggestions for a ${dietCategory} individual. Specifically: ${recommendations}
+Ensure all suggested recipes align with this goal. Include appropriate calories per recipe: Breakfast (150-350 kcal), Lunch/Dinner (400-650 kcal), Snacks (80-200 kcal) depending on dietary status.`;
+  }
+
   return `You are an AI chef helping a household reduce food waste.
 Suggest meals based on the inventory below. Prioritize items expiring within the next ${windowDays} days, but use all available inventory when helpful.
 
-Dietary preferences: ${dietaryPreferences.join(', ') || 'none provided'}
+Dietary preferences: ${dietaryPreferences.join(', ') || 'none provided'}${dietDetails}
 
 Rules:
 - Suggest exactly 4 practical recipes: one Breakfast, one Lunch, one Dinner, and one Snacks.
 - Use inventory ingredients first.
-- Avoid suggesting meals that require many missing ingredients.
-- Respect dietary preferences strictly.
+- Suggest only recipes that can be made with the inventory provided (avoid recipes requiring lots of missing ingredients).
+- Respect dietary preferences and biometric diet status strictly.
 - Keep each summary short and useful.
 - Include clear cooking steps for every recipe.
+- For each recipe, provide a "youtubeQueries" array containing exactly 2 specific search queries that can be used on YouTube to find cooking videos for this recipe (e.g. ["how to make lentil soup", "simple lentil rice khichdi recipe"]).
 - Return only valid JSON. Do not use markdown.
 
 Inventory:
@@ -166,7 +201,11 @@ Return this exact JSON shape:
       "steps": ["step 1", "step 2", "step 3"],
       "servings": 2,
       "calories": 420,
-      "imagePrompt": "short food photo prompt for this finished recipe"
+      "imagePrompt": "short food photo prompt for this finished recipe",
+      "youtubeQueries": [
+        "youtube search query 1",
+        "youtube search query 2"
+      ]
     }
   ],
   "shoppingList": ["optional extra pantry item"],
@@ -180,13 +219,21 @@ export async function POST(request: NextRequest) {
     items = [],
     dietaryPreferences = [],
     windowDays = 5,
+    apiKey: clientApiKey,
+    weight,
+    height,
+    bmi,
   }: {
     items: any[];
     dietaryPreferences?: string[];
     windowDays?: number;
+    apiKey?: string;
+    weight?: number;
+    height?: number;
+    bmi?: number;
   } = body;
 
-  if (!Array.isArray(items) || items.length === 0) {
+  if (!Array.isArray(items) || items.length <= 2) {
     return NextResponse.json({ suggestions: [] });
   }
 
@@ -197,7 +244,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!GEMINI_API_KEY) {
+  const apiKey = clientApiKey || GEMINI_API_KEY;
+  if (!apiKey) {
     return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
   }
 
@@ -225,6 +273,9 @@ export async function POST(request: NextRequest) {
       items,
       dietaryPreferences: safePreferences,
       windowDays: normalizedWindow,
+      weight,
+      height,
+      bmi,
     });
 
     console.info('[meal-plan] gemini request', {
@@ -232,6 +283,7 @@ export async function POST(request: NextRequest) {
       itemCount: items.length,
       prefCount: safePreferences.length,
       windowDays: normalizedWindow,
+      hasCustomApiKey: !!clientApiKey,
     });
 
     const response = await fetch(
@@ -240,7 +292,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': GEMINI_API_KEY,
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
           contents: [
@@ -252,7 +304,7 @@ export async function POST(request: NextRequest) {
             temperature: 0.6,
             topK: 32,
             topP: 0.9,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 8192,
             responseMimeType: 'application/json',
           },
         }),
@@ -284,31 +336,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Gemini response was not valid meal JSON' }, { status: 502 });
     }
 
-    const normalizedSuggestions = parsed.suggestions.slice(0, 4).map((suggestion: any, index: number) => ({
-      id: suggestion?.id || `${normalizeMealSlot(suggestion?.mealSlot).toLowerCase()}-${index + 1}`,
-      name: suggestion?.name || `Recipe ${index + 1}`,
-      ingredients: Array.isArray(suggestion?.ingredients) ? suggestion.ingredients : [],
-      prepTime: suggestion?.prepTime || suggestion?.prep_time || '20 min',
-      difficulty: suggestion?.difficulty || 'Easy',
-      rating: typeof suggestion?.rating === 'number' ? suggestion.rating : 4.5,
-      summary: suggestion?.summary || suggestion?.description || '',
-      usedIngredients: Array.isArray(suggestion?.usedIngredients)
-        ? suggestion.usedIngredients
-        : Array.isArray(suggestion?.ingredients)
-          ? suggestion.ingredients
-          : [],
-      mealSlot: normalizeMealSlot(suggestion?.mealSlot),
-      steps: Array.isArray(suggestion?.steps) ? suggestion.steps : [],
-      servings: typeof suggestion?.servings === 'number' ? suggestion.servings : undefined,
-      calories: typeof suggestion?.calories === 'number' ? suggestion.calories : undefined,
-      imagePrompt: suggestion?.imagePrompt || '',
-      imageUrl: '',
-    }));
+    const normalizedSuggestions = parsed.suggestions.slice(0, 4).map((suggestion: any, index: number) => {
+      let queries: string[] = [];
+      if (Array.isArray(suggestion?.youtubeQueries)) {
+        queries = suggestion.youtubeQueries.filter((x: any) => typeof x === 'string' && x.trim());
+      } else if (Array.isArray(suggestion?.youtubeLinks)) {
+        // Fallback if the model returned youtubeLinks instead of queries
+        queries = suggestion.youtubeLinks.filter((x: any) => typeof x === 'string' && x.trim());
+      }
+
+      if (queries.length === 0 && typeof suggestion?.youtubeUrl === 'string' && suggestion.youtubeUrl.startsWith('http')) {
+        queries.push(suggestion.youtubeUrl);
+      }
+
+      if (queries.length < 1) {
+        queries.push(`how to cook ${suggestion?.name || 'recipe'}`);
+      }
+      if (queries.length < 2) {
+        queries.push(`${suggestion?.name || 'recipe'} easy cooking tutorial`);
+      }
+
+      const finalYoutubeLinks = queries.slice(0, 2).map((q) => {
+        if (q.startsWith('http')) return q;
+        return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+      });
+
+      return {
+        id: suggestion?.id || `${normalizeMealSlot(suggestion?.mealSlot).toLowerCase()}-${index + 1}`,
+        name: suggestion?.name || `Recipe ${index + 1}`,
+        ingredients: Array.isArray(suggestion?.ingredients) ? suggestion.ingredients : [],
+        prepTime: suggestion?.prepTime || suggestion?.prep_time || '20 min',
+        difficulty: suggestion?.difficulty || 'Easy',
+        rating: typeof suggestion?.rating === 'number' ? suggestion.rating : 4.5,
+        summary: suggestion?.summary || suggestion?.description || '',
+        usedIngredients: Array.isArray(suggestion?.usedIngredients)
+          ? suggestion.usedIngredients
+          : Array.isArray(suggestion?.ingredients)
+            ? suggestion.ingredients
+            : [],
+        mealSlot: normalizeMealSlot(suggestion?.mealSlot),
+        steps: Array.isArray(suggestion?.steps) ? suggestion.steps : [],
+        servings: typeof suggestion?.servings === 'number' ? suggestion.servings : undefined,
+        calories: typeof suggestion?.calories === 'number' ? suggestion.calories : undefined,
+        imagePrompt: suggestion?.imagePrompt || '',
+        imageUrl: '',
+        youtubeUrl: finalYoutubeLinks[0],
+        youtubeLinks: finalYoutubeLinks,
+      };
+    });
 
     const suggestionsWithImages = await Promise.all(
       normalizedSuggestions.map(async (suggestion: any) => ({
         ...suggestion,
-        imageUrl: await generateRecipeImage(suggestion),
+        imageUrl: await generateRecipeImage(suggestion, apiKey),
       })),
     );
 

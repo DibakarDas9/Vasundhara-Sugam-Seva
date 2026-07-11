@@ -28,6 +28,7 @@ export interface MarketplaceListing {
   radiusKm: number;
   status: MarketplaceStatus;
   createdAt: number;
+  phone?: string;
   reservedBy?: string;
   reservedAt?: number;
 }

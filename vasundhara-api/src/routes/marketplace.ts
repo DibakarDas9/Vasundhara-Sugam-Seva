@@ -4,35 +4,41 @@
 
 import { Request, Response, Router } from 'express';
 import { asyncHandler } from '@/middleware/errorHandler';
-
-type MarketplaceListing = {
-  id: string;
-  title: string;
-  expiryDate: string;
-  location: string;
-  postedBy: string;
-  postedTime: string;
-  createdAt: number;
-};
+import { MarketplaceListing } from '@/models/MarketplaceListing';
+import mongoose from 'mongoose';
 
 const router = Router();
-const listings: MarketplaceListing[] = [];
-
-function normalizeLocation(value: string) {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
-}
 
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
-  const location = typeof req.query.location === 'string' ? req.query.location : '';
-  const normalizedLocation = normalizeLocation(location);
+  const location = typeof req.query.location === 'string' ? req.query.location.trim() : '';
 
-  const visibleListings = normalizedLocation
-    ? listings.filter(listing => normalizeLocation(listing.location) === normalizedLocation)
-    : listings;
+  let query: any = {};
+  if (location) {
+    const escaped = location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const normalized = escaped.replace(/\s+/g, ' ');
+    query.location = { $regex: new RegExp('^' + normalized + '$', 'i') };
+  }
 
-  res.json({
-    listings: visibleListings.sort((left, right) => right.createdAt - left.createdAt),
-  });
+  const list = await MarketplaceListing.find(query).sort({ createdAt: -1 });
+
+  const mappedListings = list.map(l => ({
+    id: l.id || l._id.toString(),
+    title: l.title,
+    expiryDate: l.expiryDate,
+    location: l.location,
+    postedBy: l.postedBy,
+    postedTime: l.postedTime,
+    createdAt: l.createdAt.getTime(),
+    category: l.category,
+    price: l.price,
+    isFree: l.isFree,
+    image: l.image,
+    ownerId: l.ownerId,
+    phone: l.phone,
+    status: l.status,
+  }));
+
+  res.json({ listings: mappedListings });
 }));
 
 router.post('/', asyncHandler(async (req: Request, res: Response) => {
@@ -42,25 +48,91 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
   const postedBy = typeof req.body.postedBy === 'string' && req.body.postedBy.trim()
     ? req.body.postedBy.trim()
     : 'Marketplace user';
+  const category = typeof req.body.category === 'string' ? req.body.category.trim() : 'Other';
+  const price = typeof req.body.price === 'number' ? req.body.price : 0;
+  const isFree = typeof req.body.isFree === 'boolean' ? req.body.isFree : (price === 0);
+  const image = typeof req.body.image === 'string' ? req.body.image : undefined;
+  const ownerId = typeof req.body.ownerId === 'string' ? req.body.ownerId.trim() : 'local-user';
+  const phone = typeof req.body.phone === 'string' ? req.body.phone.trim() : '';
 
   if (!title || !expiryDate || !location) {
     res.status(400).json({ error: 'Item name, expiry date, and location are required.' });
     return;
   }
 
-  const listing: MarketplaceListing = {
-    id: `market_${Date.now()}`,
+  const customId = `market_${Date.now()}`;
+
+  const listing = new MarketplaceListing({
+    id: customId,
     title,
     expiryDate,
     location,
     postedBy,
     postedTime: 'Just now',
-    createdAt: Date.now(),
-  };
+    category,
+    price,
+    isFree,
+    image,
+    ownerId,
+    phone,
+    status: 'available',
+  });
 
-  listings.unshift(listing);
+  await listing.save();
 
-  res.status(201).json({ listing });
+  res.status(201).json({
+    listing: {
+      id: listing.id,
+      title: listing.title,
+      expiryDate: listing.expiryDate,
+      location: listing.location,
+      postedBy: listing.postedBy,
+      postedTime: listing.postedTime,
+      createdAt: listing.createdAt.getTime(),
+      category: listing.category,
+      price: listing.price,
+      isFree: listing.isFree,
+      image: listing.image,
+      ownerId: listing.ownerId,
+      phone: listing.phone,
+      status: listing.status,
+    }
+  });
+}));
+
+router.post('/:id/claim', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const query = mongoose.isValidObjectId(id) ? { _id: id } : { id: id };
+  const listing = await MarketplaceListing.findOne(query);
+
+  if (!listing) {
+    res.status(404).json({ error: 'Listing not found' });
+    return;
+  }
+
+  listing.status = 'claimed';
+  await listing.save();
+
+  res.json({
+    success: true,
+    listing: {
+      id: listing.id || listing._id.toString(),
+      title: listing.title,
+      expiryDate: listing.expiryDate,
+      location: listing.location,
+      postedBy: listing.postedBy,
+      postedTime: listing.postedTime,
+      createdAt: listing.createdAt.getTime(),
+      category: listing.category,
+      price: listing.price,
+      isFree: listing.isFree,
+      image: listing.image,
+      ownerId: listing.ownerId,
+      phone: listing.phone,
+      status: listing.status,
+    }
+  });
 }));
 
 export default router;

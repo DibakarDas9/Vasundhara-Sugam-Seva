@@ -7,7 +7,15 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+
+// CORS: allow your deployed frontend origins (and avoid defaulting to localhost-only).
+app.use(
+  cors({
+    origin: config.cors.allowedOrigins,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

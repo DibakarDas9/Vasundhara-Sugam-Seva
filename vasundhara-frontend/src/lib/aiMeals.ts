@@ -17,6 +17,8 @@ export type AiMealSuggestion = {
   calories?: number;
   imageUrl?: string;
   imagePrompt?: string;
+  youtubeUrl?: string;
+  youtubeLinks?: string[];
 };
 
 const DEFAULT_ML_URL = 'http://localhost:8000';
@@ -36,6 +38,10 @@ interface FetchAiMealsOptions {
   items: LocalItem[];
   dietaryPreferences?: string[];
   windowDays?: number;
+  apiKey?: string;
+  weight?: number;
+  height?: number;
+  bmi?: number;
   signal?: AbortSignal;
 }
 
@@ -43,12 +49,25 @@ export async function fetchAiMealSuggestions({
   items,
   dietaryPreferences = [],
   windowDays = 5,
+  apiKey,
+  weight,
+  height,
+  bmi,
   signal,
 }: FetchAiMealsOptions): Promise<AiMealSuggestion[]> {
   if (!items.length) return [];
 
   try {
-    const aiSuggestions = await callServerAiEndpoint({ items, dietaryPreferences, windowDays, signal });
+    const aiSuggestions = await callServerAiEndpoint({
+      items,
+      dietaryPreferences,
+      windowDays,
+      apiKey,
+      weight,
+      height,
+      bmi,
+      signal,
+    });
     if (aiSuggestions.length) return aiSuggestions;
   } catch (err) {
     console.warn('AI route failed, falling back to ML service', err);
@@ -61,12 +80,16 @@ async function callServerAiEndpoint({
   items,
   dietaryPreferences,
   windowDays,
+  apiKey,
+  weight,
+  height,
+  bmi,
   signal,
 }: FetchAiMealsOptions): Promise<AiMealSuggestion[]> {
   const response = await fetch('/api/ai/meal-plan', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items, dietaryPreferences, windowDays }),
+    body: JSON.stringify({ items, dietaryPreferences, windowDays, apiKey, weight, height, bmi }),
     signal,
   });
 
@@ -97,6 +120,10 @@ async function callServerAiEndpoint({
     calories: typeof suggestion.calories === 'number' ? suggestion.calories : undefined,
     imageUrl: typeof suggestion.imageUrl === 'string' ? suggestion.imageUrl : '',
     imagePrompt: typeof suggestion.imagePrompt === 'string' ? suggestion.imagePrompt : '',
+    youtubeUrl: typeof suggestion.youtubeUrl === 'string' ? suggestion.youtubeUrl : undefined,
+    youtubeLinks: Array.isArray(suggestion.youtubeLinks)
+      ? suggestion.youtubeLinks.filter((x: any) => typeof x === 'string')
+      : undefined,
   }));
 }
 
@@ -130,25 +157,32 @@ async function callMlFallback({
   const payload = await response.json();
   const suggestions = Array.isArray(payload?.suggestions) ? payload.suggestions : [];
 
-  return suggestions.map((suggestion: any, index: number) => ({
-    id: suggestion.id ?? `${Date.now()}-ml-${index}`,
-    name: suggestion.name ?? `AI Meal ${index + 1}`,
-    ingredients: Array.isArray(suggestion.ingredients) ? suggestion.ingredients : [],
-    prepTime: suggestion.prep_time ?? suggestion.prepTime ?? '15 min',
-    difficulty: suggestion.difficulty ?? 'Easy',
-    rating: typeof suggestion.rating === 'number' ? suggestion.rating : 4.2,
-    summary: suggestion.summary ?? suggestion.description ?? '',
-    usedIngredients: Array.isArray(suggestion.ingredients)
-      ? suggestion.ingredients.filter((ingredient: string) =>
-          expiringItems.some((item) => ingredient.toLowerCase().includes(item.toLowerCase())),
-        )
-      : [],
-    suggestedMeal: suggestion.meal_slot ?? suggestion.mealTime ?? 'Any',
-    mealSlot: suggestion.meal_slot ?? suggestion.mealTime ?? 'Snacks',
-    steps: Array.isArray(suggestion.steps) ? suggestion.steps : [],
-    servings: typeof suggestion.servings === 'number' ? suggestion.servings : undefined,
-    calories: typeof suggestion.calories === 'number' ? suggestion.calories : undefined,
-    imageUrl: typeof suggestion.imageUrl === 'string' ? suggestion.imageUrl : '',
-    imagePrompt: typeof suggestion.imagePrompt === 'string' ? suggestion.imagePrompt : '',
-  }));
+  return suggestions.map((suggestion: any, index: number) => {
+    const mealName = suggestion.name ?? `AI Meal ${index + 1}`;
+    return {
+      id: suggestion.id ?? `${Date.now()}-ml-${index}`,
+      name: mealName,
+      ingredients: Array.isArray(suggestion.ingredients) ? suggestion.ingredients : [],
+      prepTime: suggestion.prep_time ?? suggestion.prepTime ?? '15 min',
+      difficulty: suggestion.difficulty ?? 'Easy',
+      rating: typeof suggestion.rating === 'number' ? suggestion.rating : 4.2,
+      summary: suggestion.summary ?? suggestion.description ?? '',
+      usedIngredients: Array.isArray(suggestion.ingredients)
+        ? suggestion.ingredients.filter((ingredient: string) =>
+            expiringItems.some((item) => ingredient.toLowerCase().includes(item.toLowerCase())),
+          )
+        : [],
+      suggestedMeal: suggestion.meal_slot ?? suggestion.mealTime ?? 'Any',
+      mealSlot: suggestion.meal_slot ?? suggestion.mealTime ?? 'Snacks',
+      steps: Array.isArray(suggestion.steps) ? suggestion.steps : [],
+      servings: typeof suggestion.servings === 'number' ? suggestion.servings : undefined,
+      calories: typeof suggestion.calories === 'number' ? suggestion.calories : undefined,
+      imageUrl: typeof suggestion.imageUrl === 'string' ? suggestion.imageUrl : '',
+      imagePrompt: typeof suggestion.imagePrompt === 'string' ? suggestion.imagePrompt : '',
+      youtubeLinks: [
+        `https://www.youtube.com/results?search_query=${encodeURIComponent(mealName)}`,
+        `https://www.youtube.com/results?search_query=${encodeURIComponent(mealName + ' cooking tutorial')}`
+      ],
+    };
+  });
 }

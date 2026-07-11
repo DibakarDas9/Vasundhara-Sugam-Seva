@@ -7,6 +7,7 @@ import InventoryModal from '@/components/inventory/InventoryModal';
 import UseItemModal from '@/components/inventory/UseItemModal';
 import { useLocalInventory } from '@/lib/localInventory';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
@@ -24,11 +25,13 @@ import {
   Squares2X2Icon,
   ListBulletIcon,
   QrCodeIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
 import { calculateDaysUntilExpiry } from '@/lib/utils';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { generateProductImage } from '@/lib/productImages';
 import { toast } from 'react-hot-toast';
+import { loadMarketplaceListings, saveMarketplaceListings } from '@/lib/marketplaceStore';
 
 const statusConfig = {
   critical: {
@@ -86,9 +89,14 @@ function InventoryContent() {
   const [editing, setEditing] = useState<number | null>(null);
   const [usingItem, setUsingItem] = useState<number | null>(null);
   const [addingItem, setAddingItem] = useState<number | null>(null);
+  const [sharingItem, setSharingItem] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [generatingPhotoFor, setGeneratingPhotoFor] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'tile' | 'list'>('tile');
+
+  function handleShareItem(id: number) {
+    setSharingItem(id);
+  }
 
   function handleAddItem() {
     setEditing(null);
@@ -378,6 +386,17 @@ function InventoryContent() {
                           <Button size="sm" variant="outline" className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" onClick={() => handleAddItemStock(item.id)}>
                             {t('inventory.add', 'Add')}
                           </Button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShareItem(item.id);
+                            }}
+                            className="inline-flex h-9 px-3.5 items-center justify-center rounded-lg border border-amber-200 bg-amber-50/20 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 text-xs font-bold transition"
+                            title="List on Marketplace"
+                          >
+                            Share
+                          </button>
                           <Button size="sm" className="flex-1" onClick={() => handleUseNow(item.id)}>
                             {t('inventory.useNow', 'Use Now')}
                           </Button>
@@ -462,6 +481,17 @@ function InventoryContent() {
                           </div>
 
                           <div className="flex flex-wrap items-center justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShareItem(item.id);
+                                }}
+                                className="inline-flex h-8.5 px-2.5 items-center justify-center rounded-md border border-amber-200 bg-amber-50/20 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 text-xs font-bold transition"
+                                title="List on Marketplace"
+                              >
+                                Share
+                              </button>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -548,8 +578,340 @@ function InventoryContent() {
                 }}
               />
             )}
+
+            {sharingItem !== null && (
+              <MarketplaceShareVerificationModal
+                item={items.find(i => i.id === sharingItem)!}
+                onClose={() => setSharingItem(null)}
+              />
+            )}
           </div>
         </main>
+      </div>
+    </div>
+  );
+}
+
+interface MarketplaceShareVerificationModalProps {
+  item: any;
+  onClose: () => void;
+}
+
+function MarketplaceShareVerificationModal({ item, onClose }: MarketplaceShareVerificationModalProps) {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  
+  const savedLocation = typeof window !== 'undefined' ? localStorage.getItem('vasundhara_marketplace_location') || '' : '';
+  
+  const validCategories = ['Vegetables', 'Fruits', 'Dairy', 'Grains', 'Protein', 'Bakery', 'Packaged Food', 'Beverages', 'Other'];
+  let matchedCategory = 'Other';
+  if (item.category) {
+    const found = validCategories.find(c => c.toLowerCase() === item.category.toLowerCase());
+    if (found) matchedCategory = found;
+  }
+
+  const [itemName, setItemName] = useState(item.name || '');
+  const [expiryDate, setExpiryDate] = useState(item.expiryDate || new Date().toISOString().slice(0, 10));
+  const [category, setCategory] = useState(matchedCategory);
+  const [location, setLocation] = useState(savedLocation);
+  const [phone, setPhone] = useState(user?.phoneNumber || '');
+  const [price, setPrice] = useState('');
+  const [isFree, setIsFree] = useState(true);
+  const [image, setImage] = useState(item.photo || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+
+  const handleUseFormFetchLocation = async () => {
+    setIsFetchingLocation(true);
+    try {
+      const getCoords = (): Promise<{ lat: number; lng: number }> => {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) return reject(new Error('Geolocation not supported'));
+          navigator.geolocation.getCurrentPosition(
+            pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            reject,
+            { timeout: 10000 }
+          );
+        });
+      };
+      
+      const reverseGeocode = async (coords: { lat: number; lng: number }) => {
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.lat}&longitude=${coords.lng}&localityLanguage=en`);
+        const data = await response.json();
+        return [data.locality, data.city, data.principalSubdivision, data.countryName].filter(Boolean).join(', ');
+      };
+
+      const coords = await getCoords();
+      const name = await reverseGeocode(coords);
+      setLocation(name || `${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`);
+    } catch {
+      toast.error('Unable to fetch your location automatically.');
+    } finally {
+      setIsFetchingLocation(false);
+    }
+  };
+
+  const handleConfirmShare = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!itemName.trim() || !expiryDate || !location.trim() || !phone.trim()) {
+      toast.error('Item name, expiry date, location, and mobile number are required.');
+      return;
+    }
+
+    const priceNum = isFree ? 0 : (Number(price) || 0);
+    const finalFree = isFree || priceNum === 0;
+
+    setIsSubmitting(true);
+    try {
+      const ownerName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Marketplace user';
+      const listingPayload = {
+        title: itemName.trim(),
+        expiryDate,
+        location: location.trim(),
+        postedBy: ownerName,
+        category,
+        price: priceNum,
+        isFree: finalFree,
+        image: image || undefined,
+        ownerId: user?.id || 'local-user',
+        phone: phone.trim() || user?.phoneNumber || '',
+      };
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('vasundhara_marketplace_location', location.trim());
+      }
+
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+      const fallbackListing = {
+        id: `market_${Date.now()}`,
+        title: listingPayload.title,
+        description: `Expires on ${expiryDate}`,
+        category: listingPayload.category,
+        quantity: 1,
+        unit: 'item',
+        price: priceNum,
+        originalPrice: priceNum,
+        location: listingPayload.location,
+        postedBy: ownerName,
+        postedTime: 'Just now',
+        image: listingPayload.image || '/hero-slides/marketplace.png',
+        isFree: finalFree,
+        rating: 5,
+        pickupTime: expiryDate,
+        ownerId: user?.id || 'local-user',
+        ownerRole: (user?.role || 'household') as any,
+        coordinates: { lat: 0, lng: 0 },
+        radiusKm: 0,
+        status: 'available' as any,
+        createdAt: Date.now(),
+        phone: listingPayload.phone,
+      };
+
+      if (API_BASE) {
+        try {
+          const response = await fetch(`${API_BASE}/api/marketplace`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(listingPayload),
+          });
+          if (!response.ok) throw new Error('Marketplace save failed');
+        } catch {
+          const existingListings = loadMarketplaceListings();
+          saveMarketplaceListings([fallbackListing, ...existingListings]);
+        }
+      } else {
+        const existingListings = loadMarketplaceListings();
+        saveMarketplaceListings([fallbackListing, ...existingListings]);
+      }
+
+      toast.success('Successfully listed on Marketplace!');
+      onClose();
+    } catch {
+      toast.error('Failed to share item on marketplace.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isFormValid = Boolean(
+    itemName.trim() &&
+    expiryDate &&
+    location.trim() &&
+    phone.trim() &&
+    (isFree || (price.trim() && Number(price) > 0))
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-950 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4 border-b pb-3 dark:border-gray-800">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Verify Marketplace Details</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Review and verify the details before listing this item</p>
+          </div>
+          <button type="button" onClick={onClose} className="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleConfirmShare} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input
+              label="Item name"
+              value={itemName}
+              onChange={(e) => setItemName(e.target.value)}
+              required
+            />
+            <Input
+              label="Expiry date"
+              type="date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                Category
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40 text-gray-900 dark:text-white"
+                required
+              >
+                {validCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                Pricing
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">₹</span>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => {
+                      setPrice(e.target.value);
+                      if (Number(e.target.value) > 0) setIsFree(false);
+                      else setIsFree(true);
+                    }}
+                    disabled={isFree}
+                    className="w-full pl-7 pr-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500/40 outline-none disabled:bg-gray-50 disabled:text-gray-400 dark:disabled:bg-neutral-950 dark:disabled:text-neutral-600 transition"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant={isFree ? 'solid' : 'outline'}
+                  onClick={() => {
+                    const nextFree = !isFree;
+                    setIsFree(nextFree);
+                    if (nextFree) setPrice('');
+                  }}
+                  className={isFree ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''}
+                >
+                  {isFree ? '✓ Free' : 'Set Free'}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+            <Input
+              label="Location"
+              placeholder="Enter area, society, locality or ward"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+            />
+            <Button
+              type="button"
+              variant="outline"
+              icon={<MapPinIcon className="h-4 w-4" />}
+              loading={isFetchingLocation}
+              onClick={handleUseFormFetchLocation}
+            >
+              Auto fetch
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <Input
+              label="Mobile number"
+              type="tel"
+              placeholder="e.g., 9876543210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+              Product image
+            </label>
+            <div className="flex items-center gap-4">
+              {image ? (
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 bg-gray-50 flex-shrink-0 shadow-md">
+                  <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImage('')}
+                    className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full hover:bg-black transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label className="w-20 h-20 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 hover:border-emerald-500 cursor-pointer flex flex-col items-center justify-center bg-gray-50/50 dark:bg-neutral-900/50 text-gray-400 hover:text-emerald-600 transition-colors shadow-sm">
+                  <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-[10px] font-semibold">Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setImage(reader.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                      e.target.value = '';
+                    }}
+                    className="hidden"
+                  />
+                </label>
+              )}
+              <div className="text-xs text-gray-500">
+                You can keep the inventory photo or upload a new one. Max size 2MB.
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 border-t pt-4 dark:border-gray-800">
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!isFormValid || isSubmitting} loading={isSubmitting}>
+              List on Marketplace
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

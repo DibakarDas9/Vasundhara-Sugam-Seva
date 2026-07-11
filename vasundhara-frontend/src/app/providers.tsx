@@ -11,6 +11,7 @@ import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 import Splash from '@/components/Splash';
 import { MobileNavProvider } from '@/contexts/MobileNavContext';
 import { ThemeController } from '@/components/ThemeController';
+import { VardProvider } from '@/contexts/VardContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,16 +48,18 @@ export function Providers({ children }: ProvidersProps) {
       >
         <ThemeController />
         <LanguageProvider>
-          <AuthProvider>
-            <NotificationProvider>
-              <AnalyticsProvider>
-                <MobileNavProvider>
-                  {children}
-                  <Toaster position="top-center" />
-                </MobileNavProvider>
-              </AnalyticsProvider>
-            </NotificationProvider>
-          </AuthProvider>
+          <VardProvider>
+            <AuthProvider>
+              <NotificationProvider>
+                <AnalyticsProvider>
+                  <MobileNavProvider>
+                    {children}
+                    <Toaster position="top-center" />
+                  </MobileNavProvider>
+                </AnalyticsProvider>
+              </NotificationProvider>
+            </AuthProvider>
+          </VardProvider>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
