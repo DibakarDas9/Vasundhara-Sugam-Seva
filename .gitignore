@@ -42,3 +42,6 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Allow backend compiled output
+!vasundhara-api/dist/
