@@ -1,4 +1,11 @@
-import 'tsconfig-paths/register';
+import tsConfig from '../tsconfig.json';
+import * as tsConfigPaths from 'tsconfig-paths';
+
+tsConfigPaths.register({
+  baseUrl: './',
+  paths: tsConfig.compilerOptions.paths
+});
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
