@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/Button';
 import { useLocalInventory } from '@/lib/localInventory';
 import { detectFoodFromImage, DetectedFoodItem } from '@/lib/vardVision';
+import { compressImageToThumbnail } from '@/lib/utils';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Logo } from '@/components/ui/Logo';
 import { toast } from 'react-hot-toast';
@@ -146,9 +147,13 @@ function AiScanContent() {
   };
 
   // ---------- Add to inventory ----------
-  const addSelected = () => {
+  const addSelected = async () => {
     if (!results) return;
     let count = 0;
+    
+    // Compress image to a small thumbnail to prevent quota exceeded in localStorage / Vercel body limits
+    const thumbnail = imagePreview ? await compressImageToThumbnail(imagePreview) : '';
+
     results.forEach((item, idx) => {
       if (!selected.has(idx)) return;
       addItem({
@@ -158,7 +163,7 @@ function AiScanContent() {
         unit: item.unit,
         expiryDate: item.expiryDate || undefined,
         price: 0,
-        photo: imagePreview || '',
+        photo: thumbnail,
       });
       count++;
     });

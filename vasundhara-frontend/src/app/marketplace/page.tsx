@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { compressImageToThumbnail } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import {
   loadMarketplaceListings,
@@ -644,8 +645,10 @@ function MarketplaceContent() {
                               const file = e.target.files?.[0];
                               if (file) {
                                 const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  handleFormChange('image', reader.result as string);
+                                reader.onloadend = async () => {
+                                  const base64 = reader.result as string;
+                                  const compressed = await compressImageToThumbnail(base64);
+                                  handleFormChange('image', compressed);
                                 };
                                 reader.readAsDataURL(file);
                               }

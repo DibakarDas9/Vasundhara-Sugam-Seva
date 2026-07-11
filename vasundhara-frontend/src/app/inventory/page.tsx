@@ -27,7 +27,7 @@ import {
   QrCodeIcon,
   MapPinIcon,
 } from '@heroicons/react/24/outline';
-import { calculateDaysUntilExpiry } from '@/lib/utils';
+import { calculateDaysUntilExpiry, compressImageToThumbnail } from '@/lib/utils';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { generateProductImage } from '@/lib/productImages';
 import { toast } from 'react-hot-toast';
@@ -896,8 +896,10 @@ function MarketplaceShareVerificationModal({ item, onClose }: MarketplaceShareVe
                       const file = e.target.files?.[0];
                       if (file) {
                         const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setImage(reader.result as string);
+                        reader.onloadend = async () => {
+                          const base64 = reader.result as string;
+                          const compressed = await compressImageToThumbnail(base64);
+                          setImage(compressed);
                         };
                         reader.readAsDataURL(file);
                       }
