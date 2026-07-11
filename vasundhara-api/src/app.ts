@@ -21,10 +21,11 @@ app.use(async (req, res, next) => {
 // Middleware
 app.use(helmet());
 
-// CORS: allow your deployed frontend origins (and avoid defaulting to localhost-only).
 app.use(
   cors({
-    origin: config.cors.allowedOrigins,
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
     credentials: true,
   })
 );

@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
-const config_1 = require("./config/config");
 const database_1 = require("./config/database");
 const app = (0, express_1.default)();
 app.use(async (req, res, next) => {
@@ -21,7 +20,9 @@ app.use(async (req, res, next) => {
 });
 app.use((0, helmet_1.default)());
 app.use((0, cors_1.default)({
-    origin: config_1.config.cors.allowedOrigins,
+    origin: (origin, callback) => {
+        callback(null, true);
+    },
     credentials: true,
 }));
 app.use(express_1.default.json());
