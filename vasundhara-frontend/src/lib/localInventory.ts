@@ -182,36 +182,36 @@ export function useLocalInventory() {
     };
   }, [storageKey, usageLogKey, notificationsKey, user]);
 
-  // Save to storage whenever items change
-  useEffect(() => {
-    if (!isLoaded || !storageKey) return;
+  const saveInventory = useCallback((newItems: LocalItem[]) => {
+    if (!storageKey) return;
     try {
-      const currentStored = localStorage.getItem(storageKey);
-      const newString = JSON.stringify(items);
+      localStorage.setItem(storageKey, JSON.stringify(newItems));
+      window.dispatchEvent(new Event('local-inventory-update'));
 
-      // Only write and dispatch if actually changed to avoid loops
-      if (currentStored !== newString) {
-        localStorage.setItem(storageKey, newString);
-        window.dispatchEvent(new Event('local-inventory-update'));
-
-        // Push update to backend in the background if logged in
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-        if (API_BASE && token && user) {
-          fetch(`${API_BASE}/api/inventory/sync`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ items })
-          }).catch(err => console.warn('Background inventory sync failed', err));
-        }
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (API_BASE && token && user) {
+        fetch(`${API_BASE}/api/inventory/sync`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ items: newItems })
+        }).catch(err => console.warn('Background inventory sync failed', err));
       }
     } catch (err) {
       console.error('Failed to write inventory', err);
     }
-  }, [items, isLoaded, storageKey, user]);
+  }, [storageKey, user]);
+
+  const updateAndSaveItems = useCallback((updater: (prev: LocalItem[]) => LocalItem[]) => {
+    setItems(prev => {
+      const next = updater(prev);
+      saveInventory(next);
+      return next;
+    });
+  }, [saveInventory]);
 
   // Save usage log
   useEffect(() => {
@@ -282,7 +282,7 @@ export function useLocalInventory() {
     const capitalizedName = item.name ? capitalizeName(item.name) : 'New Item';
 
     // Check for existing item (case-insensitive) and merge quantities
-    setItems(prev => {
+    updateAndSaveItems(prev => {
       const existingItem = prev.find(
         i => (i.name || '').toLowerCase() === capitalizedName.toLowerCase()
       );
@@ -337,10 +337,10 @@ export function useLocalInventory() {
     // Return a mock item since we can't easily return the actual item from setItems
     // The actual item will be in state after the update
     return { id: Date.now(), name: capitalizedName } as LocalItem;
-  }, [addNotification]);
+  }, [addNotification, updateAndSaveItems]);
 
   const updateItem = useCallback((id: number, patch: Partial<LocalItem>) => {
-    setItems(prev => prev.map(it => {
+    updateAndSaveItems(prev => prev.map(it => {
       if (it.id !== id) return it;
       const mergedPatch = { ...patch };
       if (patch.name !== undefined) {
@@ -359,10 +359,10 @@ export function useLocalInventory() {
       }
       return updated;
     }));
-  }, []);
+  }, [updateAndSaveItems]);
 
   const deleteItem = useCallback((id: number) => {
-    setItems(prev => {
+    updateAndSaveItems(prev => {
       const item = prev.find(i => i.id === id);
       if (item) {
         // Log as waste if deleted and expired
@@ -370,10 +370,10 @@ export function useLocalInventory() {
       }
       return prev.filter(item => item.id !== id);
     });
-  }, []);
+  }, [updateAndSaveItems]);
 
   const useNow = useCallback((id: number) => {
-    setItems(prev => prev.map(item => {
+    updateAndSaveItems(prev => prev.map(item => {
       if (item.id !== id) return item;
       const newQty = Math.max(0, (item.quantity || 0) - 1);
 
@@ -386,10 +386,10 @@ export function useLocalInventory() {
 
       return { ...item, quantity: newQty };
     }));
-  }, [logUsage, addNotification]);
+  }, [logUsage, addNotification, updateAndSaveItems]);
 
   const consumeItem = useCallback((id: number, amountUsed: number, unitUsed: string) => {
-    setItems(prev => prev.map(it => {
+    updateAndSaveItems(prev => prev.map(it => {
       if (it.id !== id) return it;
 
       let currentQty = it.quantity || 0;
@@ -434,10 +434,10 @@ export function useLocalInventory() {
 
       return { ...it, quantity: parseFloat(newQty.toFixed(3)) };
     }));
-  }, [logUsage, addNotification]);
+  }, [logUsage, addNotification, updateAndSaveItems]);
 
   const restockItem = useCallback((id: number, amountToAdd: number, unitToAdd: string) => {
-    setItems(prev => prev.map(it => {
+    updateAndSaveItems(prev => prev.map(it => {
       if (it.id !== id) return it;
 
       let currentQty = it.quantity || 0;
@@ -467,15 +467,13 @@ export function useLocalInventory() {
 
       return { ...it, quantity: parseFloat(newQty.toFixed(3)) };
     }));
-  }, []);
+  }, [updateAndSaveItems]);
 
   const clearInventory = useCallback(() => {
-    setItems([]);
+    updateAndSaveItems(prev => []);
     setUsageLog([]);
     setNotifications([]);
-    // The useEffect will handle the localStorage update.
-    // We don't need to manually write to localStorage here, avoiding race conditions.
-  }, []);
+  }, [updateAndSaveItems]);
 
   return {
     items,
