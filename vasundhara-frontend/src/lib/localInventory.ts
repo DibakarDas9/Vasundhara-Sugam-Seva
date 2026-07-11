@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { calculateDaysUntilExpiry, getExpiryStatus } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -69,6 +69,7 @@ export function useLocalInventory() {
   const [usageLog, setUsageLog] = useState<UsageLog[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const hasRevalidatedRef = useRef<Record<string, boolean>>({});
 
   // Construct user-specific key.
   // If logged in: bind to user.id.
@@ -93,7 +94,27 @@ export function useLocalInventory() {
   // Load from storage when user changes or event triggers
   useEffect(() => {
     setIsLoaded(false);
-    const loadItems = async () => {
+
+    const loadLocalOnly = () => {
+      if (!storageKey) return [];
+      try {
+        const rawItems = localStorage.getItem(storageKey);
+        if (rawItems) {
+          const parsed: any[] = JSON.parse(rawItems);
+          const sanitized = Array.isArray(parsed)
+            ? (parsed.map(sanitizeItem).filter(Boolean) as LocalItem[])
+            : [];
+          setItems(sanitized);
+          return sanitized;
+        }
+      } catch (err) {
+        console.error('Failed to read local inventory cache', err);
+      }
+      setItems([]);
+      return [];
+    };
+
+    const loadItems = async (forceRevalidate = false) => {
       if (!storageKey) {
         setItems([]);
         setUsageLog([]);
@@ -103,76 +124,85 @@ export function useLocalInventory() {
       }
 
       // 1. Load from local cache instantly
-      let localParsed: LocalItem[] = [];
-      try {
-        const rawItems = localStorage.getItem(storageKey);
-        if (rawItems) {
-          const parsed: any[] = JSON.parse(rawItems);
-          localParsed = Array.isArray(parsed)
-            ? (parsed.map(sanitizeItem).filter(Boolean) as LocalItem[])
-            : [];
-          setItems(localParsed);
-        } else {
-          setItems([]);
-        }
+      const localParsed = loadLocalOnly();
 
+      // Load logs and notifications
+      try {
         const rawUsageLog = localStorage.getItem(usageLogKey!);
-        if (rawUsageLog) {
-          setUsageLog(JSON.parse(rawUsageLog));
-        } else {
-          setUsageLog([]);
-        }
+        setUsageLog(rawUsageLog ? JSON.parse(rawUsageLog) : []);
 
         const rawNotifications = localStorage.getItem(notificationsKey!);
-        if (rawNotifications) {
-          setNotifications(JSON.parse(rawNotifications));
-        } else {
-          setNotifications([]);
-        }
+        setNotifications(rawNotifications ? JSON.parse(rawNotifications) : []);
       } catch (err) {
-        console.error('Failed to read local inventory cache', err);
+        console.error('Failed to read local logs/notifications cache', err);
       } finally {
         setIsLoaded(true);
       }
 
       // 2. Fetch and revalidate from remote backend in background
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
-      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      const needsRevalidate = forceRevalidate || !hasRevalidatedRef.current[storageKey];
+      if (needsRevalidate) {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
-      if (API_BASE && token && user) {
-        try {
-          const response = await fetch(`${API_BASE}/api/inventory`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.items) {
-              const remoteItems = data.items.map(sanitizeItem).filter(Boolean) as LocalItem[];
-              
-              // Only update state & cache if remote items are actually different
-              if (JSON.stringify(remoteItems) !== JSON.stringify(localParsed)) {
-                setItems(remoteItems);
-                localStorage.setItem(storageKey, JSON.stringify(remoteItems));
+        if (API_BASE && token && user) {
+          try {
+            hasRevalidatedRef.current[storageKey] = true;
+            const response = await fetch(`${API_BASE}/api/inventory`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (response.ok) {
+              const data = await response.json();
+              if (data.items) {
+                const remoteItems = data.items.map(sanitizeItem).filter(Boolean) as LocalItem[];
+                
+                // Only update state & cache if remote items are actually different
+                if (JSON.stringify(remoteItems) !== JSON.stringify(localParsed)) {
+                  setItems(remoteItems);
+                  localStorage.setItem(storageKey, JSON.stringify(remoteItems));
+                }
               }
             }
+          } catch (err) {
+            console.warn('Failed to revalidate remote inventory', err);
+            // Allow re-attempt next time
+            hasRevalidatedRef.current[storageKey] = false;
           }
-        } catch (err) {
-          console.warn('Failed to revalidate remote inventory', err);
         }
       }
     };
 
-    loadItems();
+    loadItems(false);
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === storageKey) loadItems();
-      if (e.key === usageLogKey) loadItems();
-      if (e.key === notificationsKey) loadItems();
+      // Storage events only reload local data (no network revalidation to avoid loops/race conditions)
+      if (storageKey && e.key === storageKey) loadLocalOnly();
+      if (usageLogKey && e.key === usageLogKey) {
+        try {
+          const raw = localStorage.getItem(usageLogKey);
+          setUsageLog(raw ? JSON.parse(raw) : []);
+        } catch {}
+      }
+      if (notificationsKey && e.key === notificationsKey) {
+        try {
+          const raw = localStorage.getItem(notificationsKey);
+          setNotifications(raw ? JSON.parse(raw) : []);
+        } catch {}
+      }
     };
 
-    const handleLocalUpdate = () => loadItems();
+    const handleLocalUpdate = () => {
+      // Local updates within same tab only reload local data (no network calls)
+      loadLocalOnly();
+      try {
+        const rawLog = localStorage.getItem(usageLogKey!);
+        setUsageLog(rawLog ? JSON.parse(rawLog) : []);
+        const rawNotif = localStorage.getItem(notificationsKey!);
+        setNotifications(rawNotif ? JSON.parse(rawNotif) : []);
+      } catch {}
+    };
 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('local-inventory-update', handleLocalUpdate);
