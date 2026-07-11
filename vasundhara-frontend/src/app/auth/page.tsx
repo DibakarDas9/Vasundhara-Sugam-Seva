@@ -115,7 +115,11 @@ export default function AuthLanding() {
     try {
       await login(email, password);
     } catch (e) {
-      // ignore - toast handled
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error('Login failed. Please check your credentials.');
+      }
     }
   }
 
@@ -135,7 +139,13 @@ export default function AuthLanding() {
           ward: householdWard,
         } : undefined,
       });
-    } catch (e) { }
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error('Registration failed. Please verify your inputs.');
+      }
+    }
   }
 
   const handleProfileImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

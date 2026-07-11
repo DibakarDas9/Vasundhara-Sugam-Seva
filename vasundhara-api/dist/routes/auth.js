@@ -12,7 +12,7 @@ router.post('/register', [
     (0, express_validator_1.body)('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
     (0, express_validator_1.body)('firstName').trim().isLength({ min: 1 }).withMessage('First name is required'),
     (0, express_validator_1.body)('lastName').trim().isLength({ min: 1 }).withMessage('Last name is required'),
-    (0, express_validator_1.body)('phoneNumber').optional().isMobilePhone(),
+    (0, express_validator_1.body)('phoneNumber').optional({ checkFalsy: true }).isMobilePhone(),
     (0, express_validator_1.body)('role').optional().isIn(['household', 'shopkeeper', 'admin']).withMessage('Invalid role'),
     (0, express_validator_1.body)('householdProfile').optional().isObject(),
     (0, express_validator_1.body)('householdProfile.familySize').optional().isInt({ min: 1, max: 25 }),
@@ -25,7 +25,11 @@ router.post('/register', [
 ], (0, errorHandler_1.asyncHandler)(async (req, res) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        throw new errorHandler_1.CustomError('Validation failed', 400);
+        res.status(400).json({
+            error: 'Validation failed',
+            message: errors.array().map(e => e.msg).join(', ')
+        });
+        return;
     }
     const { email, password, firstName, lastName, phoneNumber, role = 'household', householdProfile, shopkeeperProfile, } = req.body;
     const normalizedRole = (role === 'user' ? 'household' : role === 'retail_partner' ? 'shopkeeper' : role);

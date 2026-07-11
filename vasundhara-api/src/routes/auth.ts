@@ -54,7 +54,7 @@ router.post('/register', [
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('firstName').trim().isLength({ min: 1 }).withMessage('First name is required'),
   body('lastName').trim().isLength({ min: 1 }).withMessage('Last name is required'),
-  body('phoneNumber').optional().isMobilePhone(),
+  body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone(),
   body('role').optional().isIn(['household', 'shopkeeper', 'admin']).withMessage('Invalid role'),
   body('householdProfile').optional().isObject(),
   body('householdProfile.familySize').optional().isInt({ min: 1, max: 25 }),
@@ -67,7 +67,11 @@ router.post('/register', [
 ], asyncHandler(async (req: AuthRequest, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new CustomError('Validation failed', 400);
+    res.status(400).json({
+      error: 'Validation failed',
+      message: errors.array().map(e => e.msg).join(', ')
+    });
+    return;
   }
 
   const {
