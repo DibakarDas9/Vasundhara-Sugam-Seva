@@ -2,9 +2,23 @@ import path from 'path';
 import tsConfig from '../tsconfig.json';
 import * as tsConfigPaths from 'tsconfig-paths';
 
+const isCompiled = __filename.endsWith('.js');
+const baseDir = path.resolve(__dirname, '..');
+const rawPaths = tsConfig.compilerOptions.paths;
+const resolvedPaths: Record<string, string[]> = {};
+
+for (const [key, values] of Object.entries(rawPaths)) {
+  resolvedPaths[key] = values.map(val => {
+    if (isCompiled && val.startsWith('src/')) {
+      return val.replace('src/', './');
+    }
+    return val;
+  });
+}
+
 tsConfigPaths.register({
-  baseUrl: path.resolve(__dirname, '..'),
-  paths: tsConfig.compilerOptions.paths
+  baseUrl: baseDir,
+  paths: resolvedPaths
 });
 
 import express from 'express';
