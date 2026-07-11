@@ -10,6 +10,7 @@ import { Logo } from '@/components/ui/Logo';
 import { AnimatedLogo } from '@/components/ui/AnimatedLogo';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toast } from 'react-hot-toast';
 import LanguageSelector from '@/components/ui/LanguageSelector';
 import {
   HomeIcon,
