@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Script from 'next/script';
+import { toast } from 'react-hot-toast';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -12,7 +14,8 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
   ArrowUpIcon,
-  ArrowDownIcon
+  ArrowDownIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { useLocalInventory } from '@/lib/localInventory';
 
@@ -69,6 +72,64 @@ function AnalyticsContent() {
   const { items } = useLocalInventory();
   const hasData = items.length > 0;
 
+  const [isPremium, setIsPremium] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  
+  useEffect(() => {
+    const expiry = localStorage.getItem('vasundhara_premium_expiry');
+    if (expiry && parseInt(expiry, 10) > Date.now()) {
+      setIsPremium(true);
+    }
+  }, []);
+
+  const handleSubscribe = async (tier: 'day' | 'month' | 'year', amount: number) => {
+    setIsProcessingPayment(true);
+    try {
+      const orderRes = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, receipt: `sub_${tier}` })
+      });
+      const orderData = await orderRes.json();
+      
+      if (!orderRes.ok) throw new Error(orderData.error || 'Payment initialization failed');
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'dummy_key',
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Vasundhara Sugam Seva",
+        description: `Premium Analytics - 1 ${tier}`,
+        order_id: orderData.id,
+        handler: function (response: any) {
+          const now = Date.now();
+          const multipliers = { day: 86400000, month: 2592000000, year: 31536000000 };
+          const expiry = now + multipliers[tier];
+          localStorage.setItem('vasundhara_premium_expiry', expiry.toString());
+          setIsPremium(true);
+          toast.success('Successfully upgraded to Premium!');
+          setIsProcessingPayment(false);
+        },
+        theme: { color: "#eab308" },
+        modal: {
+          ondismiss: function() {
+            setIsProcessingPayment(false);
+          }
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any){
+        toast.error('Payment failed: ' + response.error.description);
+        setIsProcessingPayment(false);
+      });
+      rzp.open();
+    } catch (err: any) {
+      toast.error(err.message || 'Payment error occurred');
+      setIsProcessingPayment(false);
+    }
+  };
+
   const analyticsData = hasData ? mockAnalytics : {
     wasteReduction: { current: 0, previous: 0, trend: 'flat' },
     moneySaved: { current: 0, previous: 0, trend: 'flat' },
@@ -97,8 +158,9 @@ function AnalyticsContent() {
         />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="space-y-6">
+        <main className="flex-1 overflow-y-auto p-6 relative">
+          
+          <div className={`space-y-6 transition-all duration-500 ${!isPremium ? 'blur-lg pointer-events-none opacity-40 grayscale select-none' : ''}`}>
             {/* Time Range Selector */}
             <div className="flex gap-2">
               {(['week', 'month', 'year'] as const).map((range) => (
@@ -356,10 +418,72 @@ function AnalyticsContent() {
               </CardContent>
             </Card>
           </div>
+
+          {!isPremium && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 bg-black/5 dark:bg-black/20">
+              <div className="max-w-2xl w-full text-center space-y-6 bg-white dark:bg-neutral-900 p-8 rounded-3xl shadow-2xl border border-yellow-200 dark:border-yellow-900/40">
+                <div className="mx-auto w-16 h-16 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900/50 dark:to-yellow-800/50 rounded-full flex items-center justify-center shadow-inner">
+                  <SparklesIcon className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Unlock Premium Analytics</h2>
+                  <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto mt-2">
+                    Get deep insights into your food waste reduction, monetary savings, and gamification trends.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                  {/* Daily Plan */}
+                  <div 
+                    onClick={() => !isProcessingPayment && handleSubscribe('day', 1)}
+                    className="rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-yellow-500 dark:hover:border-yellow-500 hover:shadow-lg transition-all cursor-pointer flex flex-col items-center bg-gray-50 dark:bg-neutral-900/50"
+                  >
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Daily</h3>
+                    <p className="text-2xl font-black text-yellow-600 my-2">₹1</p>
+                    <p className="text-xs text-gray-500 font-medium">24 hours access</p>
+                  </div>
+                  
+                  {/* Monthly Plan (Popular) */}
+                  <div 
+                    onClick={() => !isProcessingPayment && handleSubscribe('month', 20)}
+                    className="relative rounded-2xl border-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/10 p-5 shadow-xl transform sm:-translate-y-2 flex flex-col items-center cursor-pointer hover:bg-yellow-100/50 dark:hover:bg-yellow-900/20 transition-all"
+                  >
+                    <div className="absolute -top-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md uppercase tracking-wider">Most Popular</div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mt-2">Monthly</h3>
+                    <p className="text-3xl font-black text-yellow-600 my-2">₹20</p>
+                    <p className="text-xs text-gray-500 font-medium">Billed monthly</p>
+                  </div>
+                  
+                  {/* Yearly Plan */}
+                  <div 
+                    onClick={() => !isProcessingPayment && handleSubscribe('year', 200)}
+                    className="rounded-2xl border border-gray-200 dark:border-gray-800 p-5 hover:border-yellow-500 dark:hover:border-yellow-500 hover:shadow-lg transition-all cursor-pointer flex flex-col items-center bg-gray-50 dark:bg-neutral-900/50"
+                  >
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Yearly</h3>
+                    <p className="text-2xl font-black text-yellow-600 my-2">₹200</p>
+                    <p className="text-xs text-green-600 font-bold mt-1 bg-green-100 dark:bg-green-900/40 px-2 py-0.5 rounded">Save 17%</p>
+                  </div>
+                </div>
+                
+                {isProcessingPayment && (
+                  <p className="text-sm font-semibold text-yellow-600 animate-pulse pt-2">Connecting to secure checkout...</p>
+                )}
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
   );
 }
 
-export default AnalyticsContent;
+export default function AnalyticsPage() {
+  return (
+    <>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <ProtectedRoute>
+        <AnalyticsContent />
+      </ProtectedRoute>
+    </>
+  );
+}

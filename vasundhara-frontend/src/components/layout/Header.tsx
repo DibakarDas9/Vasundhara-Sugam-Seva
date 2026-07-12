@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BellIcon, MagnifyingGlassIcon, UserCircleIcon, ArrowRightOnRectangleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -24,7 +24,15 @@ export function Header({ title, subtitle, className }: HeaderProps) {
   const pathname = usePathname();
   const { toggle } = useMobileNav();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
   const { notifications, markNotificationRead, clearNotifications } = useLocalInventory();
+
+  useEffect(() => {
+    const expiry = localStorage.getItem('vasundhara_premium_expiry');
+    if (expiry && parseInt(expiry, 10) > Date.now()) {
+      setIsPremium(true);
+    }
+  }, []);
 
   // Check if we're in the admin area
   const isAdminArea = pathname?.startsWith('/admin');
@@ -113,8 +121,16 @@ export function Header({ title, subtitle, className }: HeaderProps) {
             </div>
           </div>
 
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold leading-tight text-app">{title}</h1>
+          <div className="min-w-0 flex flex-col">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold leading-tight text-app">{title}</h1>
+              {isPremium && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                  <SparklesIcon className="w-2.5 h-2.5 text-yellow-100" />
+                  Premium
+                </span>
+              )}
+            </div>
             {subtitle && (
               <p className="hidden">{subtitle}</p>
             )}
@@ -129,7 +145,15 @@ export function Header({ title, subtitle, className }: HeaderProps) {
               </Button>
             </div>
             <div className="min-w-0">
-              <h1 className="text-lg font-bold leading-tight text-app sm:text-2xl">{title}</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-lg font-bold leading-tight text-app sm:text-2xl">{title}</h1>
+                {isPremium && (
+                  <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 px-3 py-0.5 text-xs font-bold text-white shadow-sm ring-1 ring-inset ring-yellow-500/20">
+                    <SparklesIcon className="w-3 h-3 text-yellow-100" />
+                    Premium
+                  </span>
+                )}
+              </div>
               {subtitle && (
                 <p className="mt-0.5 line-clamp-2 text-xs text-muted sm:mt-1 sm:text-sm">{subtitle}</p>
               )}

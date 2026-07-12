@@ -25,6 +25,7 @@ import {
   MapPinIcon,
   PlusIcon,
   TrashIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 
 function getSessionGuestId(): string {
@@ -209,7 +210,19 @@ function MarketplaceContent() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'razorpay'>('cash');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
+  // Payout states
+  const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
+  const [payoutDetails, setPayoutDetails] = useState({ upiId: '', bankIfsc: '', accNumber: '' });
+  
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
+    try {
+      const savedPayouts = localStorage.getItem('vasundhara_payout_settings');
+      if (savedPayouts) setPayoutDetails(JSON.parse(savedPayouts));
+    } catch {}
+    
+    setIsMounted(true);
     const savedLocation = getSavedMarketplaceLocation();
     if (savedLocation) {
       setCurrentLocation(savedLocation);
@@ -515,6 +528,13 @@ function MarketplaceContent() {
                     className="flex-1 sm:flex-none justify-center inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all shadow-sm border border-white/10 hover:border-white/20"
                   >
                     Change Area
+                  </button>
+                  <button
+                    onClick={() => setIsPayoutModalOpen(true)}
+                    className="flex-1 sm:flex-none justify-center inline-flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-2.5 text-sm font-semibold text-white transition-all shadow-sm"
+                  >
+                    <BanknotesIcon className="h-5 w-5" />
+                    Payout Details
                   </button>
                   <button
                     onClick={() => setIsListingFormOpen(!isListingFormOpen)}
@@ -961,6 +981,78 @@ function MarketplaceContent() {
           setPaymentMethod={setPaymentMethod}
           isProcessing={isProcessingPayment}
         />
+      )}
+
+      {isPayoutModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-neutral-950">
+            <div className="flex justify-between mb-4 border-b pb-3 dark:border-gray-800">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Payout Settings</h2>
+                <p className="text-sm text-gray-500">How you receive your money</p>
+              </div>
+              <button onClick={() => setIsPayoutModalOpen(false)} className="p-1 text-gray-400 hover:text-gray-700">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/20 dark:text-amber-200 mb-5">
+              <strong>Disclaimer:</strong> 20% of the transaction amount is retained as platform fees. Payouts are safely redirected to your configured bank account or UPI after 1 month.
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">UPI ID</label>
+                <input
+                  type="text"
+                  placeholder="e.g. yourname@upi"
+                  value={payoutDetails.upiId}
+                  onChange={(e) => setPayoutDetails({...payoutDetails, upiId: e.target.value})}
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t border-gray-200 dark:border-gray-800"></div>
+                <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-bold uppercase">OR</span>
+                <div className="flex-grow border-t border-gray-200 dark:border-gray-800"></div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Bank Account Number</label>
+                <input
+                  type="text"
+                  placeholder="Account Number"
+                  value={payoutDetails.accNumber}
+                  onChange={(e) => setPayoutDetails({...payoutDetails, accNumber: e.target.value})}
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">IFSC Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g. SBIN0001234"
+                  value={payoutDetails.bankIfsc}
+                  onChange={(e) => setPayoutDetails({...payoutDetails, bankIfsc: e.target.value})}
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40 text-gray-900 dark:text-white uppercase"
+                />
+              </div>
+              <div className="pt-2">
+                <Button 
+                  className="w-full"
+                  onClick={() => {
+                    localStorage.setItem('vasundhara_payout_settings', JSON.stringify(payoutDetails));
+                    toast.success('Payout details saved successfully!');
+                    setIsPayoutModalOpen(false);
+                  }}
+                >
+                  Save Payout Details
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
