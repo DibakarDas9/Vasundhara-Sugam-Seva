@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMobileNav } from '@/contexts/MobileNavContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useLocalInventory } from '@/lib/localInventory';
 import {
   HomeIcon,
   ChartBarIcon,
@@ -61,6 +62,8 @@ export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
   const { role, guestMode, guestName, guestEmail, user, logout } = useAuth();
   const { t } = useLanguage();
+  const { notifications } = useLocalInventory();
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const getTranslatedName = (name: string) => {
     switch (name) {
@@ -247,8 +250,20 @@ export function Sidebar({ className }: SidebarProps) {
                       'flex items-center space-x-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200',
                       isActive ? 'active-nav' : 'text-muted hover-soft'
                     )}>
-                      <item.icon className="w-5 h-5" />
-                      <span>{getTranslatedName(item.name)}</span>
+                      <div className="relative">
+                        <item.icon className="w-5 h-5" />
+                        {item.name === 'Notifications' && unreadCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-gray-900" />
+                        )}
+                      </div>
+                      <span className="flex-1 flex items-center justify-between">
+                        {getTranslatedName(item.name)}
+                        {item.name === 'Notifications' && unreadCount > 0 && (
+                          <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </span>
                     </Link>
                   );
                 })}
