@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Script from 'next/script';
 import { compressImageToThumbnail } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
 import {
@@ -983,16 +984,59 @@ function MarketplaceClaimModal({
   isProcessing,
 }: MarketplaceClaimModalProps) {
   const [razorpayStep, setRazorpayStep] = useState<'select' | 'processing' | 'success'>('select');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handlePay = () => {
+  const handlePay = async () => {
     if (paymentMethod === 'razorpay') {
       setRazorpayStep('processing');
-      setTimeout(() => {
-        setRazorpayStep('success');
-        setTimeout(() => {
-          onConfirm();
-        }, 1200);
-      }, 1800);
+      setErrorMsg(null);
+      try {
+        const orderRes = await fetch('/api/payments/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: listing.price, receipt: listing.id })
+        });
+        const orderData = await orderRes.json();
+        
+        if (!orderRes.ok) {
+          throw new Error(orderData.error || 'Failed to initialize payment');
+        }
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'dummy_key',
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: "Vasundhara Sugam Seva",
+          description: `Payment for ${listing.title}`,
+          order_id: orderData.id,
+          handler: function (response: any) {
+            setRazorpayStep('success');
+            setTimeout(() => {
+              onConfirm();
+            }, 1200);
+          },
+          prefill: {
+            name: "Marketplace User",
+            email: "",
+          },
+          theme: { color: "#10b981" },
+          modal: {
+            ondismiss: function() {
+              setRazorpayStep('select');
+            }
+          }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (response: any){
+          setErrorMsg('Payment failed: ' + response.error.description);
+          setRazorpayStep('select');
+        });
+        rzp.open();
+      } catch (err: any) {
+        setErrorMsg(err.message || 'Payment error occurred');
+        setRazorpayStep('select');
+      }
     } else {
       onConfirm();
     }
@@ -1038,49 +1082,65 @@ function MarketplaceClaimModal({
                   <span className="font-bold text-gray-800 dark:text-gray-200">{listing.title}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Lister:</span>
-                  <span className="font-semibold text-gray-800 dark:text-gray-200">{listing.postedBy}</span>
-                </div>
-                <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Price:</span>
-                  <span className={`font-bold ${listing.isFree ? 'text-emerald-600' : 'text-amber-600'}`}>
-                    {listing.isFree || listing.price === 0 ? 'Free' : `₹${listing.price}`}
+                  <span className={`font-bold ${listing.isFree || !listing.price ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {listing.isFree || !listing.price ? 'Free' : `₹${listing.price}`}
                   </span>
                 </div>
               </div>
 
-              <div className="space-y-2.5">
-                <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
-                  Select Payment Method
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                      paymentMethod === 'cash'
-                        ? 'border-emerald-600 bg-emerald-50/20 text-emerald-800 dark:text-emerald-300'
-                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-800 text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    <span className="text-2xl mb-1">💵</span>
-                    <span className="text-xs font-bold">Cash / On Pickup</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('razorpay')}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
-                      paymentMethod === 'razorpay'
-                        ? 'border-emerald-600 bg-emerald-50/20 text-emerald-800 dark:text-emerald-300'
-                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-800 text-gray-600 dark:text-gray-400'
-                    }`}
-                  >
-                    <span className="text-2xl mb-1">💳</span>
-                    <span className="text-xs font-bold">Razorpay Online</span>
-                  </button>
+              {errorMsg && (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20">
+                  {errorMsg}
                 </div>
-              </div>
+              )}
+
+              {(listing.isFree || !listing.price) ? (
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center shadow-sm dark:border-emerald-900/40 dark:bg-emerald-900/20 my-4">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-800">
+                    <span className="text-xl">🌍</span>
+                  </div>
+                  <h3 className="text-md font-bold text-emerald-900 dark:text-emerald-100">
+                    Thank you for our noble cause
+                  </h3>
+                  <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">
+                    Coordinate directly with the homeowner for pickup.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Select Payment Method
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('cash')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                        paymentMethod === 'cash'
+                          ? 'border-emerald-600 bg-emerald-50/20 text-emerald-800 dark:text-emerald-300'
+                          : 'border-gray-200 hover:border-gray-300 dark:border-gray-800 text-gray-600 dark:text-gray-400'
+                      }`}
+                    >
+                      <span className="text-2xl mb-1">💵</span>
+                      <span className="text-xs font-bold">Cash / On Pickup</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('razorpay')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                        paymentMethod === 'razorpay'
+                          ? 'border-emerald-600 bg-emerald-50/20 text-emerald-800 dark:text-emerald-300'
+                          : 'border-gray-200 hover:border-gray-300 dark:border-gray-800 text-gray-600 dark:text-gray-400'
+                      }`}
+                    >
+                      <span className="text-2xl mb-1">💳</span>
+                      <span className="text-xs font-bold">Razorpay Online</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {paymentMethod === 'razorpay' && (
                 <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3 text-xs text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/20 dark:text-blue-300">
@@ -1111,8 +1171,11 @@ function MarketplaceClaimModal({
 
 export default function MarketplacePage() {
   return (
-    <ProtectedRoute>
-      <MarketplaceContent />
-    </ProtectedRoute>
+    <>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <ProtectedRoute>
+        <MarketplaceContent />
+      </ProtectedRoute>
+    </>
   );
 }
