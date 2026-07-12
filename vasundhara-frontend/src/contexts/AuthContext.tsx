@@ -250,7 +250,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setRoleState(validRole);
   }, []);
 
-  const fetchUserProfile = useCallback(async () => {
+  const fetchUserProfile = useCallback(async (background = false) => {
     if (!REMOTE_AUTH_ENABLED || !API_URL) {
       setLoading(false);
       return;
@@ -263,7 +263,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false);
       return;
     }
-    setLoading(true);
+    if (!background) setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
@@ -291,7 +291,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.removeItem('refreshToken');
       }
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
     }
   }, []);
 
@@ -351,7 +351,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
     if (REMOTE_AUTH_ENABLED && API_URL && typeof window !== 'undefined' && localStorage.getItem('accessToken')) {
-      await fetchUserProfile();
+      await fetchUserProfile(true);
     }
   }, [hydrateLocalUser, fetchUserProfile]);
 
