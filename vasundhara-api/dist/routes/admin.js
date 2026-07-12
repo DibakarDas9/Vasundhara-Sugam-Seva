@@ -10,7 +10,7 @@ const emailService_1 = require("../services/emailService");
 const router = (0, express_1.Router)();
 router.use((req, res, next) => {
     if (req.headers['x-admin-pin'] === 'admin') {
-        req.user = { _id: 'admin_demo_id', role: 'admin', email: 'admin@vasundhara.com', firstName: 'Admin', lastName: 'User' };
+        req.user = { _id: '000000000000000000000000', role: 'admin', email: 'admin@vasundhara.com', firstName: 'Admin', lastName: 'User' };
         return next();
     }
     (0, auth_1.authenticate)(req, res, (err) => {

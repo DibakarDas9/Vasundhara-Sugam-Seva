@@ -15,7 +15,7 @@ const router = Router();
 // Admin Auth bypass for prototype gate
 router.use((req: AuthRequest, res: Response, next) => {
   if (req.headers['x-admin-pin'] === 'admin') {
-    req.user = { _id: 'admin_demo_id', role: 'admin', email: 'admin@vasundhara.com', firstName: 'Admin', lastName: 'User' };
+    req.user = { _id: '000000000000000000000000', role: 'admin', email: 'admin@vasundhara.com', firstName: 'Admin', lastName: 'User' };
     return next();
   }
   authenticate(req, res, (err: any) => {
