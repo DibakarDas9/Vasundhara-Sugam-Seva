@@ -1167,9 +1167,9 @@ export const translations: TranslationDictionary = {
     bn: 'আপনার মেয়াদোত্তীর্ণ হতে চলা উপাদানগুলি ব্যবহার করে সুস্বাদু খাবারের পরিকল্পনা করুন',
   },
   'meals.aiBlueprint': {
-    en: 'AI Meal Blueprint',
-    hi: 'एआई भोजन ब्लूप्रिंट',
-    bn: 'এআই খাবার ব্লুপ্রিন্ট',
+    en: 'Vard Meal Suggestion',
+    hi: 'वर्ड मील सुझाव',
+    bn: 'ভার্ড মিলের পরামর্শ',
   },
   'meals.aiAnalyzing': {
     en: 'AI is analyzing your expiring ingredients...',

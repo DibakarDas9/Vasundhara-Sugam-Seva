@@ -206,8 +206,9 @@ export default function MealPlanningPage() {
                     </label>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
+                  {dietaryMode && (
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
                       <label className="block text-xs font-semibold text-gray-700 dark:text-gray-200 mb-1">
                         {t('meals.weightKg', 'Weight (kg)')}
                       </label>
@@ -259,6 +260,7 @@ export default function MealPlanningPage() {
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
 
                 {aiError && (
@@ -306,6 +308,11 @@ export default function MealPlanningPage() {
                                   <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
                                     {t('meals.aiPick', 'AI Pick')}
                                   </span>
+                                  {dietaryMode && (
+                                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                      Your Health is our Priority
+                                    </span>
+                                  )}
                                 </div>
                                 {meal.summary && (
                                   <p className="text-sm text-gray-600 dark:text-gray-300">{meal.summary}</p>
