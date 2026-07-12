@@ -48,6 +48,7 @@ const homeownerNav = [
 const adminNav = [
   { name: 'Overview', href: '/admin', icon: Squares2X2Icon },
   { name: 'Users', href: '/admin/users', icon: UserIcon },
+  { name: 'Premium Access', href: '/admin/premium', icon: SparklesIcon },
   { name: 'Inventory', href: '/admin/inventory', icon: ShoppingCartIcon },
   { name: 'Notifications', href: '/admin/notifications', icon: BellIcon },
   { name: 'Settings', href: '/admin/settings', icon: CogIcon },
@@ -81,6 +82,7 @@ export function Sidebar({ className }: SidebarProps) {
       case 'Inventory (Shop)': return t('nav.inventoryShop', 'Inventory (Shop)');
       case 'Overview': return t('nav.overview', 'Overview');
       case 'Users': return t('nav.users', 'Users');
+      case 'Premium Access': return t('nav.premiumAccess', 'Premium Access');
       default: return name;
     }
   };

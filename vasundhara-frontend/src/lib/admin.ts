@@ -342,7 +342,26 @@ export async function fetchAdminUsers(params: FetchAdminUsersParams = {}): Promi
   const query = searchParams.toString();
   const path = `/api/admin/users${query ? `?${query}` : ''}`;
 
-  return adminRequest<AdminUserListResponse>(path);
+  try {
+    return await adminRequest<AdminUserListResponse>(path);
+  } catch (error) {
+    console.warn('Remote admin request failed, falling back to local data:', error);
+    // Fallback to local filtering
+    const search = params.search?.toLowerCase() || '';
+    const all = getLocalUsers().filter((user) => {
+      if (params.status && user.approvalStatus !== params.status) return false;
+      if (params.role && user.role !== params.role) return false;
+      if (search && !(`${user.firstName} ${user.lastName}`.toLowerCase().includes(search) || user.email.toLowerCase().includes(search))) {
+        return false;
+      }
+      return true;
+    });
+
+    const limit = Math.max(1, params.limit ?? 10);
+    const page = params.page ?? 1;
+    const { data, pagination } = paginate(all, page, limit);
+    return { data, pagination };
+  }
 }
 
 export async function approveUser(userId: string, note?: string) {
