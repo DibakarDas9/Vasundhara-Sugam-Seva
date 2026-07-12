@@ -26,6 +26,7 @@ import {
   ListBulletIcon,
   QrCodeIcon,
   MapPinIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
 import { calculateDaysUntilExpiry, compressImageToThumbnail } from '@/lib/utils';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -326,6 +327,17 @@ function InventoryContent() {
                               </span>
                             )}
                             <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShareItem(item.id);
+                              }}
+                              className="p-1 rounded-md text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                              title="Share on Marketplace"
+                            >
+                              <ShareIcon className="w-4 h-4" />
+                            </button>
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditItem(item.id);
@@ -396,17 +408,6 @@ function InventoryContent() {
                           <Button size="sm" variant="outline" className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20" onClick={() => handleAddItemStock(item.id)}>
                             {t('inventory.add', 'Add')}
                           </Button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleShareItem(item.id);
-                            }}
-                            className="inline-flex h-9 px-3.5 items-center justify-center rounded-lg border border-amber-200 bg-amber-50/20 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 text-xs font-bold transition"
-                            title="List on Marketplace"
-                          >
-                            Share
-                          </button>
                           <Button size="sm" className="flex-1" onClick={() => handleUseNow(item.id)}>
                             {t('inventory.useNow', 'Use Now')}
                           </Button>
@@ -490,43 +491,45 @@ function InventoryContent() {
                             )}
                           </div>
 
-                          <div className="flex flex-wrap items-center justify-end gap-2">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleShareItem(item.id);
-                                }}
-                                className="inline-flex h-8.5 px-2.5 items-center justify-center rounded-md border border-amber-200 bg-amber-50/20 text-amber-700 hover:bg-amber-50 dark:border-amber-900 dark:text-amber-400 text-xs font-bold transition"
-                                title="List on Marketplace"
-                              >
-                                Share
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditItem(item.id);
-                                }}
-                                className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-neutral-900 dark:text-gray-200 dark:hover:bg-neutral-800"
-                                title="Edit item"
-                              >
-                                <PencilIcon className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (confirm(t('inventory.confirmDelete', `Remove "${item.name}" from inventory?`))) {
-                                    deleteItem(item.id);
-                                    if (editing === item.id) setShowModal(false);
-                                  }
-                                }}
-                                aria-label={`Remove ${item.name}`}
-                                title="Remove item"
-                                className="inline-flex h-8.5 w-8.5 items-center justify-center rounded-md border border-red-200 bg-white text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:bg-neutral-900 dark:text-red-300 dark:hover:bg-red-900/20"
-                              >
-                                <XMarkIcon className="w-4 h-4" />
-                              </button>
-                            <Button size="sm" className="h-8.5 px-4" onClick={() => handleUseNow(item.id)}>
+                          <div className="flex items-center justify-end gap-3">
+                              <div className="flex items-center gap-1 bg-gray-50/50 dark:bg-neutral-900/50 rounded-lg p-1 border border-gray-100 dark:border-gray-800">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleShareItem(item.id);
+                                  }}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-500 hover:bg-amber-50 hover:text-amber-600 dark:text-gray-400 dark:hover:bg-amber-900/30 dark:hover:text-amber-400 transition-colors"
+                                  title="List on Marketplace"
+                                >
+                                  <ShareIcon className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditItem(item.id);
+                                  }}
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 dark:text-gray-400 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition-colors"
+                                  title="Edit item"
+                                >
+                                  <PencilIcon className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (confirm(t('inventory.confirmDelete', `Remove "${item.name}" from inventory?`))) {
+                                      deleteItem(item.id);
+                                      if (editing === item.id) setShowModal(false);
+                                    }
+                                  }}
+                                  aria-label={`Remove ${item.name}`}
+                                  title="Remove item"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-colors"
+                                >
+                                  <XMarkIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            <Button size="sm" className="h-8.5 px-4 font-semibold" onClick={() => handleUseNow(item.id)}>
                               {t('inventory.useNow', 'Use Now')}
                             </Button>
                           </div>
