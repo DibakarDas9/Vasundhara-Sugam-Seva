@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { toast } from 'react-hot-toast';
 import { UserCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode } from '@/lib/admin';
+import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode, toggleAdminPremium } from '@/lib/admin';
 import { updateUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
 
 export default function AdminPremiumPage() {
@@ -43,35 +43,13 @@ export default function AdminPremiumPage() {
 
     const handleTogglePremium = async (userId: string, isCurrentlyPremium: boolean) => {
         try {
-            const newExpiry = isCurrentlyPremium ? 0 : Date.now() + (100 * 365 * 24 * 60 * 60 * 1000); // 100 years
+            const action = isCurrentlyPremium ? 'revoke' : 'grant';
+            await toggleAdminPremium(userId, action);
             
-            if (localMode) {
-                const success = updateUser(userId, { premiumExpiry: newExpiry });
-                if (!success) throw new Error('Failed to update premium status');
-            } else {
-                const token = localStorage.getItem('accessToken');
-                if (!token) throw new Error('No access token found');
-                
-                const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
-                const response = await fetch(`${API_URL}/api/admin/users/${userId}/premium`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ action: isCurrentlyPremium ? 'revoke' : 'grant' })
-                });
-                
-                if (!response.ok) {
-                    const data = await response.json().catch(() => ({}));
-                    throw new Error(data.error?.message || data.message || 'Failed to update premium status on remote server');
-                }
-            }
-            
-            toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted');
+            toast.success(`Premium ${action}ed successfully`);
             await loadUsers();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Error updating user');
+            toast.error(error instanceof Error ? error.message : 'Error updating premium status');
         }
     };
 

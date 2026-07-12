@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { toast } from 'react-hot-toast';
 import { TrashIcon, UserCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode } from '@/lib/admin';
+import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode, toggleAdminPremium, deleteAdminUser } from '@/lib/admin';
 import { deleteUser, updateUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
 
 export default function AdminUsersPage() {
@@ -45,23 +45,13 @@ export default function AdminUsersPage() {
     const handleDelete = async () => {
         if (!deleteId) return;
 
-        if (!localMode) {
-            toast.error('User removal is only available in local admin mode.');
-            setDeleteId(null);
-            return;
-        }
-
         try {
-            const removed = deleteUser(deleteId);
-            if (!removed) {
-                throw new Error('Unable to remove user');
-            }
+            await deleteAdminUser(deleteId);
             toast.success('User removed successfully');
             setDeleteId(null);
             await loadUsers();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Failed to remove user');
-            console.error(error);
+            toast.error(error instanceof Error ? error.message : 'Error removing user');
         }
     };
 
@@ -185,11 +175,11 @@ export default function AdminUsersPage() {
                                                 <td className="px-6 py-4 text-right">
                                                     <button
                                                         onClick={() => setDeleteId(user._id)}
-                                                        className={`text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors ${(localMode && !isSystemAdmin) ? '' : 'opacity-40 cursor-not-allowed'}`}
+                                                        className={`text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors ${!isSystemAdmin ? '' : 'opacity-40 cursor-not-allowed'}`}
                                                         title={isSystemAdmin
                                                             ? 'The system admin account cannot be removed.'
-                                                            : (localMode ? 'Remove User' : 'Removal disabled in remote mode')}
-                                                        disabled={!localMode || isSystemAdmin}
+                                                            : 'Remove User'}
+                                                        disabled={isSystemAdmin}
                                                     >
                                                         <TrashIcon className="w-5 h-5" />
                                                     </button>

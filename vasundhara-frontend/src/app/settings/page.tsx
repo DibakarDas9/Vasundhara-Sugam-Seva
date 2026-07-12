@@ -18,6 +18,7 @@ export default function SettingsPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
+  const [payoutDetails, setPayoutDetails] = useState({ upiId: '', accNumber: '', bankIfsc: '' });
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -26,6 +27,13 @@ export default function SettingsPage() {
       setFirstName(user.firstName || '');
       setLastName(user.lastName || '');
       setProfileImage(user.profileImage);
+      if (user.payoutDetails) {
+        setPayoutDetails({
+          upiId: user.payoutDetails.upiId || '',
+          accNumber: user.payoutDetails.accNumber || '',
+          bankIfsc: user.payoutDetails.bankIfsc || ''
+        });
+      }
     }
   }, [user]);
 
@@ -47,6 +55,11 @@ export default function SettingsPage() {
         firstName,
         lastName,
         profileImage,
+        payoutDetails: {
+          upiId: payoutDetails.upiId || undefined,
+          accNumber: payoutDetails.accNumber || undefined,
+          bankIfsc: payoutDetails.bankIfsc || undefined
+        }
       });
     } finally {
       setLoading(false);
@@ -136,6 +149,48 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400">{t('settings.prefDetail', 'Notification and privacy settings will appear here.')}</p>
                 <div className="mt-4">
                   <Button onClick={() => alert(t('settings.prefAlert', 'Preferences coming soon'))} variant="outline">{t('settings.editPref', 'Edit preferences')}</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Payout Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Configure where you want to receive payments for your premium services or marketplace sales.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">UPI ID</label>
+                      <Input
+                        value={payoutDetails.upiId}
+                        onChange={(e) => setPayoutDetails({ ...payoutDetails, upiId: e.target.value })}
+                        placeholder="username@bank"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Bank Account Number</label>
+                      <Input
+                        value={payoutDetails.accNumber}
+                        onChange={(e) => setPayoutDetails({ ...payoutDetails, accNumber: e.target.value })}
+                        placeholder="Account Number"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Bank IFSC Code</label>
+                      <Input
+                        value={payoutDetails.bankIfsc}
+                        onChange={(e) => setPayoutDetails({ ...payoutDetails, bankIfsc: e.target.value })}
+                        placeholder="IFSC Code"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={handleSave} disabled={loading} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                      {loading ? 'Saving...' : 'Save Payout Details'}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
