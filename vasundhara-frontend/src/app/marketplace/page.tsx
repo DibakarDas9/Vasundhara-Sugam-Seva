@@ -14,6 +14,7 @@ import { toast } from 'react-hot-toast';
 import {
   loadMarketplaceListings,
   saveMarketplaceListings,
+  deleteMarketplaceListing,
   type MarketplaceCoordinates,
   type MarketplaceListing,
   type MarketplaceRole,
@@ -22,6 +23,7 @@ import {
   CalendarDaysIcon,
   MapPinIcon,
   PlusIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 
 function getSessionGuestId(): string {
@@ -449,6 +451,27 @@ function MarketplaceContent() {
     }
   };
 
+  const handleDeleteListing = async (listingId: string) => {
+    if (!window.confirm('Are you sure you want to delete this listing?')) return;
+    
+    // Remote deletion logic (if applicable)
+    if (API_BASE) {
+      try {
+        const response = await fetch(`${API_BASE}/api/marketplace/${listingId}`, { method: 'DELETE' });
+        if (!response.ok) {
+           console.warn('Failed to delete remotely');
+        }
+      } catch (err) {
+        console.warn('Error deleting remotely', err);
+      }
+    }
+    
+    // Local deletion
+    deleteMarketplaceListing(listingId);
+    setListings(prev => prev.filter(listing => listing.id !== listingId));
+    toast.success('Listing deleted');
+  };
+
   const isFormValid = Boolean(
     formData.itemName.trim() &&
     formData.expiryDate &&
@@ -469,32 +492,37 @@ function MarketplaceContent() {
 
         <main className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-5xl space-y-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-neutral-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800/50 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl">
-                  <MapPinIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-600 to-teal-700 shadow-lg text-white">
+              <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+              <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-6 sm:p-8">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-2xl bg-white/20 p-3 backdrop-blur-md shadow-inner">
+                    <MapPinIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                      {currentLocation || 'Location not set'}
+                    </h2>
+                    <p className="text-emerald-100 text-sm font-medium mt-1">
+                      Discover surplus food in this area
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    Location: {currentLocation || 'Not set'}
-                  </h2>
-                  <p className="text-xs text-gray-500">Showing surplus food listed in this area</p>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <button
+                    onClick={() => setLocationDialogOpen(true)}
+                    className="flex-1 sm:flex-none justify-center inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition-all shadow-sm border border-white/10 hover:border-white/20"
+                  >
+                    Change Area
+                  </button>
+                  <button
+                    onClick={() => setIsListingFormOpen(!isListingFormOpen)}
+                    className="flex-1 sm:flex-none justify-center inline-flex items-center gap-2 rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 px-5 py-2.5 text-sm font-bold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5"
+                  >
+                    <PlusIcon className="h-5 w-5" />
+                    {isListingFormOpen ? 'Close Form' : 'List an Item'}
+                  </button>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => setIsListingFormOpen(!isListingFormOpen)}
-                  icon={<PlusIcon className="h-4 w-4" />}
-                >
-                  {isListingFormOpen ? 'Hide Listing Form' : 'List Item'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setLocationDialogOpen(true)}
-                >
-                  Change location
-                </Button>
               </div>
             </div>
 
@@ -689,41 +717,37 @@ function MarketplaceContent() {
             )}
 
             <section className="space-y-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setActiveFeedTab('nearby')}
-                      className={`text-xl font-bold transition-all pb-1 border-b-2 ${
-                        activeFeedTab === 'nearby'
-                          ? 'text-gray-900 border-emerald-600 dark:text-white font-extrabold'
-                          : 'text-gray-400 border-transparent hover:text-gray-600 dark:hover:text-gray-300 font-semibold'
-                      }`}
-                    >
-                      Items near you
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveFeedTab('my')}
-                      className={`text-xl font-bold transition-all pb-1 border-b-2 ${
-                        activeFeedTab === 'my'
-                          ? 'text-gray-900 border-emerald-600 dark:text-white font-extrabold'
-                          : 'text-gray-400 border-transparent hover:text-gray-600 dark:hover:text-gray-300 font-semibold'
-                      }`}
-                    >
-                      My Listings
-                    </button>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {activeFeedTab === 'my'
-                      ? 'Track and manage the items you have listed'
-                      : `Showing listings for ${currentLocation || 'your selected location'}.`}
-                  </p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-neutral-900 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                <div className="flex p-1 bg-gray-100 dark:bg-neutral-800 rounded-xl w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setActiveFeedTab('nearby')}
+                    className={`flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${
+                      activeFeedTab === 'nearby'
+                        ? 'bg-white dark:bg-neutral-900 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    Nearby Items
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFeedTab('my')}
+                    className={`flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${
+                      activeFeedTab === 'my'
+                        ? 'bg-white dark:bg-neutral-900 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    My Listings
+                  </button>
                 </div>
-                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-                  {visibleListings.length} item{visibleListings.length === 1 ? '' : 's'}
-                </span>
+                <div className="px-3">
+                  <span className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                    <span className="text-emerald-600 dark:text-emerald-400 mr-1">{visibleListings.length}</span>
+                    {visibleListings.length === 1 ? 'item' : 'items'} found
+                  </span>
+                </div>
               </div>
 
               {/* Category & Free filters */}
@@ -745,20 +769,20 @@ function MarketplaceContent() {
                       key={cat.id}
                       type="button"
                       onClick={() => setFilterCategory(cat.id)}
-                      className={`flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 text-xs font-semibold rounded-full border transition-all ${
+                      className={`flex items-center gap-1.5 shrink-0 px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
                         filterCategory === cat.id
                           ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                          : 'bg-white border-gray-200 hover:border-emerald-300 text-gray-700 dark:bg-neutral-900 dark:border-gray-800 dark:text-gray-300 dark:hover:border-emerald-800'
+                          : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50 text-gray-700 dark:bg-neutral-900 dark:border-gray-800 dark:text-gray-300 dark:hover:border-emerald-800'
                       }`}
                     >
-                      <span>{cat.emoji}</span>
+                      <span className="text-sm">{cat.emoji}</span>
                       <span>{cat.name}</span>
                     </button>
                   ))}
                 </div>
 
                 <div className="flex items-center gap-3 self-end sm:self-auto shrink-0 select-none">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer bg-white dark:bg-neutral-900 px-4 py-2 rounded-full border border-gray-200 dark:border-gray-800 shadow-sm hover:border-emerald-300 transition-colors">
                     <input
                       type="checkbox"
                       checked={filterFreeOnly}
@@ -771,97 +795,105 @@ function MarketplaceContent() {
               </div>
 
               {visibleListings.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-2">
                   {visibleListings.map(listing => (
-                    <Card key={listing.id} className="overflow-hidden">
-                      <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] h-full">
-                        {/* Image panel */}
-                        <div className="relative h-40 sm:h-full w-full bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-neutral-900 dark:to-neutral-900/60 border-r border-gray-100 dark:border-gray-800 flex items-center justify-center overflow-hidden shrink-0">
-                          <img
-                            src={listing.image || '/hero-slides/marketplace.png'}
-                            alt={listing.title}
-                            className="w-full h-full object-cover animate-fade-in"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/hero-slides/marketplace.png';
-                            }}
-                          />
-                          <span className="absolute top-2 left-2 rounded-md bg-black/60 backdrop-blur-sm px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wide">
+                    <div key={listing.id} className="group flex flex-col sm:flex-row overflow-hidden bg-white dark:bg-neutral-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                      {/* Image panel */}
+                      <div className="relative h-48 sm:h-auto sm:w-2/5 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-neutral-900 dark:to-neutral-900/60 overflow-hidden shrink-0">
+                        <img
+                          src={listing.image || '/hero-slides/marketplace.png'}
+                          alt={listing.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/hero-slides/marketplace.png';
+                          }}
+                        />
+                        <div className="absolute top-3 left-3 flex gap-2">
+                          <span className="rounded-lg bg-black/50 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white uppercase tracking-wider">
                             {listing.category}
                           </span>
                         </div>
+                      </div>
 
-                        {/* Details panel */}
-                        <CardContent className="flex flex-col justify-between p-5 space-y-4">
-                          <div className="space-y-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1">{listing.title}</h3>
-                              {listing.isFree || listing.price === 0 ? (
-                                <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-sm shrink-0">
-                                  Free
-                                </span>
-                              ) : (
-                                <span className="rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 px-2.5 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-300 shadow-sm shrink-0">
-                                  ₹{listing.price}
-                                </span>
-                              )}
-                            </div>
-                            <p className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-                              <MapPinIcon className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                              <span className="line-clamp-1">{listing.location}</span>
-                            </p>
+                      {/* Details panel */}
+                      <div className="flex flex-col justify-between p-5 sm:w-3/5">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                              {listing.title}
+                            </h3>
+                            {listing.isFree || listing.price === 0 ? (
+                              <span className="rounded-xl bg-emerald-100 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-sm shrink-0 whitespace-nowrap">
+                                🎉 Free
+                              </span>
+                            ) : (
+                              <span className="rounded-xl bg-gray-100 dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 px-3 py-1 text-xs font-bold text-gray-800 dark:text-gray-300 shadow-sm shrink-0 whitespace-nowrap">
+                                ₹{listing.price}
+                              </span>
+                            )}
                           </div>
+                          <p className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                            <MapPinIcon className="h-4 w-4 text-emerald-600 shrink-0" />
+                            <span className="line-clamp-1">{listing.location}</span>
+                          </p>
+                        </div>
 
-                          <div className="flex flex-wrap gap-2 text-[11px] text-gray-600 dark:text-gray-300">
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-gray-800 px-2.5 py-1">
-                              <CalendarDaysIcon className="h-3.5 w-3.5" />
-                              Exp: {formatDate(listing.pickupTime)}
-                            </span>
-                            <span className="rounded-full bg-gray-50 dark:bg-neutral-900 border border-gray-100 dark:border-gray-800 px-2.5 py-1 line-clamp-1 max-w-[150px]">
-                              By {listing.postedBy}
-                            </span>
-                          </div>
+                        <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-gray-600 dark:text-gray-300">
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-900/50 px-2.5 py-1 font-medium">
+                            <CalendarDaysIcon className="h-3.5 w-3.5" />
+                            Exp: {formatDate(listing.pickupTime)}
+                          </span>
+                          <span className="rounded-lg bg-gray-50 dark:bg-neutral-800 border border-gray-100 dark:border-gray-700 px-2.5 py-1 line-clamp-1 max-w-[140px] font-medium">
+                            By {listing.postedBy}
+                          </span>
+                        </div>
 
-                          <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-neutral-900">
-                            {activeFeedTab === 'my' ? (
-                              <div className="flex items-center justify-between w-full">
-                                <span className={`text-[10px] uppercase font-bold tracking-wide rounded-full px-2.5 py-1 ${
+                        <div className="mt-5 flex items-center justify-between gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                          {activeFeedTab === 'my' ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[10px] uppercase font-bold tracking-wide rounded-lg px-3 py-1.5 ${
                                   listing.status === 'claimed'
-                                    ? 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400'
-                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                                    ? 'bg-gray-100 text-gray-600 dark:bg-neutral-800 dark:text-gray-400'
+                                    : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
                                 }`}>
                                   {listing.status === 'claimed' ? 'Claimed' : 'Available'}
                                 </span>
-                                {listing.phone && (
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 font-semibold flex items-center gap-1">
-                                    📞 {listing.phone}
-                                  </span>
-                                )}
                               </div>
-                            ) : (
-                              <div className="flex items-center justify-between w-full gap-2">
-                                {listing.phone ? (
-                                  <a
-                                    href={`tel:${listing.phone}`}
-                                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-250 bg-emerald-50/40 text-emerald-700 hover:bg-emerald-100/60 dark:border-emerald-800 dark:text-emerald-400 px-2 py-1.5 text-xs font-semibold text-center transition"
-                                  >
-                                    📞 Call Lister
-                                  </a>
-                                ) : (
-                                  <span className="text-[10px] text-gray-400">No contact info</span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => setClaimingListing(listing)}
-                                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 px-2.5 py-1.5 text-xs font-bold transition shadow-sm"
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteListing(listing.id)}
+                                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-900/50 px-3 py-1.5 text-xs font-bold transition"
+                                title="Delete Listing"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                                <span className="hidden sm:inline">Delete</span>
+                              </button>
+                            </>
+                          ) : (
+                            <div className="flex items-center justify-between w-full gap-2">
+                              {listing.phone ? (
+                                <a
+                                  href={`tel:${listing.phone}`}
+                                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-emerald-100 bg-white text-emerald-700 hover:bg-emerald-50 dark:border-emerald-900/50 dark:bg-transparent dark:text-emerald-400 dark:hover:bg-emerald-900/30 px-3 py-2 text-xs font-bold text-center transition"
                                 >
-                                  Claim Deal
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
+                                  📞 Call
+                                </a>
+                              ) : (
+                                <span className="text-[10px] text-gray-400">No contact info</span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setClaimingListing(listing)}
+                                className="flex-[2] inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-2 text-xs font-bold shadow-md shadow-emerald-600/20 transition hover:-translate-y-0.5"
+                              >
+                                Claim Deal
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </Card>
+                    </div>
                   ))}
                 </div>
               ) : (

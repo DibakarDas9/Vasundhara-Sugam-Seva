@@ -89,6 +89,12 @@ export function upsertMarketplaceListing(listing: MarketplaceListing): void {
   writeListings(listings);
 }
 
+export function deleteMarketplaceListing(listingId: string): void {
+  const listings = readListings();
+  const filtered = listings.filter(item => item.id !== listingId);
+  writeListings(filtered);
+}
+
 export function reserveMarketplaceListing(listingId: string, reservedBy: string): MarketplaceListing | null {
   const listings = readListings();
   const index = listings.findIndex(item => item.id === listingId);
