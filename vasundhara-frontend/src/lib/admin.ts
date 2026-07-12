@@ -485,7 +485,7 @@ export async function toggleAdminPremium(userId: string, action: 'grant' | 'revo
     if (!success) throw new Error('Failed to update premium status');
     return { message: `Premium ${action}ed successfully` };
   }
-  return adminRequest(`/users/${userId}/premium`, {
+  return adminRequest(`/api/admin/users/${userId}/premium`, {
     method: 'POST',
     body: JSON.stringify({ action })
   });
@@ -496,7 +496,7 @@ export async function deleteAdminUser(userId: string): Promise<any> {
     deleteUser(userId);
     return { message: 'User deleted successfully' };
   }
-  return adminRequest(`/users/${userId}`, {
+  return adminRequest(`/api/admin/users/${userId}`, {
     method: 'DELETE'
   });
 }
