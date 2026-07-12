@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { toast } from 'react-hot-toast';
 import { TrashIcon, UserCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode, toggleAdminPremium, deleteAdminUser } from '@/lib/admin';
+import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode } from '@/lib/admin';
 import { deleteUser, updateUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
 
 export default function AdminUsersPage() {
@@ -44,9 +44,20 @@ export default function AdminUsersPage() {
 
     const handleDelete = async () => {
         if (!deleteId) return;
-
         try {
-            await deleteAdminUser(deleteId);
+            // Try remote backend first
+            const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+            if (API_BASE) {
+                const token = localStorage.getItem('accessToken');
+                const headers: Record<string, string> = { 'X-Admin-Pin': 'admin' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                const res = await fetch(`${API_BASE}/api/admin/users/${deleteId}`, { method: 'DELETE', headers });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.message || `Delete failed (${res.status})`);
+            } else {
+                // Fallback: local mode only
+                deleteUser(deleteId);
+            }
             toast.success('User removed successfully');
             setDeleteId(null);
             await loadUsers();
@@ -56,15 +67,26 @@ export default function AdminUsersPage() {
     };
 
     const handleTogglePremium = async (userId: string, isCurrentlyPremium: boolean) => {
-        if (!localMode) {
-            toast.error('Updates are only available in local admin mode.');
-            return;
-        }
         try {
-            const newExpiry = isCurrentlyPremium ? 0 : Date.now() + (100 * 365 * 24 * 60 * 60 * 1000); // 100 years
-            const success = updateUser(userId, { premiumExpiry: newExpiry });
-            if (!success) throw new Error('Failed to update premium status');
-            toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted');
+            const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+            if (API_BASE) {
+                const token = localStorage.getItem('accessToken');
+                const headers: Record<string, string> = { 'Content-Type': 'application/json', 'X-Admin-Pin': 'admin' };
+                if (token) headers['Authorization'] = `Bearer ${token}`;
+                const res = await fetch(`${API_BASE}/api/admin/users/${userId}/premium`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ action: isCurrentlyPremium ? 'revoke' : 'grant' }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data.message || `Premium update failed (${res.status})`);
+            } else {
+                // Fallback: local mode only
+                const newExpiry = isCurrentlyPremium ? 0 : Date.now() + (100 * 365 * 24 * 60 * 60 * 1000);
+                const success = updateUser(userId, { premiumExpiry: newExpiry });
+                if (!success) throw new Error('Failed to update premium status');
+            }
+            toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted ✨');
             await loadUsers();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Error updating user');
