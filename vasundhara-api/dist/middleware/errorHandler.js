@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.asyncHandler = exports.notFoundHandler = exports.errorHandler = exports.CustomError = void 0;
-const logger_1 = require("../utils/logger");
-const config_1 = require("../config/config");
+const logger_1 = require("@/utils/logger");
+const config_1 = require("@/config/config");
 class CustomError extends Error {
     constructor(message, statusCode = 500, isOperational = true) {
         super(message);

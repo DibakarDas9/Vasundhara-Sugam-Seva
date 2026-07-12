@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const errorHandler_1 = require("../middleware/errorHandler");
-const MarketplaceListing_1 = require("../models/MarketplaceListing");
+const errorHandler_1 = require("@/middleware/errorHandler");
+const MarketplaceListing_1 = require("@/models/MarketplaceListing");
 const mongoose_1 = __importDefault(require("mongoose"));
 const router = (0, express_1.Router)();
 router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {
@@ -122,6 +122,16 @@ router.post('/:id/claim', (0, errorHandler_1.asyncHandler)(async (req, res) => {
             status: listing.status,
         }
     });
+}));
+router.delete('/:id', (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const query = mongoose_1.default.isValidObjectId(id) ? { _id: id } : { id: id };
+    const listing = await MarketplaceListing_1.MarketplaceListing.findOneAndDelete(query);
+    if (!listing) {
+        res.status(404).json({ error: 'Listing not found' });
+        return;
+    }
+    res.json({ success: true });
 }));
 exports.default = router;
 //# sourceMappingURL=marketplace.js.map

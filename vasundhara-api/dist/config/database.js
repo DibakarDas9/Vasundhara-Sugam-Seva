@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getConnectionInfo = exports.getConnectionStatus = exports.disconnectDatabase = exports.connectDatabase = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const config_1 = require("./config");
-const logger_1 = require("../utils/logger");
+const logger_1 = require("@/utils/logger");
 let isConnected = false;
 const connectDatabase = async () => {
     if (isConnected) {

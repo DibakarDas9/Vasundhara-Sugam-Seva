@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const express_validator_1 = require("express-validator");
-const User_1 = require("../models/User");
-const auth_1 = require("../middleware/auth");
-const errorHandler_1 = require("../middleware/errorHandler");
-const logger_1 = require("../utils/logger");
+const User_1 = require("@/models/User");
+const auth_1 = require("@/middleware/auth");
+const errorHandler_1 = require("@/middleware/errorHandler");
+const logger_1 = require("@/utils/logger");
 const router = (0, express_1.Router)();
 router.post('/register', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail(),

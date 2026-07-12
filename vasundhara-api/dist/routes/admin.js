@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const express_validator_1 = require("express-validator");
-const auth_1 = require("../middleware/auth");
-const errorHandler_1 = require("../middleware/errorHandler");
-const User_1 = require("../models/User");
-const AuditLog_1 = require("../models/AuditLog");
-const emailService_1 = require("../services/emailService");
+const auth_1 = require("@/middleware/auth");
+const errorHandler_1 = require("@/middleware/errorHandler");
+const User_1 = require("@/models/User");
+const AuditLog_1 = require("@/models/AuditLog");
+const emailService_1 = require("@/services/emailService");
 const router = (0, express_1.Router)();
 router.use((req, res, next) => {
     if (req.headers['x-admin-pin'] === 'admin') {

@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendApprovalDecisionEmail = sendApprovalDecisionEmail;
 const nodemailer_1 = __importDefault(require("nodemailer"));
-const config_1 = require("../config/config");
-const logger_1 = require("../utils/logger");
+const config_1 = require("@/config/config");
+const logger_1 = require("@/utils/logger");
 let transporter = null;
 const hasSmtpConfig = () => {
     const { smtp } = config_1.config.email;
