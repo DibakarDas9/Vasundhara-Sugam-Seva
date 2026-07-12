@@ -46,6 +46,12 @@ interface User {
   };
   householdProfile?: HouseholdProfile;
   shopkeeperProfile?: ShopkeeperProfile;
+  payoutDetails?: {
+    upiId?: string;
+    accNumber?: string;
+    bankIfsc?: string;
+  };
+  premiumExpiry?: number;
 }
 
 interface AuthContextType {

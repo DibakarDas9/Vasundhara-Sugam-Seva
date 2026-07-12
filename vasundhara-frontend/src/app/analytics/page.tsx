@@ -18,6 +18,7 @@ import {
   SparklesIcon
 } from '@heroicons/react/24/outline';
 import { useLocalInventory } from '@/lib/localInventory';
+import { useAuth } from '@/contexts/AuthContext';
 
 const mockAnalytics = {
   wasteReduction: {
@@ -70,17 +71,19 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 function AnalyticsContent() {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
   const { items } = useLocalInventory();
+  const { user, updateProfile } = useAuth();
   const hasData = items.length > 0;
 
   const [isPremium, setIsPremium] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   
   useEffect(() => {
-    const expiry = localStorage.getItem('vasundhara_premium_expiry');
-    if (expiry && parseInt(expiry, 10) > Date.now()) {
+    if (user?.premiumExpiry && user.premiumExpiry > Date.now()) {
       setIsPremium(true);
+    } else {
+      setIsPremium(false);
     }
-  }, []);
+  }, [user?.premiumExpiry]);
 
   const handleSubscribe = async (tier: 'day' | 'month' | 'year', amount: number) => {
     setIsProcessingPayment(true);
@@ -101,11 +104,11 @@ function AnalyticsContent() {
         name: "Vasundhara Sugam Seva",
         description: `Premium Analytics - 1 ${tier}`,
         order_id: orderData.id,
-        handler: function (response: any) {
+        handler: async function (response: any) {
           const now = Date.now();
           const multipliers = { day: 86400000, month: 2592000000, year: 31536000000 };
           const expiry = now + multipliers[tier];
-          localStorage.setItem('vasundhara_premium_expiry', expiry.toString());
+          await updateProfile({ premiumExpiry: expiry });
           setIsPremium(true);
           toast.success('Successfully upgraded to Premium!');
           setIsProcessingPayment(false);

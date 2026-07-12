@@ -36,6 +36,12 @@ export interface StoredUser {
         licenseNumber?: string;
         address?: string;
     };
+    payoutDetails?: {
+        upiId?: string;
+        accNumber?: string;
+        bankIfsc?: string;
+    };
+    premiumExpiry?: number;
     profileImage?: string;
 }
 

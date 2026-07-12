@@ -189,7 +189,7 @@ function toMarketplaceListing(listing: RemoteMarketplaceListing): MarketplaceLis
 
 function MarketplaceContent() {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [formData, setFormData] = useState<MarketplaceFormState>(initialFormState);
   const [currentLocation, setCurrentLocation] = useState('');
@@ -217,10 +217,13 @@ function MarketplaceContent() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    try {
-      const savedPayouts = localStorage.getItem('vasundhara_payout_settings');
-      if (savedPayouts) setPayoutDetails(JSON.parse(savedPayouts));
-    } catch {}
+    if (user?.payoutDetails) {
+      setPayoutDetails({
+        upiId: user.payoutDetails.upiId || '',
+        bankIfsc: user.payoutDetails.bankIfsc || '',
+        accNumber: user.payoutDetails.accNumber || ''
+      });
+    }
     
     setIsMounted(true);
     const savedLocation = getSavedMarketplaceLocation();
@@ -1041,8 +1044,8 @@ function MarketplaceContent() {
               <div className="pt-2">
                 <Button 
                   className="w-full"
-                  onClick={() => {
-                    localStorage.setItem('vasundhara_payout_settings', JSON.stringify(payoutDetails));
+                  onClick={async () => {
+                    await updateProfile({ payoutDetails });
                     toast.success('Payout details saved successfully!');
                     setIsPayoutModalOpen(false);
                   }}

@@ -3,10 +3,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { toast } from 'react-hot-toast';
-import { TrashIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, UserCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode } from '@/lib/admin';
-import { deleteUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
+import { deleteUser, updateUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<AdminUser[]>([]);
@@ -65,6 +65,22 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleTogglePremium = async (userId: string, isCurrentlyPremium: boolean) => {
+        if (!localMode) {
+            toast.error('Updates are only available in local admin mode.');
+            return;
+        }
+        try {
+            const newExpiry = isCurrentlyPremium ? 0 : Date.now() + (100 * 365 * 24 * 60 * 60 * 1000); // 100 years
+            const success = updateUser(userId, { premiumExpiry: newExpiry });
+            if (!success) throw new Error('Failed to update premium status');
+            toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted');
+            await loadUsers();
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Error updating user');
+        }
+    };
+
     return (
         <div className="flex h-screen bg-gray-50">
             <Sidebar />
@@ -85,6 +101,8 @@ export default function AdminUsersPage() {
                                             <th className="px-6 py-4 font-semibold text-gray-700">User</th>
                                             <th className="px-6 py-4 font-semibold text-gray-700">Role</th>
                                             <th className="px-6 py-4 font-semibold text-gray-700">Status</th>
+                                            <th className="px-6 py-4 font-semibold text-gray-700">Payout Details</th>
+                                            <th className="px-6 py-4 font-semibold text-gray-700">Premium</th>
                                             <th className="px-6 py-4 font-semibold text-gray-700">Joined</th>
                                             <th className="px-6 py-4 font-semibold text-gray-700 text-right">Actions</th>
                                         </tr>
@@ -123,6 +141,43 @@ export default function AdminUsersPage() {
                                                         {(user.isActive ?? true) ? 'Active' : 'Inactive'}
                                                     </span>
                                                     <div className="mt-1 text-xs text-gray-500 capitalize">{user.approvalStatus}</div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {user.payoutDetails && (user.payoutDetails.upiId || user.payoutDetails.accNumber) ? (
+                                                        <div className="text-xs">
+                                                            {user.payoutDetails.upiId ? (
+                                                                <div className="font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded inline-block">
+                                                                    UPI: {user.payoutDetails.upiId}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="font-mono text-gray-900 bg-gray-100 px-2 py-1 rounded inline-block whitespace-nowrap">
+                                                                    Bank: {user.payoutDetails.accNumber} <span className="text-gray-500 ml-1">({user.payoutDetails.bankIfsc})</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400 italic">Not set</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {user.premiumExpiry && user.premiumExpiry > Date.now() ? (
+                                                        <button 
+                                                            onClick={() => handleTogglePremium(user._id, true)}
+                                                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 border border-yellow-300 hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:border-red-200 transition-all"
+                                                            title="Click to revoke premium"
+                                                        >
+                                                            <SparklesIcon className="w-3 h-3" />
+                                                            Premium
+                                                        </button>
+                                                    ) : (
+                                                        <button 
+                                                            onClick={() => handleTogglePremium(user._id, false)}
+                                                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500 hover:bg-yellow-50 hover:text-yellow-700 hover:border-yellow-200 border border-transparent transition-all"
+                                                            title="Click to grant premium"
+                                                        >
+                                                            Basic
+                                                        </button>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 text-gray-500">
                                                     {new Date(user.createdAt).toLocaleDateString()}

@@ -28,11 +28,12 @@ export function Header({ title, subtitle, className }: HeaderProps) {
   const { notifications, markNotificationRead, clearNotifications } = useLocalInventory();
 
   useEffect(() => {
-    const expiry = localStorage.getItem('vasundhara_premium_expiry');
-    if (expiry && parseInt(expiry, 10) > Date.now()) {
+    if (user?.premiumExpiry && user.premiumExpiry > Date.now()) {
       setIsPremium(true);
+    } else {
+      setIsPremium(false);
     }
-  }, []);
+  }, [user?.premiumExpiry]);
 
   // Check if we're in the admin area
   const isAdminArea = pathname?.startsWith('/admin');

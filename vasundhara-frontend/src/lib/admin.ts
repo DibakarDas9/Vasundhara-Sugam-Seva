@@ -41,6 +41,12 @@ export interface AdminUser {
     reason?: string;
     lastReviewedAt?: string;
   };
+  payoutDetails?: {
+    upiId?: string;
+    accNumber?: string;
+    bankIfsc?: string;
+  };
+  premiumExpiry?: number;
   isProtected?: boolean;
   protectedLabel?: string;
 }
@@ -174,6 +180,8 @@ function mapStoredUserToAdminUser(user: StoredUser): AdminUser {
     updatedAt: user.createdAt,
     householdProfile: user.householdProfile,
     shopkeeperProfile: user.shopkeeperProfile,
+    payoutDetails: user.payoutDetails,
+    premiumExpiry: user.premiumExpiry,
     flags: user.approvalStatus === 'rejected' ? { isFlagged: true, reason: 'Rejected locally' } : undefined,
     isProtected: systemAdmin,
     protectedLabel: systemAdmin ? 'System admin • cannot be removed' : undefined,
