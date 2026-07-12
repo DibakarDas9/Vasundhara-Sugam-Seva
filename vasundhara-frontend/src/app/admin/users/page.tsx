@@ -17,7 +17,7 @@ export default function AdminUsersPage() {
     const loadUsers = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetchAdminUsers({ limit: 200, sort: 'desc' });
+            const response = await fetchAdminUsers({ limit: 100, sort: 'desc' });
             setUsers(response.data);
         } catch (error) {
             console.error(error);

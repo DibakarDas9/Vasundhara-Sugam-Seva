@@ -16,7 +16,7 @@ export default function AdminPremiumPage() {
     const loadUsers = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetchAdminUsers({ limit: 200, sort: 'desc' });
+            const response = await fetchAdminUsers({ limit: 100, sort: 'desc' });
             setUsers(response.data);
         } catch (error) {
             console.error(error);
@@ -42,14 +42,32 @@ export default function AdminPremiumPage() {
     }, [loadUsers]);
 
     const handleTogglePremium = async (userId: string, isCurrentlyPremium: boolean) => {
-        if (!localMode) {
-            toast.error('Updates are only available in local admin mode.');
-            return;
-        }
         try {
             const newExpiry = isCurrentlyPremium ? 0 : Date.now() + (100 * 365 * 24 * 60 * 60 * 1000); // 100 years
-            const success = updateUser(userId, { premiumExpiry: newExpiry });
-            if (!success) throw new Error('Failed to update premium status');
+            
+            if (localMode) {
+                const success = updateUser(userId, { premiumExpiry: newExpiry });
+                if (!success) throw new Error('Failed to update premium status');
+            } else {
+                const token = localStorage.getItem('accessToken');
+                if (!token) throw new Error('No access token found');
+                
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
+                const response = await fetch(`${API_URL}/api/admin/users/${userId}/premium`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ action: isCurrentlyPremium ? 'revoke' : 'grant' })
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.error?.message || data.message || 'Failed to update premium status on remote server');
+                }
+            }
+            
             toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted');
             await loadUsers();
         } catch (error) {
@@ -130,7 +148,6 @@ export default function AdminPremiumPage() {
                                                         <button 
                                                             onClick={() => handleTogglePremium(user._id, true)}
                                                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 transition-all shadow-sm disabled:opacity-50"
-                                                            disabled={!localMode}
                                                         >
                                                             Revoke
                                                         </button>
@@ -138,7 +155,6 @@ export default function AdminPremiumPage() {
                                                         <button 
                                                             onClick={() => handleTogglePremium(user._id, false)}
                                                             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-bold bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-950 hover:from-yellow-500 hover:to-yellow-600 transition-all shadow-sm disabled:opacity-50"
-                                                            disabled={!localMode}
                                                         >
                                                             <SparklesIcon className="w-4 h-4" />
                                                             Grant
