@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const errorHandler_1 = require("@/middleware/errorHandler");
-const MarketplaceListing_1 = require("@/models/MarketplaceListing");
+const errorHandler_1 = require("../middleware/errorHandler");
+const MarketplaceListing_1 = require("../models/MarketplaceListing");
 const mongoose_1 = __importDefault(require("mongoose"));
 const router = (0, express_1.Router)();
 router.get('/', (0, errorHandler_1.asyncHandler)(async (req, res) => {

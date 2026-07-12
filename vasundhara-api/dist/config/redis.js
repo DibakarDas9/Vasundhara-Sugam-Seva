@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getConnectionInfo = exports.getConnectionStatus = exports.getRedisClient = exports.disconnectRedis = exports.connectRedis = void 0;
 const ioredis_1 = __importDefault(require("ioredis"));
 const config_1 = require("./config");
-const logger_1 = require("@/utils/logger");
+const logger_1 = require("../utils/logger");
 let redisClient = null;
 const connectRedis = async () => {
     if (redisClient && redisClient.status === 'ready') {

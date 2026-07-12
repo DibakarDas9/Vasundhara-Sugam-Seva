@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.analyticsQueue = exports.smsQueue = exports.emailQueue = exports.expiryAlertQueue = exports.startJobProcessor = void 0;
 const bull_1 = __importDefault(require("bull"));
-const config_1 = require("@/config/config");
-const logger_1 = require("@/utils/logger");
+const config_1 = require("../config/config");
+const logger_1 = require("../utils/logger");
 const expiryAlertQueue = new bull_1.default('expiry-alerts', config_1.config.jobs.redis);
 exports.expiryAlertQueue = expiryAlertQueue;
 const emailQueue = new bull_1.default('email', config_1.config.jobs.redis);
