@@ -1,4 +1,4 @@
-import { getAllUsers, updateUser, getCurrentUser, isSystemAdminAccount, type StoredUser } from '@/lib/localAuth';
+import { getAllUsers, updateUser, getCurrentUser, isSystemAdminAccount, type StoredUser, deleteUser } from '@/lib/localAuth';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 const ML_BASE = (process.env.NEXT_PUBLIC_ML_SERVICE_URL || 'http://localhost:8000').replace(/\/$/, '');
@@ -476,4 +476,27 @@ export async function fetchMonitoringMetrics(signal?: AbortSignal): Promise<Moni
     timestamp: payload?.timestamp || new Date().toISOString(),
     metrics: payload?.metrics || { models: {}, recent_inferences: [], recent_retraining_events: [] },
   };
+}
+
+export async function toggleAdminPremium(userId: string, action: 'grant' | 'revoke'): Promise<any> {
+  if (shouldUseLocalAdminMode()) {
+    const newExpiry = action === 'grant' ? Date.now() + (100 * 365 * 24 * 60 * 60 * 1000) : 0;
+    const success = updateUser(userId, { premiumExpiry: newExpiry });
+    if (!success) throw new Error('Failed to update premium status');
+    return { message: `Premium ${action}ed successfully` };
+  }
+  return adminRequest(`/users/${userId}/premium`, {
+    method: 'POST',
+    body: JSON.stringify({ action })
+  });
+}
+
+export async function deleteAdminUser(userId: string): Promise<any> {
+  if (shouldUseLocalAdminMode()) {
+    deleteUser(userId);
+    return { message: 'User deleted successfully' };
+  }
+  return adminRequest(`/users/${userId}`, {
+    method: 'DELETE'
+  });
 }
