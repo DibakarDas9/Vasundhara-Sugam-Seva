@@ -25,6 +25,7 @@ import {
 import { useLocalInventory, type UsageLog } from '@/lib/localInventory';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { addTransaction } from '@/lib/transactions';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CO2_PER_KG_FOOD_WASTE = 2.5; // kg CO2 per kg food wasted (EPA estimate)
@@ -347,6 +348,19 @@ function AnalyticsContent() {
           const multipliers = { day: 86400000, month: 2592000000, year: 31536000000 };
           const expiry = now + multipliers[tier];
           await updateProfile({ premiumExpiry: expiry });
+          // Log the transaction
+          if (user) {
+            addTransaction({
+              userId: user.id,
+              userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+              userEmail: user.email,
+              type: 'premium',
+              amount: amount,
+              description: `Premium Analytics — ${tier} plan`,
+              razorpayOrderId: orderData.id,
+              razorpayPaymentId: response.razorpay_payment_id,
+            });
+          }
           setIsPremium(true);
           toast.success('Successfully upgraded to Premium! 🎉');
           setIsProcessingPayment(false);

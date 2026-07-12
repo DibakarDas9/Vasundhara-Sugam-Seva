@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/AuthContext';
 import { SystemAdminControls } from '@/components/admin/SystemAdminControls';
-import { CameraIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { CameraIcon, UserCircleIcon, SparklesIcon, ShoppingBagIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Image from 'next/image';
+import { getUserTransactions, type Transaction } from '@/lib/transactions';
 
 export default function SettingsPage() {
   const { user, updateProfile } = useAuth();
@@ -20,6 +21,7 @@ export default function SettingsPage() {
   const [profileImage, setProfileImage] = useState<string | undefined>(undefined);
   const [payoutDetails, setPayoutDetails] = useState({ upiId: '', accNumber: '', bankIfsc: '' });
   const [loading, setLoading] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,6 +38,21 @@ export default function SettingsPage() {
       }
     }
   }, [user]);
+
+  const loadTransactions = useCallback(() => {
+    if (user?.id) setTransactions(getUserTransactions(user.id));
+  }, [user?.id]);
+
+  useEffect(() => {
+    loadTransactions();
+    const handler = () => loadTransactions();
+    window.addEventListener('vasundhara-transactions-update', handler);
+    window.addEventListener('storage', handler);
+    return () => {
+      window.removeEventListener('vasundhara-transactions-update', handler);
+      window.removeEventListener('storage', handler);
+    };
+  }, [loadTransactions]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -203,6 +220,63 @@ export default function SettingsPage() {
                 <SystemAdminControls showBanner={false} />
               </div>
             )}
+
+            {/* Transactions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>My Transactions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {transactions.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No transactions yet.</p>
+                    <p className="text-xs text-gray-400 mt-1">Your Premium Analytics purchases and Marketplace deals will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {transactions.map((txn) => (
+                      <div
+                        key={txn.id}
+                        className="flex items-start gap-3 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors"
+                      >
+                        {/* Icon */}
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${txn.type === 'premium' ? 'bg-violet-100 dark:bg-violet-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>
+                          {txn.type === 'premium'
+                            ? <SparklesIcon className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+                            : <ShoppingBagIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                        </div>
+
+                        {/* Description */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{txn.description}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{new Date(txn.date).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</p>
+                          {txn.settledAt && (
+                            <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">Settled on {new Date(txn.settledAt).toLocaleDateString('en-IN', { dateStyle: 'medium' })}</p>
+                          )}
+                        </div>
+
+                        {/* Amount + status */}
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
+                          <span className={`text-sm font-bold ${txn.amount === 0 ? 'text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+                            {txn.amount === 0 ? 'Free' : `₹${txn.amount}`}
+                          </span>
+                          {txn.status === 'settled' ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                              <CheckCircleIcon className="w-3 h-3" />Settled
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                              <ClockIcon className="w-3 h-3" />Unsettled
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
           </div>
         </main>
       </div>

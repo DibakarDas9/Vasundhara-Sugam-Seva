@@ -18,6 +18,7 @@ import {
   type MarketplaceCoordinates,
   type MarketplaceListing,
 } from '@/lib/marketplaceStore';
+import { addTransaction } from '@/lib/transactions';
 
 function RequestContent() {
   const params = useParams<{ listingId: string }>();
@@ -69,6 +70,18 @@ function RequestContent() {
     if (listing.isFree || !listing.price) {
       const updated = reserveMarketplaceListing(listing.id, user ? `${user.firstName} ${user.lastName}`.trim() : 'Nearby user');
       setListing(updated);
+      // Log free transaction
+      if (user) {
+        addTransaction({
+          userId: user.id,
+          userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+          userEmail: user.email,
+          type: 'marketplace',
+          amount: 0,
+          description: `Free pickup: ${listing.title}`,
+          listingId: listing.id,
+        });
+      }
       setNobleCauseMessage("Thank you for our noble cause 🌍");
       return;
     }
@@ -96,6 +109,20 @@ function RequestContent() {
         handler: function (response: any) {
           const updated = reserveMarketplaceListing(listing.id, user ? `${user.firstName} ${user.lastName}`.trim() : 'Nearby user');
           setListing(updated);
+          // Log paid transaction
+          if (user) {
+            addTransaction({
+              userId: user.id,
+              userName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+              userEmail: user.email,
+              type: 'marketplace',
+              amount: listing.price || 0,
+              description: `Marketplace purchase: ${listing.title}`,
+              listingId: listing.id,
+              razorpayOrderId: orderData.id,
+              razorpayPaymentId: response.razorpay_payment_id,
+            });
+          }
           setActionMessage('Payment successful! Request submitted. Connect with the homeowner for pickup.');
         },
         prefill: {
