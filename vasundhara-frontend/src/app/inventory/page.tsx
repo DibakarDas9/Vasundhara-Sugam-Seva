@@ -319,11 +319,6 @@ function InventoryContent() {
                             </div>
                           )}
                           <div className="flex items-center gap-2">
-                            {item.expiryDate && (
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full border ${config.color}`}>
-                                {getStatusLabel(item.status || 'good')}
-                              </span>
-                            )}
                             <button
                               type="button"
                               onClick={(e) => {
@@ -364,7 +359,17 @@ function InventoryContent() {
                       </CardHeader>
 
                       <CardContent className="pt-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.name || 'Unnamed Item'}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white">{item.name || 'Unnamed Item'}</h3>
+                          {item.expiryDate && (
+                            <span 
+                              className={`shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-full border ${config.color}`}
+                              title={statusConfig[item.status as keyof typeof statusConfig]?.label || 'Fresh'}
+                            >
+                              {getStatusLabel(item.status || 'good')}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.category || 'Uncategorized'}</p>
 
                         <div className="space-y-2 mb-4">
@@ -452,7 +457,10 @@ function InventoryContent() {
                               <div className="flex items-center gap-2">
                                 <h3 className="truncate text-sm font-semibold text-gray-900 dark:text-white">{item.name || 'Unnamed Item'}</h3>
                                 {item.expiryDate && (
-                                  <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.color}`}>
+                                  <span 
+                                    className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${config.color}`}
+                                    title={statusConfig[item.status as keyof typeof statusConfig]?.label || 'Fresh'}
+                                  >
                                     {getStatusLabel(item.status || 'good')}
                                   </span>
                                 )}
@@ -483,7 +491,10 @@ function InventoryContent() {
                           </div>
                           <div>
                             {item.expiryDate && (
-                              <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium ${config.color}`}>
+                              <span 
+                                className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold ${config.color}`}
+                                title={statusConfig[item.status as keyof typeof statusConfig]?.label || 'Fresh'}
+                              >
                                 {getStatusLabel(item.status || 'good')}
                               </span>
                             )}

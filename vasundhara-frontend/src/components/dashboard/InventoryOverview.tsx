@@ -107,7 +107,15 @@ export function InventoryOverview() {
                       <Icon className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name || 'Unnamed Item'}</p>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name || 'Unnamed Item'}</p>
+                        <span 
+                          className={`inline-flex px-2 py-0.5 text-[10px] font-bold rounded-full ${config.color}`}
+                          title={statusConfig[item.status as keyof typeof statusConfig]?.label || 'Fresh'}
+                        >
+                          {getStatusLabel(item.status || 'good')}
+                        </span>
+                      </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {item.expiryDate 
                           ? `${t('dashboard.expiresDate', 'Expires')} ${formatDate(item.expiryDate)}` 
@@ -116,9 +124,6 @@ export function InventoryOverview() {
                       </p>
                     </div>
                   </div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${config.color}`}>
-                    {getStatusLabel(item.status || 'good')}
-                  </span>
                 </div>
               );
             })}
