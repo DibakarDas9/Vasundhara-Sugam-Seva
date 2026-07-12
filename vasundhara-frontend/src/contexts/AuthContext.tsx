@@ -143,6 +143,8 @@ function mapStoredUserToUser(localUser: StoredUser): User {
     preferences: buildPreferences(),
     householdProfile: localUser.householdProfile,
     shopkeeperProfile: localUser.shopkeeperProfile,
+    premiumExpiry: localUser.premiumExpiry,
+    payoutDetails: localUser.payoutDetails,
   };
 }
 
@@ -159,6 +161,8 @@ function mapRemoteUserToUser(remoteUser: any): User {
     preferences: buildPreferences(remoteUser.preferences),
     householdProfile: remoteUser.householdProfile,
     shopkeeperProfile: remoteUser.shopkeeperProfile,
+    premiumExpiry: remoteUser.premiumExpiry,
+    payoutDetails: remoteUser.payoutDetails,
   };
 }
 

@@ -199,9 +199,16 @@ export function Sidebar({ className }: SidebarProps) {
               {!collapsed && (profileName || profileEmail) && (
                 <div className="flex-1 min-w-0">
                   {profileName && (
-                    <p className="text-sm font-medium text-app truncate">
-                      {profileName}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-app truncate">
+                        {profileName}
+                      </p>
+                      {user?.premiumExpiry && user.premiumExpiry > Date.now() && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                          PRO
+                        </span>
+                      )}
+                    </div>
                   )}
                   {profileEmail && (
                     <p className="text-xs text-muted truncate">
