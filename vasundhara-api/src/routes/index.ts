@@ -1,10 +1,12 @@
 import { Router } from 'express';
 
 import authRouter from './auth';
+
 import googleAuthRouter from './google';
 import marketplaceRouter from './marketplace';
 import inventoryRouter from './inventory';
 import adminRouter from './admin';
+import usersRouter from './users';
 
 const router = Router();
 
@@ -17,6 +19,7 @@ router.use('/auth/google', googleAuthRouter);
 router.use('/marketplace', marketplaceRouter);
 router.use('/inventory', inventoryRouter);
 router.use('/admin', adminRouter);
+router.use('/users', usersRouter);
 
 export default router;
 

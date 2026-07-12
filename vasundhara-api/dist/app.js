@@ -55,9 +55,10 @@ const routes_1 = __importDefault(require("./routes"));
 app.use('/api', routes_1.default);
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({
-        error: 'Something went wrong!',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({
+        error: err.name || 'Error',
+        message: err.message || 'Internal server error'
     });
 });
 app.use('*', (req, res) => {
