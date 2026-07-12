@@ -49,10 +49,13 @@ export function InventoryOverview() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'critical': return t('inventory.critical', 'Expires Today');
-      case 'warning': return t('inventory.warning', 'Expires Soon');
-      case 'caution': return t('inventory.caution', 'Expires Soon');
-      case 'good': default: return t('inventory.good', 'Fresh');
+      case 'critical':
+      case 'warning':
+      case 'caution':
+        return 'E';
+      case 'good':
+      default:
+        return 'F';
     }
   };
 
