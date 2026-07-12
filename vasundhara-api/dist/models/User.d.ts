@@ -50,6 +50,12 @@ export interface IUser extends Document {
         address?: string;
     };
     lastLoginAt?: Date;
+    payoutDetails?: {
+        upiId?: string;
+        accNumber?: string;
+        bankIfsc?: string;
+    };
+    premiumExpiry?: number;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;

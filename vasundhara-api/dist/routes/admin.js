@@ -151,6 +151,22 @@ router.post('/users/:userId/reject', [
         reason: req.body.reason,
     });
 }));
+router.post('/users/:userId/premium', [
+    (0, express_validator_1.param)('userId').isMongoId(),
+    (0, express_validator_1.body)('action').isIn(['grant', 'revoke']),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        throw new errorHandler_1.CustomError('Validation failed', 400);
+    }
+    const { action } = req.body;
+    const newExpiry = action === 'grant' ? Date.now() + (100 * 365 * 24 * 60 * 60 * 1000) : 0;
+    const user = await User_1.User.findByIdAndUpdate(req.params.userId, { premiumExpiry: newExpiry }, { new: true });
+    if (!user) {
+        throw new errorHandler_1.CustomError('User not found', 404);
+    }
+    res.json({ message: `Premium ${action}ed successfully`, user });
+}));
 router.get('/audit-logs', [
     (0, express_validator_1.query)('action').optional().isString(),
     (0, express_validator_1.query)('limit').optional().isInt({ min: 1, max: 200 }),

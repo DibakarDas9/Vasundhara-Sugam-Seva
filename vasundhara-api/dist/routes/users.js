@@ -23,7 +23,7 @@ router.put('/profile', auth_1.authenticate, [
         throw new errorHandler_1.CustomError('Validation failed', 400);
     }
     const allowedUpdates = [
-        'firstName', 'lastName', 'phoneNumber', 'dateOfBirth', 'preferences'
+        'firstName', 'lastName', 'phoneNumber', 'dateOfBirth', 'preferences', 'payoutDetails'
     ];
     const updates = Object.keys(req.body)
         .filter(key => allowedUpdates.includes(key))

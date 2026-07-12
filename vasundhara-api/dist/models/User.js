@@ -201,6 +201,14 @@ const UserSchema = new mongoose_1.Schema({
     lastLoginAt: {
         type: Date,
     },
+    payoutDetails: {
+        upiId: String,
+        accNumber: String,
+        bankIfsc: String,
+    },
+    premiumExpiry: {
+        type: Number,
+    },
 }, {
     timestamps: true,
     toJSON: {
