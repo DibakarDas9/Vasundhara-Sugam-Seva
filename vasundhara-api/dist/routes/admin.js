@@ -167,6 +167,32 @@ router.post('/users/:userId/premium', [
     }
     res.json({ message: `Premium ${action}ed successfully`, user });
 }));
+router.delete('/users/:userId', [
+    (0, express_validator_1.param)('userId').isMongoId(),
+], (0, errorHandler_1.asyncHandler)(async (req, res) => {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        throw new errorHandler_1.CustomError('Validation failed', 400);
+    }
+    const target = await User_1.User.findById(req.params.userId);
+    if (!target) {
+        throw new errorHandler_1.CustomError('User not found', 404);
+    }
+    if (target.role === 'admin') {
+        throw new errorHandler_1.CustomError('Admin accounts cannot be deleted', 403);
+    }
+    await User_1.User.findByIdAndDelete(req.params.userId);
+    await AuditLog_1.AuditLog.create({
+        actorId: req.user._id,
+        action: 'USER_DELETED',
+        targetUserId: req.params.userId,
+        metadata: {
+            email: target.email,
+            role: target.role,
+        },
+    });
+    res.json({ message: 'User deleted successfully' });
+}));
 router.get('/audit-logs', [
     (0, express_validator_1.query)('action').optional().isString(),
     (0, express_validator_1.query)('limit').optional().isInt({ min: 1, max: 200 }),
