@@ -58,7 +58,7 @@ const statusConfig = {
   caution: {
     icon: ClockIcon,
     color: 'text-orange-600 bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800/30',
-    label: 'Expiring Soon',
+    label: 'Expires Soon',
   },
   good: {
     icon: CheckCircleIcon,
@@ -86,7 +86,7 @@ function InventoryContent() {
       case 'warning':
         return t('inventory.warning', 'Expires Soon');
       case 'caution':
-        return t('inventory.caution', 'Expiring Soon');
+        return t('inventory.caution', 'Expires Soon');
       case 'good':
       default:
         return t('inventory.good', 'Fresh');
@@ -209,7 +209,7 @@ function InventoryContent() {
                     <option value="all">{t('inventory.allStatus', 'All Status')}</option>
                     <option value="critical">{t('inventory.critical', 'Expires Today')}</option>
                     <option value="warning">{t('inventory.warning', 'Expires Soon')}</option>
-                    <option value="caution">{t('inventory.caution', 'Expiring Soon')}</option>
+                    <option value="caution">{t('inventory.caution', 'Expires Soon')}</option>
                     <option value="good">{t('inventory.good', 'Fresh')}</option>
                   </select>
 
