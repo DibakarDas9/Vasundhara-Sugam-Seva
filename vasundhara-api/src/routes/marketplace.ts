@@ -140,4 +140,15 @@ router.post('/:id/claim', asyncHandler(async (req: Request, res: Response) => {
   });
 }));
 
+router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const query = mongoose.isValidObjectId(id) ? { _id: id } : { id: id };
+  const listing = await MarketplaceListing.findOneAndDelete(query);
+  if (!listing) {
+    res.status(404).json({ error: 'Listing not found' });
+    return;
+  }
+  res.json({ success: true });
+}));
+
 export default router;
