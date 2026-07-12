@@ -161,10 +161,14 @@ function MiniBar({ value, max, color }: { value: number; max: number; color: str
 function AnalyticsContent() {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
   const { items, usageLog } = useLocalInventory();
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, refreshProfile } = useAuth();
 
   const [isPremium, setIsPremium] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  useEffect(() => {
+    refreshProfile().catch(console.error);
+  }, [refreshProfile]);
 
   useEffect(() => {
     if (user?.premiumExpiry && user.premiumExpiry > Date.now()) {

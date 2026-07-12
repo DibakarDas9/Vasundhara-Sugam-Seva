@@ -105,7 +105,7 @@ export default function AdminUsersPage() {
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
                                         {users.map((user) => {
-                                            const isSystemAdmin = user._id === SYSTEM_ADMIN_ID || user.email?.toLowerCase() === SYSTEM_ADMIN_EMAIL;
+                                            const isProtectedAdmin = user.role === 'admin' || user._id === SYSTEM_ADMIN_ID || user.email?.toLowerCase() === SYSTEM_ADMIN_EMAIL;
                                             return (
                                                 <tr key={user._id} className="hover:bg-gray-50/50 transition-colors">
                                                 <td className="px-6 py-4">
@@ -116,8 +116,8 @@ export default function AdminUsersPage() {
                                                         <div>
                                                             <div className="font-medium text-gray-900">{user.firstName} {user.lastName}</div>
                                                             <div className="text-xs text-gray-500">{user.email}</div>
-                                                            {isSystemAdmin && (
-                                                                <p className="text-[11px] font-semibold text-purple-600 mt-1">Protected system admin</p>
+                                                            {isProtectedAdmin && (
+                                                                <p className="text-[11px] font-semibold text-purple-600 mt-1">Protected admin account</p>
                                                             )}
                                                         </div>
                                                     </div>
@@ -181,11 +181,11 @@ export default function AdminUsersPage() {
                                                 <td className="px-6 py-4 text-right">
                                                     <button
                                                         onClick={() => setDeleteId(user._id)}
-                                                        className={`text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors ${!isSystemAdmin ? '' : 'opacity-40 cursor-not-allowed'}`}
-                                                        title={isSystemAdmin
-                                                            ? 'The system admin account cannot be removed.'
+                                                        className={`text-red-600 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors ${!isProtectedAdmin ? '' : 'opacity-40 cursor-not-allowed'}`}
+                                                        title={isProtectedAdmin
+                                                            ? 'Admin accounts cannot be removed.'
                                                             : 'Remove User'}
-                                                        disabled={isSystemAdmin}
+                                                        disabled={isProtectedAdmin}
                                                     >
                                                         <TrashIcon className="w-5 h-5" />
                                                     </button>

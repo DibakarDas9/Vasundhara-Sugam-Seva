@@ -63,6 +63,7 @@ interface AuthContextType {
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   isAuthenticated: boolean;
   // guest mode & role selection
   guestMode: boolean;
@@ -343,6 +344,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [persistRemoteSession, router]);
 
+  const refreshProfile = useCallback(async () => {
+    const localUser = getCurrentUser();
+    if (localUser) {
+      hydrateLocalUser(localUser);
+      return;
+    }
+    if (REMOTE_AUTH_ENABLED && API_URL && typeof window !== 'undefined' && localStorage.getItem('accessToken')) {
+      await fetchUserProfile();
+    }
+  }, [hydrateLocalUser, fetchUserProfile]);
+
   useEffect(() => {
     // Check for existing local session
     const localUser = getCurrentUser();
@@ -532,6 +544,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (typeof data.profileImage !== 'undefined') payload.profileImage = data.profileImage;
       if (typeof data.householdProfile !== 'undefined') payload.householdProfile = data.householdProfile as any;
       if (typeof data.shopkeeperProfile !== 'undefined') payload.shopkeeperProfile = data.shopkeeperProfile as any;
+      if (typeof data.payoutDetails !== 'undefined') payload.payoutDetails = data.payoutDetails as any;
 
       const updated = updateStoredUser(current.id, payload);
       if (!updated) {
@@ -579,6 +592,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     updateProfile,
     changePassword,
+    refreshProfile,
     isAuthenticated: !!user,
     guestMode,
     setGuestMode,
