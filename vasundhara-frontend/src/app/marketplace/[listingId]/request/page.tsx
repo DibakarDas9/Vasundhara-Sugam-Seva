@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Script from 'next/script';
 import {
   distanceKm,
   formatDistance,
@@ -50,26 +51,72 @@ function RequestContent() {
     );
   }, []);
 
-  const handleRequest = () => {
-    if (!listing) {
-      return;
-    }
+  const [nobleCauseMessage, setNobleCauseMessage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  const handleRequest = async () => {
+    if (!listing) return;
     if (!currentLocation) {
       setActionMessage('Enable location access before requesting this item.');
       return;
     }
-
     const distance = distanceKm(currentLocation, listing.coordinates);
-
     if (distance > 1) {
       setActionMessage('This item is outside your 1 km pickup range.');
       return;
     }
 
-    const updated = reserveMarketplaceListing(listing.id, user ? `${user.firstName} ${user.lastName}`.trim() : 'Nearby user');
-    setListing(updated);
-    setActionMessage('Request submitted. Connect with the homeowner for pickup only.');
+    if (listing.isFree || !listing.price) {
+      const updated = reserveMarketplaceListing(listing.id, user ? `${user.firstName} ${user.lastName}`.trim() : 'Nearby user');
+      setListing(updated);
+      setNobleCauseMessage("Thank you for our noble cause 🌍");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const orderRes = await fetch('/api/payments/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: listing.price, receipt: listing.id })
+      });
+      const orderData = await orderRes.json();
+
+      if (!orderRes.ok) {
+        throw new Error(orderData.error || 'Failed to initialize payment');
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'dummy_key',
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Vasundhara Sugam Seva",
+        description: `Payment for ${listing.title}`,
+        order_id: orderData.id,
+        handler: function (response: any) {
+          const updated = reserveMarketplaceListing(listing.id, user ? `${user.firstName} ${user.lastName}`.trim() : 'Nearby user');
+          setListing(updated);
+          setActionMessage('Payment successful! Request submitted. Connect with the homeowner for pickup.');
+        },
+        prefill: {
+          name: user ? `${user.firstName} ${user.lastName}`.trim() : 'User',
+          email: user?.email || '',
+        },
+        theme: {
+          color: "#10b981"
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.on('payment.failed', function (response: any){
+        setActionMessage('Payment failed: ' + response.error.description);
+      });
+      rzp.open();
+    } catch (err: any) {
+      setActionMessage(err.message || 'Payment error occurred');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const distance = listing && currentLocation ? distanceKm(currentLocation, listing.coordinates) : null;
@@ -135,12 +182,32 @@ function RequestContent() {
                     No delivery personnel are involved. Exchange directly with the homeowner within 1 km.
                   </div>
 
+                  {nobleCauseMessage && (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-sm dark:border-emerald-900/40 dark:bg-emerald-900/20 mb-4">
+                      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-800">
+                        <span className="text-2xl">🌍</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-100">
+                        {nobleCauseMessage}
+                      </h3>
+                      <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-300">
+                        Your request is confirmed. Coordinate directly with the homeowner for pickup.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex gap-3">
                     <Button
                       onClick={handleRequest}
-                      disabled={!isWithinRange || listing.status !== 'available'}
+                      disabled={!isWithinRange || listing.status !== 'available' || isProcessing}
                     >
-                      {listing.status === 'available' ? 'Request pickup' : 'Already reserved'}
+                      {isProcessing 
+                        ? 'Processing...' 
+                        : listing.status !== 'available' 
+                        ? 'Already reserved' 
+                        : (listing.isFree || !listing.price)
+                        ? 'Request Free Pickup'
+                        : `Pay ₹${listing.price} & Request`}
                     </Button>
                     <Button variant="outline" onClick={() => router.push('/marketplace')}>
                       Back
@@ -158,8 +225,11 @@ function RequestContent() {
 
 export default function MarketplaceRequestPage() {
   return (
-    <ProtectedRoute>
-      <RequestContent />
-    </ProtectedRoute>
+    <>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <ProtectedRoute>
+        <RequestContent />
+      </ProtectedRoute>
+    </>
   );
 }
