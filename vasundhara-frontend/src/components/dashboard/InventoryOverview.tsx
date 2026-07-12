@@ -30,7 +30,7 @@ const statusConfig = {
   caution: {
     icon: ClockIcon,
     color: 'text-orange-600 bg-orange-50',
-    label: 'Expires This Week'
+    label: 'Expiring Soon'
   },
   good: {
     icon: CheckCircleIcon,
@@ -51,7 +51,7 @@ export function InventoryOverview() {
     switch (status) {
       case 'critical': return t('inventory.critical', 'Expires Today');
       case 'warning': return t('inventory.warning', 'Expires Soon');
-      case 'caution': return t('inventory.caution', 'Expires This Week');
+      case 'caution': return t('inventory.caution', 'Expiring Soon');
       case 'good': default: return t('inventory.good', 'Fresh');
     }
   };
