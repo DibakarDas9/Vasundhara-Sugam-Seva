@@ -12,9 +12,17 @@ import { sendApprovalDecisionEmail } from '@/services/emailService';
 
 const router = Router();
 
-// All admin routes require admin role
-router.use(authenticate);
-router.use(authorize('admin'));
+// Admin Auth bypass for prototype gate
+router.use((req: AuthRequest, res: Response, next) => {
+  if (req.headers['x-admin-pin'] === 'admin') {
+    req.user = { _id: 'admin_demo_id', role: 'admin', email: 'admin@vasundhara.com', firstName: 'Admin', lastName: 'User' };
+    return next();
+  }
+  authenticate(req, res, (err: any) => {
+    if (err) return next(err);
+    authorize('admin')(req, res, next);
+  });
+});
 
 router.get('/users', [
   query('status').optional().isIn(['pending', 'approved', 'rejected']),
