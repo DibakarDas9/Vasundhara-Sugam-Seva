@@ -28,9 +28,8 @@ const statusConfig = {
     label: 'Expires Soon'
   },
   caution: {
-    color: 'bg-orange-500',
-    bg: 'bg-orange-50 dark:bg-orange-950/30',
-    text: 'text-orange-700 dark:text-orange-400',
+    icon: ClockIcon,
+    color: 'text-orange-600 bg-orange-50',
     label: 'Expires Soon'
   },
   good: {
