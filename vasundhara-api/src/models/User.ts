@@ -56,6 +56,12 @@ export interface IUser extends Document {
     address?: string;
   };
   lastLoginAt?: Date;
+  payoutDetails?: {
+    upiId?: string;
+    accNumber?: string;
+    bankIfsc?: string;
+  };
+  premiumExpiry?: number;
   createdAt: Date;
   updatedAt: Date;
   
@@ -225,6 +231,14 @@ const UserSchema = new Schema<IUser>({
   },
   lastLoginAt: {
     type: Date,
+  },
+  payoutDetails: {
+    upiId: String,
+    accNumber: String,
+    bankIfsc: String,
+  },
+  premiumExpiry: {
+    type: Number,
   },
 }, {
   timestamps: true,

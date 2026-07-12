@@ -176,7 +176,6 @@ router.post('/users/:userId/reject', [
     message: 'User rejected successfully',
     user: user.toJSON(),
   });
-
   sendApprovalDecisionEmail({
     to: user.email,
     name: user.firstName,
@@ -184,6 +183,31 @@ router.post('/users/:userId/reject', [
     note: req.body.note,
     reason: req.body.reason,
   });
+}));
+
+router.post('/users/:userId/premium', [
+  param('userId').isMongoId(),
+  body('action').isIn(['grant', 'revoke']),
+], asyncHandler(async (req: AuthRequest, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new CustomError('Validation failed', 400);
+  }
+
+  const { action } = req.body;
+  const newExpiry = action === 'grant' ? Date.now() + (100 * 365 * 24 * 60 * 60 * 1000) : 0;
+
+  const user = await User.findByIdAndUpdate(
+    req.params.userId,
+    { premiumExpiry: newExpiry },
+    { new: true }
+  );
+
+  if (!user) {
+    throw new CustomError('User not found', 404);
+  }
+
+  res.json({ message: `Premium ${action}ed successfully`, user });
 }));
 
 router.get('/audit-logs', [

@@ -73,7 +73,7 @@ router.put('/profile', authenticate, [
   }
 
   const allowedUpdates = [
-    'firstName', 'lastName', 'phoneNumber', 'dateOfBirth', 'preferences'
+    'firstName', 'lastName', 'phoneNumber', 'dateOfBirth', 'preferences', 'payoutDetails'
   ];
   
   const updates = Object.keys(req.body)
