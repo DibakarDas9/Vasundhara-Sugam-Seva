@@ -75,7 +75,7 @@ const UserSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: function() {
+    required: function(this: any): boolean {
       return !this.socialLogins?.google && !this.socialLogins?.facebook;
     },
     minlength: 8,
@@ -230,9 +230,10 @@ const UserSchema = new Schema<IUser>({
   timestamps: true,
   toJSON: {
     transform: function(doc, ret) {
-      delete ret.password;
-      delete ret.__v;
-      return ret;
+      const typedRet = ret as any;
+      delete typedRet.password;
+      delete typedRet.__v;
+      return typedRet;
     },
   },
 });

@@ -261,6 +261,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('Unauthorized');
+        }
         throw new Error('Failed to fetch profile');
       }
 
@@ -272,8 +275,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setRoleState(validRole);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      if (error instanceof Error && error.message === 'Unauthorized') {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      }
     } finally {
       setLoading(false);
     }

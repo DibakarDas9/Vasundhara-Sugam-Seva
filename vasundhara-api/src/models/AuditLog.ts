@@ -1,9 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IAuditLog extends Document {
-  actorId: string;
+  actorId: any;
   action: string;
-  targetUserId?: string;
+  targetUserId?: any;
   metadata?: Record<string, any>;
   createdAt: Date;
 }

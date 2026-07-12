@@ -205,9 +205,10 @@ const UserSchema = new mongoose_1.Schema({
     timestamps: true,
     toJSON: {
         transform: function (doc, ret) {
-            delete ret.password;
-            delete ret.__v;
-            return ret;
+            const typedRet = ret;
+            delete typedRet.password;
+            delete typedRet.__v;
+            return typedRet;
         },
     },
 });

@@ -263,7 +263,7 @@ RecipeSchema.methods.calculatePriorityScore = function (expiringItems) {
     if (!this.usesExpiringItems || this.usesExpiringItems.length === 0) {
         return 0;
     }
-    const matchingItems = this.usesExpiringItems.filter(itemId => expiringItems.includes(itemId.toString()));
+    const matchingItems = this.usesExpiringItems.filter((itemId) => expiringItems.includes(itemId.toString()));
     return matchingItems.length / this.usesExpiringItems.length;
 };
 RecipeSchema.pre('save', function (next) {

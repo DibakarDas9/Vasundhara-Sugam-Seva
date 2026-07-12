@@ -2,7 +2,7 @@
  * Admin routes
  */
 
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { body, param, query, validationResult } from 'express-validator';
 import { authenticate, authorize, AuthRequest } from '@/middleware/auth';
 import { asyncHandler, CustomError } from '@/middleware/errorHandler';
@@ -22,7 +22,7 @@ router.get('/users', [
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
   query('search').optional().isString().isLength({ min: 2 }),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -80,7 +80,7 @@ router.get('/users', [
 router.post('/users/:userId/approve', [
   param('userId').isMongoId(),
   body('note').optional().isLength({ max: 500 }),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -128,7 +128,7 @@ router.post('/users/:userId/reject', [
   param('userId').isMongoId(),
   body('reason').isString().isLength({ min: 5, max: 280 }),
   body('note').optional().isLength({ max: 500 }),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -181,7 +181,7 @@ router.post('/users/:userId/reject', [
 router.get('/audit-logs', [
   query('action').optional().isString(),
   query('limit').optional().isInt({ min: 1, max: 200 }),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);

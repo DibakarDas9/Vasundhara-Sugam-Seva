@@ -25,7 +25,7 @@ export const connectRedis = async (): Promise<void> => {
       enableReadyCheck: false,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
-    });
+    } as any);
 
     // Handle connection events
     redisClient.on('connect', () => {

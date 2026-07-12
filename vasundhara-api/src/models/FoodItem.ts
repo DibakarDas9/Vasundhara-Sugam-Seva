@@ -387,7 +387,7 @@ FoodItemSchema.statics.findByCategory = function(householdId: string, category: 
 
 FoodItemSchema.statics.getStatistics = function(householdId: string) {
   return this.aggregate([
-    { $match: { household: mongoose.Types.ObjectId(householdId) } },
+    { $match: { household: new mongoose.Types.ObjectId(householdId) } },
     {
       $group: {
         _id: '$status',

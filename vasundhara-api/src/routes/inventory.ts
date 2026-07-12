@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '@/middleware/auth';
 import { asyncHandler } from '@/middleware/errorHandler';
 import { InventoryItem } from '@/models/InventoryItem';
 
 const router = Router();
 
-router.get('/', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.get('/', authenticate, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
@@ -27,7 +27,7 @@ router.get('/', authenticate, asyncHandler(async (req: AuthRequest, res) => {
   res.json({ items: mappedItems });
 }));
 
-router.post('/', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.post('/', authenticate, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
@@ -75,7 +75,7 @@ router.post('/', authenticate, asyncHandler(async (req: AuthRequest, res) => {
   res.status(201).json({ item });
 }));
 
-router.post('/sync', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.post('/sync', authenticate, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
@@ -110,7 +110,7 @@ router.post('/sync', authenticate, asyncHandler(async (req: AuthRequest, res) =>
   res.json({ message: 'Inventory synced successfully.' });
 }));
 
-router.delete('/:id', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.delete('/:id', authenticate, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });

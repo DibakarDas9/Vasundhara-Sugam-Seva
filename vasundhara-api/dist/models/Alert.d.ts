@@ -8,6 +8,7 @@ export interface IAlert extends Document {
     household: mongoose.Types.ObjectId;
     user: mongoose.Types.ObjectId;
     relatedItem?: mongoose.Types.ObjectId;
+    relatedItemModel?: string;
     data?: any;
     isRead: boolean;
     isDismissed: boolean;

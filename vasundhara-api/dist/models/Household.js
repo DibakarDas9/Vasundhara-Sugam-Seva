@@ -167,7 +167,7 @@ HouseholdSchema.index({ 'members.role': 1 });
 HouseholdSchema.index({ 'address.coordinates': '2dsphere' });
 HouseholdSchema.index({ createdAt: -1 });
 HouseholdSchema.methods.addMember = async function (userId, role = 'member') {
-    const existingMember = this.members.find(member => member.user.toString() === userId && member.isActive);
+    const existingMember = this.members.find((member) => member.user.toString() === userId && member.isActive);
     if (existingMember) {
         throw new Error('User is already a member of this household');
     }
@@ -180,7 +180,7 @@ HouseholdSchema.methods.addMember = async function (userId, role = 'member') {
     return this.save();
 };
 HouseholdSchema.methods.removeMember = async function (userId) {
-    const memberIndex = this.members.findIndex(member => member.user.toString() === userId && member.isActive);
+    const memberIndex = this.members.findIndex((member) => member.user.toString() === userId && member.isActive);
     if (memberIndex === -1) {
         throw new Error('User is not a member of this household');
     }
@@ -188,10 +188,10 @@ HouseholdSchema.methods.removeMember = async function (userId) {
     return this.save();
 };
 HouseholdSchema.methods.isMember = function (userId) {
-    return this.members.some(member => member.user.toString() === userId && member.isActive);
+    return this.members.some((member) => member.user.toString() === userId && member.isActive);
 };
 HouseholdSchema.methods.getOwner = function () {
-    return this.members.find(member => member.role === 'owner' && member.isActive);
+    return this.members.find((member) => member.role === 'owner' && member.isActive);
 };
 HouseholdSchema.methods.updateStatistics = async function () {
     this.statistics.lastActivityAt = new Date();

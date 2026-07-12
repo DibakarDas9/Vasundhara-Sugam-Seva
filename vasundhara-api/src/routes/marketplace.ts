@@ -27,7 +27,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
   const list = await MarketplaceListing.find(query).sort({ createdAt: -1 });
 
   const mappedListings = list.map(l => ({
-    id: l.id || l._id.toString(),
+    id: l.id || (l._id as any).toString(),
     title: l.title,
     expiryDate: l.expiryDate,
     location: l.location,
@@ -122,7 +122,7 @@ router.post('/:id/claim', asyncHandler(async (req: Request, res: Response) => {
   res.json({
     success: true,
     listing: {
-      id: listing.id || listing._id.toString(),
+      id: listing.id || (listing._id as any).toString(),
       title: listing.title,
       expiryDate: listing.expiryDate,
       location: listing.location,

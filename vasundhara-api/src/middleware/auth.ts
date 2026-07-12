@@ -9,7 +9,7 @@ import { CustomError } from './errorHandler';
 import { config } from '@/config/config';
 
 export interface AuthRequest extends Request {
-  user?: IUser;
+  user?: any;
 }
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
@@ -96,13 +96,13 @@ export const generateTokens = (user: IUser) => {
   };
 
   const accessToken = jwt.sign(payload, config.jwt.secret, {
-    expiresIn: config.jwt.expiresIn,
+    expiresIn: config.jwt.expiresIn as any,
     issuer: config.jwt.issuer,
     audience: config.jwt.audience,
   });
 
   const refreshToken = jwt.sign(payload, config.jwt.secret, {
-    expiresIn: config.jwt.refreshExpiresIn,
+    expiresIn: config.jwt.refreshExpiresIn as any,
     issuer: config.jwt.issuer,
     audience: config.jwt.audience,
   });

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { OAuth2Client } from 'google-auth-library';
 import { User } from '@/models/User';
@@ -39,7 +39,7 @@ router.post(
   [
     body('idToken').isString().notEmpty().withMessage('idToken is required'),
   ],
-  asyncHandler(async (req: any, res) => {
+  asyncHandler(async (req: any, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       throw new CustomError('Validation failed', 400);

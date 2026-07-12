@@ -331,7 +331,7 @@ RecipeSchema.methods.calculatePriorityScore = function(expiringItems: string[]):
     return 0;
   }
   
-  const matchingItems = this.usesExpiringItems.filter(itemId => 
+  const matchingItems = this.usesExpiringItems.filter((itemId: any) => 
     expiringItems.includes(itemId.toString())
   );
   

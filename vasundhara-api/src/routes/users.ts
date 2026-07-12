@@ -2,7 +2,7 @@
  * User routes
  */
 
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { User } from '@/models/User';
 import { authenticate, AuthRequest } from '@/middleware/auth';
@@ -59,14 +59,14 @@ const router = Router();
 router.put('/profile', authenticate, [
   body('firstName').optional().trim().isLength({ min: 1 }),
   body('lastName').optional().trim().isLength({ min: 1 }),
-  body('phoneNumber').optional().isMobilePhone(),
+  body('phoneNumber').optional().isMobilePhone('any'),
   body('dateOfBirth').optional().isISO8601(),
   body('preferences.notifications').optional().isBoolean(),
   body('preferences.alerts').optional().isBoolean(),
   body('preferences.gamification').optional().isBoolean(),
   body('preferences.language').optional().isIn(['en', 'es', 'fr', 'de', 'it', 'pt', 'hi', 'zh', 'ja', 'ko']),
   body('preferences.timezone').optional().isString(),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -135,7 +135,7 @@ router.put('/profile', authenticate, [
 router.post('/change-password', authenticate, [
   body('currentPassword').notEmpty().withMessage('Current password is required'),
   body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -180,7 +180,7 @@ router.post('/change-password', authenticate, [
  *       401:
  *         description: Unauthorized
  */
-router.post('/deactivate', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.post('/deactivate', authenticate, asyncHandler(async (req: AuthRequest, res: Response) => {
   const user = await User.findByIdAndUpdate(
     req.user!._id,
     { isActive: false },
@@ -212,7 +212,7 @@ router.post('/deactivate', authenticate, asyncHandler(async (req: AuthRequest, r
  *       401:
  *         description: Unauthorized
  */
-router.delete('/delete', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.delete('/delete', authenticate, asyncHandler(async (req: AuthRequest, res: Response) => {
   // In a real implementation, you might want to soft delete or anonymize data
   const user = await User.findByIdAndDelete(req.user!._id);
 

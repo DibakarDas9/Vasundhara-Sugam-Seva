@@ -10,7 +10,7 @@ const router = (0, express_1.Router)();
 router.put('/profile', auth_1.authenticate, [
     (0, express_validator_1.body)('firstName').optional().trim().isLength({ min: 1 }),
     (0, express_validator_1.body)('lastName').optional().trim().isLength({ min: 1 }),
-    (0, express_validator_1.body)('phoneNumber').optional().isMobilePhone(),
+    (0, express_validator_1.body)('phoneNumber').optional().isMobilePhone('any'),
     (0, express_validator_1.body)('dateOfBirth').optional().isISO8601(),
     (0, express_validator_1.body)('preferences.notifications').optional().isBoolean(),
     (0, express_validator_1.body)('preferences.alerts').optional().isBoolean(),

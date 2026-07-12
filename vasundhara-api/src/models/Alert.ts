@@ -17,6 +17,7 @@ export interface IAlert extends Document {
   
   // Related data
   relatedItem?: mongoose.Types.ObjectId; // Food item, recipe, etc.
+  relatedItemModel?: string;
   data?: any; // Additional structured data
   
   // Status
@@ -164,7 +165,7 @@ AlertSchema.methods.isExpired = function(): boolean {
 };
 
 // Pre-save middleware
-AlertSchema.pre('save', function(next) {
+AlertSchema.pre('save', function(this: any, next) {
   // Set default channels based on type
   if (this.channels.length === 0) {
     switch (this.type) {

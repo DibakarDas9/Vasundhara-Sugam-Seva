@@ -123,6 +123,23 @@ export function useLocalInventory() {
         return;
       }
 
+      // --- Migration Logic from Guest to User ---
+      // If we are logged in, check if we have items. If not, see if guest has items to migrate.
+      if (user && storageKey.startsWith('vasundhara_inventory_')) {
+        const userItems = localStorage.getItem(storageKey);
+        if (!userItems || JSON.parse(userItems).length === 0) {
+          const guestItems = localStorage.getItem('vasundhara_inventory_guest');
+          if (guestItems && JSON.parse(guestItems).length > 0) {
+            // Migrate guest items to user
+            localStorage.setItem(storageKey, guestItems);
+            // Optionally clear guest inventory? Let's leave it for now or clear it.
+            localStorage.removeItem('vasundhara_inventory_guest');
+            console.log('Migrated guest inventory to user inventory.');
+          }
+        }
+      }
+      // ------------------------------------------
+
       // 1. Load from local cache instantly
       const localParsed = loadLocalOnly();
 
@@ -160,8 +177,21 @@ export function useLocalInventory() {
                 
                 // Only update state & cache if remote items are actually different
                 if (JSON.stringify(remoteItems) !== JSON.stringify(localParsed)) {
-                  setItems(remoteItems);
-                  localStorage.setItem(storageKey, JSON.stringify(remoteItems));
+                  if (remoteItems.length === 0 && localParsed.length > 0) {
+                    // Possible silent fail previously or fresh DB. Sync local to remote instead of wiping local cache.
+                    console.log('Remote has 0 items but local has items. Syncing local to remote...');
+                    fetch(`${API_BASE}/api/inventory/sync`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      },
+                      body: JSON.stringify({ items: localParsed })
+                    }).catch(err => console.warn('Sync up failed', err));
+                  } else {
+                    setItems(remoteItems);
+                    localStorage.setItem(storageKey, JSON.stringify(remoteItems));
+                  }
                 }
               }
             }

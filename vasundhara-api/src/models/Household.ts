@@ -194,7 +194,7 @@ HouseholdSchema.index({ createdAt: -1 });
 // Methods
 HouseholdSchema.methods.addMember = async function(userId: string, role: 'owner' | 'member' | 'viewer' = 'member') {
   // Check if user is already a member
-  const existingMember = this.members.find(member => 
+  const existingMember = this.members.find((member: any) => 
     member.user.toString() === userId && member.isActive
   );
   
@@ -213,7 +213,7 @@ HouseholdSchema.methods.addMember = async function(userId: string, role: 'owner'
 };
 
 HouseholdSchema.methods.removeMember = async function(userId: string) {
-  const memberIndex = this.members.findIndex(member => 
+  const memberIndex = this.members.findIndex((member: any) => 
     member.user.toString() === userId && member.isActive
   );
   
@@ -226,13 +226,13 @@ HouseholdSchema.methods.removeMember = async function(userId: string) {
 };
 
 HouseholdSchema.methods.isMember = function(userId: string): boolean {
-  return this.members.some(member => 
+  return this.members.some((member: any) => 
     member.user.toString() === userId && member.isActive
   );
 };
 
 HouseholdSchema.methods.getOwner = function() {
-  return this.members.find(member => 
+  return this.members.find((member: any) => 
     member.role === 'owner' && member.isActive
   );
 };

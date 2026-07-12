@@ -2,7 +2,7 @@
  * Authentication routes
  */
 
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { User } from '@/models/User';
 import { generateTokens, verifyRefreshToken, authenticate, AuthRequest } from '@/middleware/auth';
@@ -54,7 +54,7 @@ router.post('/register', [
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('firstName').trim().isLength({ min: 1 }).withMessage('First name is required'),
   body('lastName').trim().isLength({ min: 1 }).withMessage('Last name is required'),
-  body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone(),
+  body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone('any'),
   body('role').optional().isIn(['household', 'shopkeeper', 'admin']).withMessage('Invalid role'),
   body('householdProfile').optional().isObject(),
   body('householdProfile.familySize').optional().isInt({ min: 1, max: 25 }),
@@ -64,7 +64,7 @@ router.post('/register', [
   body('shopkeeperProfile.businessName').optional().isLength({ min: 2, max: 140 }),
   body('shopkeeperProfile.licenseNumber').optional().isLength({ max: 60 }),
   body('shopkeeperProfile.address').optional().isLength({ max: 280 }),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({
@@ -159,7 +159,7 @@ router.post('/register', [
 router.post('/login', [
   body('email').isEmail().normalizeEmail(),
   body('password').notEmpty().withMessage('Password is required'),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -233,7 +233,7 @@ router.post('/login', [
  */
 router.post('/refresh', [
   body('refreshToken').notEmpty().withMessage('Refresh token is required'),
-], asyncHandler(async (req: AuthRequest, res) => {
+], asyncHandler(async (req: AuthRequest, res: Response) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     throw new CustomError('Validation failed', 400);
@@ -278,7 +278,7 @@ router.post('/refresh', [
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.get('/me', authenticate as any, asyncHandler(async (req: AuthRequest, res: Response) => {
   res.json({
     user: req.user!.toJSON(),
   });
@@ -296,7 +296,7 @@ router.get('/me', authenticate, asyncHandler(async (req: AuthRequest, res) => {
  *       200:
  *         description: Logout successful
  */
-router.post('/logout', authenticate, asyncHandler(async (req: AuthRequest, res) => {
+router.post('/logout', authenticate as any, asyncHandler(async (req: AuthRequest, res: Response) => {
   // In a real implementation, you might want to blacklist the token
   // For now, we'll just return success
   logger.info('User logged out', { userId: req.user!._id });
