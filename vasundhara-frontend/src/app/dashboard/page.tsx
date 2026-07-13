@@ -130,7 +130,7 @@ function DashboardContent() {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.quickActions', 'Quick Actions')}</h3>
                   <div className="space-y-3">
                     <button
-                      onClick={() => handleProtectedNavigation('/inventory/new')}
+                      onClick={() => handleProtectedNavigation('/inventory')}
                       disabled={isApprovalRestricted}
                       className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:from-green-100 hover:to-blue-100"
                     >
