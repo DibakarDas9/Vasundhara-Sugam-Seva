@@ -43,7 +43,6 @@ const baseNav = [
 const homeownerNav = [
   ...baseNav,
   { name: 'Payments', href: '/payments', icon: CreditCardIcon },
-  { name: 'Notifications', href: '/notifications', icon: BellIcon },
   { name: 'Settings', href: '/settings', icon: CogIcon },
 ];
 
