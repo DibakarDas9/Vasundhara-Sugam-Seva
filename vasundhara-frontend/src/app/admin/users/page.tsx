@@ -45,6 +45,15 @@ export default function AdminUsersPage() {
     const handleDelete = async () => {
         if (!deleteId) return;
         try {
+            if (localMode) {
+                const success = deleteUser(deleteId);
+                if (!success) throw new Error('Delete failed in local storage');
+                toast.success('User removed successfully');
+                setDeleteId(null);
+                await loadUsers();
+                return;
+            }
+
             const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') || '' : '';
             const res = await fetch(`/api/admin/proxy/users/${deleteId}`, {
                 method: 'DELETE',
@@ -62,6 +71,14 @@ export default function AdminUsersPage() {
 
     const handleTogglePremium = async (userId: string, isCurrentlyPremium: boolean) => {
         try {
+            if (localMode) {
+                const updated = updateUser(userId, { premiumExpiry: isCurrentlyPremium ? 0 : Date.now() + 31536000000 });
+                if (!updated) throw new Error('Update failed in local storage');
+                toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted ✨');
+                await loadUsers();
+                return;
+            }
+
             const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') || '' : '';
             const res = await fetch(`/api/admin/proxy/users/${userId}?action=premium`, {
                 method: 'POST',

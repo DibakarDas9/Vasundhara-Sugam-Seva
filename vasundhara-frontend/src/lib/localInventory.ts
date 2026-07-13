@@ -341,33 +341,87 @@ export function useLocalInventory() {
 
   const addItem = useCallback((item: Partial<LocalItem>) => {
     const capitalizedName = item.name ? capitalizeName(item.name) : 'New Item';
+    const cleanBaseName = capitalizedName.replace(/ \((Old|New)\)$/i, '').trim();
 
-    // Check for existing item (case-insensitive) and merge quantities
     updateAndSaveItems(prev => {
-      const existingItem = prev.find(
-        i => (i.name || '').toLowerCase() === capitalizedName.toLowerCase()
+      // Find items with same base name
+      const existingItems = prev.filter(
+        i => (i.name || '').replace(/ \((Old|New)\)$/i, '').trim().toLowerCase() === cleanBaseName.toLowerCase()
       );
 
-      if (existingItem) {
-        // Merge quantities instead of creating duplicate
-        const newQuantity = (existingItem.quantity || 0) + (item.quantity || 1);
+      if (existingItems.length > 0) {
+        // Check if there is an item with roughly the same expiry date
+        const newExpiryDate = item.expiryDate ? new Date(item.expiryDate).getTime() : null;
+        let matchedItem = null;
 
-        // Add notification about merging
-        addNotification(
-          'Item Updated',
-          `Added ${item.quantity || 1} ${item.unit || existingItem.unit || 'units'} to existing ${existingItem.name}. Total: ${newQuantity} ${existingItem.unit || ''}`,
-          'success'
-        );
+        for (const exist of existingItems) {
+          const existExpiry = exist.expiryDate ? new Date(exist.expiryDate).getTime() : null;
+          // If both null, or both same, or diff <= 2 days
+          if (newExpiryDate === existExpiry) {
+            matchedItem = exist;
+            break;
+          } else if (newExpiryDate && existExpiry && Math.abs(newExpiryDate - existExpiry) <= 2 * 24 * 60 * 60 * 1000) {
+            matchedItem = exist;
+            break;
+          }
+        }
 
-        // Update the quantity of existing item
-        return prev.map(it =>
-          it.id === existingItem.id
-            ? { ...it, quantity: newQuantity, photo: it.photo || item.photo || '' }
-            : it
-        );
+        if (matchedItem) {
+          // Merge quantities
+          const newQuantity = (matchedItem.quantity || 0) + (item.quantity || 1);
+          addNotification(
+            'Item Updated',
+            `Added ${item.quantity || 1} ${item.unit || matchedItem.unit || 'units'} to existing ${matchedItem.name}. Total: ${newQuantity} ${matchedItem.unit || ''}`,
+            'success'
+          );
+          return prev.map(it =>
+            it.id === matchedItem.id
+              ? { ...it, quantity: newQuantity, photo: it.photo || item.photo || '' }
+              : it
+          );
+        } else {
+          // Expiry dates are different. Mark oldest existing as (Old) and this one as (New)
+          const newId = Date.now();
+          const newItem: LocalItem = {
+            id: newId,
+            name: `${cleanBaseName} (New)`,
+            category: item.category ? capitalizeName(item.category) : 'Uncategorized',
+            expiryDate: item.expiryDate ?? null,
+            quantity: item.quantity ?? 1,
+            unit: item.unit || '',
+            price: item.price ?? 0,
+            photo: item.photo || '',
+            addedDate: item.addedDate || new Date().toISOString().slice(0, 10),
+            status: item.status || (() => {
+              if (!item.expiryDate) return 'good';
+              const days = calculateDaysUntilExpiry(item.expiryDate);
+              return getExpiryStatus(days);
+            })(),
+          };
+
+          addNotification('Item Added', `${newItem.name} added to inventory`, 'success');
+
+          // Rename existing items that don't have tags to (Old)
+          return [
+            newItem,
+            ...prev.map(it => {
+              if (existingItems.some(ei => ei.id === it.id)) {
+                if (!it.name.match(/ \((Old|New)\)$/i)) {
+                  return { ...it, name: `${it.name} (Old)` };
+                }
+                if (it.name.match(/ \(New\)$/i)) {
+                  // The previous "New" is now "Old"
+                  return { ...it, name: it.name.replace(/ \(New\)$/i, ' (Old)') };
+                }
+              }
+              return it;
+            })
+          ];
+        }
       }
 
       // Create new item if no duplicate found
+
       const newItem: LocalItem = {
         id: Date.now(),
         name: capitalizedName,

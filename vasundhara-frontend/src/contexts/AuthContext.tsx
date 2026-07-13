@@ -265,11 +265,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     if (!background) setLoading(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
       const response = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
