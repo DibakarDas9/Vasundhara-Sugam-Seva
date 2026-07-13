@@ -243,6 +243,38 @@ export function useLocalInventory() {
     };
   }, [storageKey, usageLogKey, notificationsKey, user]);
 
+  // Check for expiring items
+  useEffect(() => {
+    if (!isLoaded || items.length === 0 || !user) return;
+    try {
+      const notifiedKey = `vasundhara_notified_expiring_${user.id}`;
+      const rawNotified = localStorage.getItem(notifiedKey);
+      const notifiedIds: number[] = rawNotified ? JSON.parse(rawNotified) : [];
+      let updated = false;
+
+      items.forEach(item => {
+        if (item.expiryDate && !notifiedIds.includes(item.id)) {
+          const days = calculateDaysUntilExpiry(item.expiryDate);
+          if (days <= 3 && days >= 0) {
+            pushNotification(user.id, 'Item Expiring Soon', `${item.name} will expire in ${days} day(s).`, 'warning');
+            notifiedIds.push(item.id);
+            updated = true;
+          } else if (days < 0) {
+            pushNotification(user.id, 'Item Expired', `${item.name} has expired.`, 'warning');
+            notifiedIds.push(item.id);
+            updated = true;
+          }
+        }
+      });
+
+      if (updated) {
+        localStorage.setItem(notifiedKey, JSON.stringify(notifiedIds));
+      }
+    } catch (err) {
+      console.error('Failed to check for expiring items', err);
+    }
+  }, [items, isLoaded, user]);
+
   const saveInventory = useCallback((newItems: LocalItem[]) => {
     if (!storageKey) return;
     try {
@@ -606,4 +638,38 @@ export function useLocalInventory() {
     clearNotifications,
     isLoaded
   } as const;
+}
+
+/**
+ * Global helper to push a notification to a specific user's notification list.
+ * This can be used outside of React hooks (e.g., from marketplace handlers or admin pages).
+ */
+export function pushNotification(
+  userId: string | null,
+  title: string,
+  message: string,
+  kind: 'success' | 'warning' | 'info' = 'info'
+) {
+  if (typeof window === 'undefined') return;
+  const notificationsKey = `vasundhara_notifications_${userId || 'guest'}`;
+  
+  try {
+    const raw = localStorage.getItem(notificationsKey);
+    const notifications: NotificationItem[] = raw ? JSON.parse(raw) : [];
+    
+    const newNotif: NotificationItem = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+      title,
+      message,
+      timestamp: new Date().toISOString(),
+      kind,
+      read: false
+    };
+    
+    notifications.unshift(newNotif);
+    localStorage.setItem(notificationsKey, JSON.stringify(notifications));
+    window.dispatchEvent(new Event('storage'));
+  } catch (err) {
+    console.error('Failed to push global notification', err);
+  }
 }

@@ -172,12 +172,19 @@ export function Sidebar({ className }: SidebarProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                  'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative',
                   isActive ? 'active-nav' : 'text-muted hover-soft',
                   collapsed && 'justify-center'
                 )}
               >
-                <item.icon className={cn('w-5 h-5', collapsed && 'mx-auto')} />
+                <div className="relative">
+                  <item.icon className={cn('w-5 h-5', collapsed && 'mx-auto')} />
+                  {item.href.includes('/notifications') && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
                 {!collapsed && <span className="text-app">{getTranslatedName(item.name)}</span>}
               </Link>
             );

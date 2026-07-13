@@ -7,6 +7,7 @@ import { TrashIcon, UserCircleIcon, SparklesIcon } from '@heroicons/react/24/out
 import { Sidebar } from '@/components/layout/Sidebar';
 import { fetchAdminUsers, type AdminUser, isLocalAdminDataMode } from '@/lib/admin';
 import { deleteUser, updateUser, SYSTEM_ADMIN_EMAIL, SYSTEM_ADMIN_ID } from '@/lib/localAuth';
+import { pushNotification } from '@/lib/localInventory';
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<AdminUser[]>([]);
@@ -75,6 +76,12 @@ export default function AdminUsersPage() {
                 const updated = updateUser(userId, { premiumExpiry: isCurrentlyPremium ? 0 : Date.now() + 31536000000 });
                 if (!updated) throw new Error('Update failed in local storage');
                 toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted ✨');
+                pushNotification(
+                    userId, 
+                    isCurrentlyPremium ? 'Premium Revoked' : 'Premium Granted ✨', 
+                    isCurrentlyPremium ? 'Your premium access has been revoked by an administrator.' : 'An administrator has granted you 1 year of premium access!', 
+                    isCurrentlyPremium ? 'warning' : 'success'
+                );
                 await loadUsers();
                 return;
             }
@@ -88,6 +95,12 @@ export default function AdminUsersPage() {
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.message || `Premium update failed (${res.status})`);
             toast.success(isCurrentlyPremium ? 'Premium revoked' : 'Premium granted ✨');
+            pushNotification(
+                userId, 
+                isCurrentlyPremium ? 'Premium Revoked' : 'Premium Granted ✨', 
+                isCurrentlyPremium ? 'Your premium access has been revoked by an administrator.' : 'An administrator has granted you 1 year of premium access!', 
+                isCurrentlyPremium ? 'warning' : 'success'
+            );
             await loadUsers();
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Error updating user');

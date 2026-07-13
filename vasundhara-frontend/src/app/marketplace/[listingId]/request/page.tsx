@@ -19,6 +19,7 @@ import {
   type MarketplaceListing,
 } from '@/lib/marketplaceStore';
 import { addTransaction } from '@/lib/transactions';
+import { pushNotification } from '@/lib/localInventory';
 
 function RequestContent() {
   const params = useParams<{ listingId: string }>();
@@ -82,6 +83,12 @@ function RequestContent() {
           listingId: listing.id,
         });
       }
+      pushNotification(
+        listing.ownerId,
+        'Item Requested',
+        `Your listing "${listing.title}" was requested by ${user ? `${user.firstName} ${user.lastName}`.trim() : 'a user'}.`,
+        'success'
+      );
       setNobleCauseMessage("Thank you for our noble cause 🌍");
       return;
     }
@@ -123,6 +130,12 @@ function RequestContent() {
               razorpayPaymentId: response.razorpay_payment_id,
             });
           }
+          pushNotification(
+            listing.ownerId,
+            'Item Purchased',
+            `Your listing "${listing.title}" was purchased for ₹${listing.price} by ${user ? `${user.firstName} ${user.lastName}`.trim() : 'a user'}.`,
+            'success'
+          );
           setActionMessage('Payment successful! Request submitted. Connect with the homeowner for pickup.');
         },
         prefill: {
