@@ -41,6 +41,7 @@ function DashboardContent() {
 
   const isApprovalRestricted = Boolean(pendingApproval && user?.role !== 'admin');
   const approvalMessage = t('dashboard.restrictedMessage', "Your account is pending admin approval. You can explore data but can't make changes yet.");
+  const isPremium = Boolean(user?.premiumExpiry && user.premiumExpiry > Date.now());
 
   function ensureApproved(action: () => void) {
     if (isApprovalRestricted) {
@@ -108,6 +109,8 @@ function DashboardContent() {
                 change={{ value: 18, type: 'increase' }}
                 icon={<CurrencyDollarIcon className="w-6 h-6" />}
                 color="green"
+                premiumOnly={true}
+                isPremium={isPremium}
               />
               <StatsCard
                 title={t('dashboard.stats.waste', 'Waste Reduced')}
@@ -115,6 +118,8 @@ function DashboardContent() {
                 change={{ value: 8, type: 'increase' }}
                 icon={<ArrowDownIcon className="w-6 h-6" />}
                 color="purple"
+                premiumOnly={true}
+                isPremium={isPremium}
               />
             </div>
 
@@ -125,7 +130,7 @@ function DashboardContent() {
               </div>
 
               <div className="space-y-6">
-                <WasteAnalytics />
+                <WasteAnalytics premiumOnly={true} isPremium={isPremium} />
                 <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.quickActions', 'Quick Actions')}</h3>
                   <div className="space-y-3">

@@ -14,6 +14,8 @@ interface StatsCardProps {
   icon: React.ReactNode;
   color?: 'green' | 'blue' | 'yellow' | 'red' | 'purple';
   className?: string;
+  premiumOnly?: boolean;
+  isPremium?: boolean;
 }
 
 const colorVariants = {
@@ -24,17 +26,23 @@ const colorVariants = {
   purple: 'from-purple-500 to-purple-600',
 };
 
+import { SparklesIcon } from '@heroicons/react/24/outline';
+
 export function StatsCard({
   title,
   value,
   change,
   icon,
   color = 'green',
-  className
+  className,
+  premiumOnly,
+  isPremium
 }: StatsCardProps) {
+  const isLocked = premiumOnly && !isPremium;
+
   return (
-    <Card className={cn('hover:shadow-lg transition-all duration-200', className)}>
-      <CardContent className="p-6">
+    <Card className={cn('relative overflow-hidden hover:shadow-lg transition-all duration-200', className)}>
+      <CardContent className={cn("p-6", isLocked && "blur-[2px] opacity-60 select-none pointer-events-none")}>
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{title}</p>
@@ -63,6 +71,15 @@ export function StatsCard({
           </div>
         </div>
       </CardContent>
+
+      {isLocked && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 dark:bg-black/40 backdrop-blur-[1px]">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full text-white shadow-md">
+            <SparklesIcon className="w-4 h-4" />
+            <span className="text-xs font-bold tracking-wide">Premium</span>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
