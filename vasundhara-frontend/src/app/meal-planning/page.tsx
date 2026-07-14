@@ -96,14 +96,40 @@ export default function MealPlanningPage() {
     return prefs;
   }, [dietaryMode, bmi]);
 
+  const [hasLoadedCache, setHasLoadedCache] = useState(false);
+
+  // 1. Load from cache on initial mount
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('vasundhara_cached_meals');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.length > 0) {
+          setAiMeals(parsed);
+        }
+      }
+    } catch {}
+    setHasLoadedCache(true);
+  }, []);
+
+  // 2. Fetch logic
+  useEffect(() => {
+    if (!hasLoadedCache) return;
+
+    // Only fetch automatically if we have no meals, no tick, and items exist
+    // If we already have meals (from cache), don't fetch unless aiRefreshTick > 0
+    if (aiMeals.length > 0 && aiRefreshTick === 0) {
+      return;
+    }
+
     const controller = new AbortController();
 
     async function loadAiMeals() {
       if (!items.length || items.length <= 2) {
-        setAiMeals([]);
-        setAiError(null);
-        setAiLoading(false);
+        if (aiRefreshTick > 0) {
+          setAiMeals([]);
+          setAiError(null);
+        }
         return;
       }
 
@@ -119,11 +145,13 @@ export default function MealPlanningPage() {
         });
         if (!controller.signal.aborted) {
           setAiMeals(data);
+          try {
+            localStorage.setItem('vasundhara_cached_meals', JSON.stringify(data));
+          } catch {}
           setAiError(null);
         }
       } catch (error: any) {
         if (controller.signal.aborted) return;
-        setAiMeals([]);
         setAiError(error?.message || 'Unable to fetch AI plan');
       } finally {
         if (!controller.signal.aborted) setAiLoading(false);
@@ -132,7 +160,9 @@ export default function MealPlanningPage() {
 
     loadAiMeals();
     return () => controller.abort();
-  }, [items, aiRefreshTick, dietaryPreferences, weightKg, heightCm, bmi]);
+    // Intentionally excluding aiMeals.length so we don't re-trigger on setAiMeals
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, aiRefreshTick, dietaryPreferences, weightKg, heightCm, bmi, hasLoadedCache]);
 
   function refreshAiMeals() {
     setAiRefreshTick((tick) => tick + 1);
