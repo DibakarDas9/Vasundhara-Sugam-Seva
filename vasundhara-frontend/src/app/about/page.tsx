@@ -79,17 +79,47 @@ const teamMembers: TeamMemberData[] = [
     },
     {
         name: 'Dipanjan Samanta',
-        role: 'Developer',
-        image: '/team/placeholder.jpg',
-        email: 'dipanjan@example.com',
-        location: 'TBD',
-        summary: 'Details coming soon...',
-        skills: { programming: [], frontend: [], backend: [], database: [], tools: [] },
-        languages: [],
-        education: [],
-        projects: [],
-        achievements: [],
-        social: {},
+        role: 'Full-Stack Developer / Co-Founder',
+        image: '/team/dipanjan.jpg',
+        email: 'dipanjanbdn03@gmail.com',
+        phone: '+91 9832690617',
+        location: 'Burdwan, West Bengal',
+        summary: 'Computer Science & Engineering Undergraduate at Abacus Institute of Engineering and Management (CGPA: 8.46). Experienced in React, Node, MySQL, and Tailwind. Certified in Java Full Stack and AI-ML.',
+        modeOfCommunication: 'English, Bengali, Hindi',
+        skills: { 
+            programming: ['C', 'C++', 'Java', 'JavaScript', 'Python (Basic)'],
+            frontend: ['HTML', 'CSS', 'Tailwind', 'React', 'Chart.js'],
+            backend: ['Node.js', 'Express.js'],
+            database: ['MySQL', 'DBMS'],
+            tools: ['Git/GitHub', 'Operating Systems', 'OOPs'] 
+        },
+        languages: [
+            { name: 'English', level: 'Proficient' },
+            { name: 'Hindi', level: 'Proficient' },
+            { name: 'Bengali', level: 'Native' },
+        ],
+        education: [
+            { degree: 'B.Tech. in CSE', institution: 'Abacus Institute of Engineering and Management', year: '2022 - Present', score: 'CGPA: 8.46/10.0' },
+            { degree: 'Class XII (WBCHSE)', institution: 'Burdwan Municipal High School', year: '2022', score: '87.4%' },
+            { degree: 'Class X (WBBSE)', institution: 'Burdwan C.M.S. High School', year: '2020', score: '93.43%' },
+        ],
+        projects: [
+            { name: 'Vasundhara - AI sustainability assistant', description: 'A web-based, AI-powered chatbot that helps users understand the harmful impacts of everyday pollutants they use, and suggests sustainable alternatives.', tech: 'Built React + Tailwind UI with chat, context memory, and charts; integrated Gemini and ChatGPT' },
+            { name: 'Vasundhara- Sugam Seva', description: 'A comprehensive full-stack web application that reduces household and retail food waste using predictive AI, meal planning, expiry alerts, gamification, and surplus sharing.', tech: 'Next.js PWA, Express API, FastAPI ML services' },
+            { name: 'ScholarSoar', description: 'A group project handling the front-end part and learning back-end technologies.', tech: 'HTML, CSS, JavaScript, MySQL, MongoDB' },
+            { name: 'Food Delivery Website', description: 'Learnt advanced Java technologies like Servlets, JSPs and API like JDBC through this project.', tech: 'HTML, CSS, JavaScript, Bootstrap, Java Servlets, JSPs, JDBC' },
+        ],
+        achievements: [
+            'JAVA FULL STACK DEVELOPER VIRTUAL INTERNSHIP (AICTE EduSkills)',
+            'GOOGLE AI-ML VIRTUAL INTERNSHIP (AICTE EduSkills)',
+            'AWS CLOUD VIRTUAL INTERNSHIP (AICTE EduSkills)',
+            'Problem Solving Through Programming in C (NPTEL)',
+            'The Complete 2024 Web Development Bootcamp (Udemy)',
+            '(IBM SkillsBuild) From Learner to Builder: Become an AI Agent Architect',
+        ],
+        social: {
+            linkedin: 'https://www.linkedin.com/in/dipanjan-samanta-856411239',
+        },
     },
     {
         name: 'Soumadeep Dutta',
@@ -151,29 +181,29 @@ export default function AboutPage() {
         if (!contentRef.current || isTransitioningRef.current) return;
 
         const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
-        const atBottom = scrollTop + clientHeight >= scrollHeight - 20;
-        const atTop = scrollTop <= 20;
+        const atBottom = scrollTop + clientHeight >= scrollHeight - 30;
+        const atTop = scrollTop <= 30;
 
         // Only intercept scroll at boundaries to change members
-        if (e.deltaY > 0 && atBottom && currentIndex < teamMembers.length - 1) {
+        if (e.deltaY > 0 && atBottom) {
             e.preventDefault();
             isTransitioningRef.current = true;
-            setCurrentIndex(currentIndex + 1);
+            setCurrentIndex((prev) => (prev + 1) % teamMembers.length);
             setTimeout(() => {
                 if (contentRef.current) contentRef.current.scrollTop = 0;
-                setTimeout(() => { isTransitioningRef.current = false; }, 500);
-            }, 100);
-        } else if (e.deltaY < 0 && atTop && currentIndex > 0) {
+                setTimeout(() => { isTransitioningRef.current = false; }, 600);
+            }, 50);
+        } else if (e.deltaY < 0 && atTop) {
             e.preventDefault();
             isTransitioningRef.current = true;
-            setCurrentIndex(currentIndex - 1);
+            setCurrentIndex((prev) => (prev - 1 + teamMembers.length) % teamMembers.length);
             setTimeout(() => {
                 if (contentRef.current) {
                     const maxScroll = contentRef.current.scrollHeight - contentRef.current.clientHeight;
                     contentRef.current.scrollTop = Math.max(0, maxScroll - 100);
                 }
-                setTimeout(() => { isTransitioningRef.current = false; }, 500);
-            }, 100);
+                setTimeout(() => { isTransitioningRef.current = false; }, 600);
+            }, 50);
         }
         // Otherwise allow normal scrolling (don't prevent default)
     };
