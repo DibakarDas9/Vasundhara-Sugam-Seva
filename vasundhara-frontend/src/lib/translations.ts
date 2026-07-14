@@ -266,7 +266,7 @@ export const translations: TranslationDictionary = {
     bn: 'অ্যানালিটিক্স প্রিভিউ',
   },
   'features.scan.title': {
-    en: 'Quick barcode scan',
+    en: 'Quick Product Recognition',
     hi: 'त्वरित बारकोड स्कैन',
     bn: 'দ্রুত বারকোড স্ক্যান',
   },
@@ -280,18 +280,18 @@ export const translations: TranslationDictionary = {
     hi: 'तेज़ी से स्कैन करें',
     bn: 'দ্রুত স্ক্যান',
   },
-  'features.voice.title': {
-    en: 'Talk-to-add',
+  'features.payment.title': {
+    en: 'Integrated Payment Gateway',
     hi: 'बोलकर जोड़ें',
     bn: 'টপ-টু-অ্যাড (মুখে বলে যুক্ত করা)',
   },
-  'features.voice.copy': {
-    en: 'Say “add 10 kg rice for house 3” and the form fills up for you.',
+  'features.payment.copy': {
+    en: 'Seamlessly process secure transactions for marketplace purchases and community drives.',
     hi: 'कहें "वार्ड 3 के लिए 10 किलो चावल जोड़ें" और फॉर्म आपके लिए भर जाएगा।',
     bn: 'বলুন “ওয়ার্ড ৩ এর জন্য ১০ কেজি চাল যোগ করুন” এবং ফর্মটি আপনার জন্য পূরণ হয়ে যাবে।',
   },
-  'features.voice.badge': {
-    en: 'Voice input',
+  'features.payment.badge': {
+    en: 'Secure payments',
     hi: 'वॉयस इनपुट',
     bn: 'ভয়েস ইনপুট',
   },
