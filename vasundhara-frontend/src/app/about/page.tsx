@@ -41,9 +41,9 @@ const teamMembers: TeamMemberData[] = [
         modeOfCommunication: 'English',
         skills: {
             programming: ['Java', 'JavaScript', 'C++', 'Python'],
-            frontend: ['React', 'HTML', 'CSS', 'Tailwind', 'Chart.js'],
-            backend: ['Node.js', 'Express.js', 'REST APIs'],
-            database: ['MySQL'],
+            frontend: ['Next.js', 'React', 'Tailwind CSS'],
+            backend: ['Node.js', 'Express.js'],
+            database: ['MongoDB Atlas'],
             tools: ['Git/GitHub', 'Vercel/Netlify'],
         },
         languages: [
@@ -52,18 +52,17 @@ const teamMembers: TeamMemberData[] = [
             { name: 'Hindi', level: 'Intermediate' },
         ],
         education: [
-            { degree: 'BTech-CSE', institution: 'Abacus Institute of Engineering and Management, Magra', year: 'Expected 2026', score: 'SGPA: 8.83' },
+            { degree: 'BTech-CSE', institution: 'Abacus Institute of Engineering and Management, Magra', year: 'Expected 2026', score: 'Previous sem SGPA: 9.0' },
             { degree: 'Class XII (ISC)', institution: 'Jogamaya Memorial Institute', year: '2022', score: '71.75%' },
             { degree: 'Class X (ICSE)', institution: 'Jogamaya Memorial Institute', year: '2020', score: '76%' },
         ],
         projects: [
-            { name: 'Vasundhara - AI Sustainability Assistant', description: 'A web-based, AI-powered chatbot that helps users understand the harmful impacts of everyday pollutants they use, and suggests sustainable alternatives.', tech: 'Built React + Tailwind UI with chat, context memory, and charts; integrated VARD for pollutant-to-alternative recommendations' },
             { name: 'Vasundhara-Sugam Seva (Your Kitchen Assistant)', description: 'A comprehensive full-stack food application that reduces household and retail food waste using predictive AI, meal planning, expiry alerts, gamification, and surplus sharing.', tech: 'Next.js PWA, Express API, and FastAPI ML services linked via Docker/K8s, delivering predictive expiry, meal planning, alerts, and surplus marketplace features' },
+            { name: 'Vasundhara - AI Sustainability Assistant', description: 'A web-based, AI-powered chatbot that helps users understand the harmful impacts of everyday pollutants they use, and suggests sustainable alternatives.', tech: 'Built React + Tailwind UI with chat, context memory, and charts; integrated VARD for pollutant-to-alternative recommendations' },
             { name: 'Scholar Soar', description: 'Designed relational schema (users, courses, enrollments, applications); implemented auth, role-based access, and recruiter filters.', tech: 'In-progress Node/Express + MySQL backend; target features: instructor onboarding, course CRUD, and recruiter search with pagination' },
             { name: 'Food Delivery WebApp', description: 'Implemented responsive UI and order flow in HTML/CSS/JS and servlets (Advanced Java); added cart, checkout, and order history', tech: 'HTML/CSS/JS with Java Servlets' },
         ],
         achievements: [
-            'Singing (Adhya, Madhya, Purna)',
             'Passion to build extensive animation-based webpages on free time',
             'Research: Guide-To-Go - A Cutting-Edge Approach to Building a Real-Time Travel Guide Application',
             'The Complete 2023 Web Development Bootcamp',
@@ -71,6 +70,7 @@ const teamMembers: TeamMemberData[] = [
             'Google AI-ML VIRTUAL INTERNSHIP',
             'Java Full-Stack Developer Virtual Internship',
             'IBM SkillsBuild: Agentic AI - From Learner to Builder',
+            'Singing (Adhya, Madhya, Purna)',
         ],
         social: {
             github: 'https://github.com/DibakarDas9',
@@ -79,7 +79,7 @@ const teamMembers: TeamMemberData[] = [
     },
     {
         name: 'Dipanjan Samanta',
-        role: 'Full-Stack Developer / Co-Founder',
+        role: 'Full-Stack Developer',
         image: '/team/dipanjan.jpg',
         email: 'dipanjanbdn03@gmail.com',
         phone: '+91 9832690617',
