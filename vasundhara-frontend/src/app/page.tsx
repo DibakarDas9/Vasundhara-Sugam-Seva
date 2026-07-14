@@ -92,17 +92,17 @@ export default function HomePage() {
 
   const featureHighlights = useMemo(() => [
     {
-      title: t('features.scan.title', 'Quick barcode scan'),
+      title: t('features.scan.title', 'Quick Product Recognition'),
       description: t('features.scan.copy', 'Point a camera or scan a code to add items and expiries in seconds.'),
       icon: CameraIcon,
       badge: t('features.scan.badge', 'Scan fast'),
       accent: 'from-emerald-400/80 to-cyan-400/80'
     },
     {
-      title: t('features.voice.title', 'Talk-to-add'),
-      description: t('features.voice.copy', 'Say "add 10 kg rice for house 3" and the form fills up for you.'),
-      icon: MicrophoneIcon,
-      badge: t('features.voice.badge', 'Voice input'),
+      title: t('features.payment.title', 'Integrated Payment Gateway'),
+      description: t('features.payment.copy', 'Seamlessly process secure transactions for marketplace purchases and community drives.'),
+      icon: ShieldCheckIcon,
+      badge: t('features.payment.badge', 'Secure payments'),
       accent: 'from-blue-400/80 to-indigo-400/80'
     },
     {
