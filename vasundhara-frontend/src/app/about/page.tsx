@@ -43,7 +43,7 @@ const teamMembers: TeamMemberData[] = [
             programming: ['Java', 'JavaScript', 'C++', 'Python'],
             frontend: ['Next.js', 'React', 'Tailwind CSS'],
             backend: ['Node.js', 'Express.js'],
-            database: ['MongoDB Atlas'],
+            database: ['MongoDB Atlas', 'Oracle SQL'],
             tools: ['Git/GitHub', 'Vercel/Netlify'],
         },
         languages: [
@@ -63,7 +63,6 @@ const teamMembers: TeamMemberData[] = [
             { name: 'Food Delivery WebApp', description: 'Implemented responsive UI and order flow in HTML/CSS/JS and servlets (Advanced Java); added cart, checkout, and order history', tech: 'HTML/CSS/JS with Java Servlets' },
         ],
         achievements: [
-            'Passion to build extensive animation-based webpages on free time',
             'Research: Guide-To-Go - A Cutting-Edge Approach to Building a Real-Time Travel Guide Application',
             'The Complete 2023 Web Development Bootcamp',
             'GOOGLE ANDROID DEVELOPER VIRTUAL INTERNSHIP',
