@@ -147,6 +147,7 @@ export default function AboutPage() {
     const { t } = useLanguage();
     const [currentIndex, setCurrentIndex] = useState(0);
     const contentRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const [isAtBottom, setIsAtBottom] = useState(false);
     const isTransitioningRef = useRef(false);
 
@@ -208,22 +209,27 @@ export default function AboutPage() {
     };
 
     useEffect(() => {
+        const wrapper = wrapperRef.current;
         const content = contentRef.current;
-        if (content) {
-            content.addEventListener('wheel', handleWheel as any, { passive: false });
-            content.addEventListener('scroll', handleScroll);
-            return () => {
-                content.removeEventListener('wheel', handleWheel as any);
-                content.removeEventListener('scroll', handleScroll);
-            };
+        
+        if (wrapper) {
+            wrapper.addEventListener('wheel', handleWheel as any, { passive: false });
         }
+        if (content) {
+            content.addEventListener('scroll', handleScroll);
+        }
+        
+        return () => {
+            if (wrapper) wrapper.removeEventListener('wheel', handleWheel as any);
+            if (content) content.removeEventListener('scroll', handleScroll);
+        };
     }, [currentIndex]);
 
     const currentMember = teamMembers[currentIndex];
     const variant = getAnimationVariant(currentIndex);
 
     return (
-        <div className="relative h-screen w-screen overflow-hidden bg-slate-950">
+        <div ref={wrapperRef} className="relative h-screen w-screen overflow-hidden bg-slate-950">
             {/* Animated background */}
             <div className="absolute inset-0">
                 <motion.div
